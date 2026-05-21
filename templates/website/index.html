@@ -1,0 +1,11 @@
+{% extends 'website/components/base.html' %}
+{% load translate %}
+{% block title %}{% translate 'home' request.session.language %}{% endblock %}
+
+{% block body %}
+{% load static %}
+{% load humanize %}
+{% load myanmar_number %}
+
+<h1>Hello World</h1>
+{% endblock %}
