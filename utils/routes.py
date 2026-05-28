@@ -31,8 +31,25 @@ def routes(request):
         "role_create_url": reverse_lazy("role_create"),
         "role_export_excel_url": reverse_lazy("role_export_excel"),
         "role_export_pdf_url": reverse_lazy("role_export_pdf"),
+        # ======================================== GenreModel ========================================
+        "genre_list_url": reverse_lazy("genre_list"),
+        "genre_create_url": reverse_lazy("genre_create"),
+        # ======================================== GemModel ========================================
+        "gem_list_url": reverse_lazy("gem_list"),
+        "gem_create_url": reverse_lazy("gem_create"),
+        # ======================================== NovelModel ========================================
+        "novel_list_url": reverse_lazy("novel_list"),
+        "novel_create_url": reverse_lazy("novel_create"),
+        # ======================================== PaymentMethodModel ========================================
+        "payment_method_list_url": reverse_lazy("payment_method_list"),
+        "payment_method_create_url": reverse_lazy("payment_method_create"),
+        # ======================================== SliderModel ========================================
+        "slider_list_url": reverse_lazy("slider_list"),
+        "slider_create_url": reverse_lazy("slider_create"),
         # ======================================== Website ========================================
         "home_url": reverse_lazy("home"),
+        "gem_url": reverse_lazy("gem"),
+        
         "login_url": reverse_lazy("login"),
         "logout_url": reverse_lazy("logout"),
         "register_url": reverse_lazy("register"),

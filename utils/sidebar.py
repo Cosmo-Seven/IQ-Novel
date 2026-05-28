@@ -13,6 +13,63 @@ def sidebar(request):
                 ],
             },
             {
+                "title": "Slider",
+                "permissions": ["view_slidermodel"],
+                "items": [
+                    {
+                        "label": "slider",
+                        "url_name": "slider_list",
+                        "icon": "ti ti-layout-grid",
+                        "permission": "view_slidermodel",
+                    },
+                ]
+            },
+            {
+                "title": "Gem",
+                "permissions": ["view_gemmodel"],
+                "items": [
+                    {
+                        "label": "gems",
+                        "url_name": "gem_list",
+                        "icon": "ti ti-layout-grid",
+                        "permission": "view_gemmodle",
+                    },
+                ]
+            },
+            {
+                "title": "Novel",
+                "permissions": [
+                    "view_genremodel",
+                    "view_novelmodel",
+                ],
+                "items": [
+                    {
+                        "label": "genre",
+                        "url_name": "genre_list",
+                        "icon": "ti ti-layout-grid",
+                        "permission": "view_genremodel",
+                    },
+                    {
+                        "label": "novel",
+                        "url_name": "novel_list",
+                        "icon": "ti ti-layout-grid",
+                        "permission": "view_novelmodel",
+                    }
+                ]
+            },
+            {
+                "title": "Payment",
+                "permissions": ["view_paymentmethodmodel"],
+                "items":[
+                    {
+                        "label": "payment_method",
+                        "url_name": "payment_method_list",
+                        "icon": "ti ti-layout-grid",
+                        "permission": "view_paymentmethodmodel",
+                    },
+                ]
+            },
+            {
                 "title": "user_administration",
                 "permissions": [
                     "view_usermodel",

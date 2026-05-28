@@ -8,6 +8,8 @@ from django.contrib.auth import login, logout, authenticate
 from helpers.mail import send_verification_email, send_reset_email
 from core.models import (
     UserModel,
+    SliderModel,
+    GemModel,
 )
 
 
@@ -17,9 +19,19 @@ from core.models import (
 # Index
 # ========================
 def index(request):
-    context = {}
+    sliders = SliderModel.objects.all().order_by("-created_at")
+    context = {
+        "sliders":sliders,
+    }
     return render(request, "website/index.html", context)
 
+
+def gem(request):
+    gems=GemModel.objects.all()
+    context={
+        "gems":gems
+    }
+    return render(request, "website/gem.html", context)
 
 
 

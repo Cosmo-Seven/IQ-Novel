@@ -1,0 +1,28 @@
+{% load translate %}
+{% load static %}
+
+<div class="modal-body">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="mb-3">
+                <label class="form-label">{% translate 'gem_amount' request.session.language %}</label>
+                <input type="text" name="gem_amount" value="{{gem.gem_amount}}" required class="form-control">
+            </div>
+        </div>
+        <div class="col-lg-12">
+            <div class="mb-3">
+                <label class="form-label">{% translate 'price' request.session.language %}</label>
+                <input type="text" name="price" value="{{gem.price}}" required class="form-control">
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <div class="mb-3">
+                <div class="gap-2 status-toggle modal-status d-flex justify-content-start align-items-center">
+                    <span class="status-label">{% translate 'popular' request.session.language %}</span>
+                    <input type="checkbox" id="is_popular_{{gem.id}}" name="is_popular" {% if gem.is_popular %}checked{% endif %} class="check">
+                    <label for="is_popular_{{gem.id}}" class="checktoggle"></label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

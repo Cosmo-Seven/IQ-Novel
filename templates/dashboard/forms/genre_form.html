@@ -1,0 +1,13 @@
+{% load translate %}
+{% load static %}
+
+<div class="modal-body">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="mb-3">
+                <label class="form-label">{% translate 'name' request.session.language %}</label>
+                <input type="text" name="name" value="{{genre.name}}" required class="form-control">
+            </div>
+        </div>
+    </div>
+</div>

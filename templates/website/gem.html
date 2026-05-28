@@ -1,0 +1,147 @@
+{% extends 'website/components/base.html' %}
+{% load translate %}
+{% block title %}{% translate 'home' request.session.language %}{% endblock %}
+
+{% block body %}
+{% load static %}
+{% load humanize %}
+{% load myanmar_number %}
+
+<style>
+  /* Gem Card Base Style */
+    .gem-card {
+      background-color: #ffffff;
+      border: 2px solid #f1f2f6;
+      border-radius: 16px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gem-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(201, 24, 74, 0.08);
+      border-color: var(--accent-pink);
+    }
+
+    .gem-card.popular-card {
+      border-color: var(--dark-pink);
+      box-shadow: 0 8px 20px rgba(201, 24, 74, 0.06);
+    }
+
+    /* Most Popular Tag */
+    .popular-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background-color: var(--dark-pink);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    .gem-icon-box {
+      font-size: 3rem;
+      color: #ff33b5;
+      margin: 30px 0px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-5px);
+      }
+
+      100% {
+        transform: translateY(0px);
+      }
+    }
+
+    .gem-amount {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 10px;
+    }
+
+    .gem-price {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin: 15px 0;
+    }
+
+    .btn-buy-gem {
+      background-color: transparent;
+      color: var(--dark-pink);
+      border: 2px solid var(--dark-pink);
+      font-weight: 700;
+      border-radius: 25px;
+      padding: 8px 25px;
+      width: 100%;
+      transition: all 0.2s;
+    }
+
+    .btn-buy-gem:hover {
+      background-color: var(--dark-pink);
+      color: white;
+    }
+
+    .popular-card .btn-buy-gem {
+      background-color: var(--dark-pink);
+      color: white;
+    }
+
+    .popular-card .btn-buy-gem:hover {
+      background-color: #a4133c;
+      border-color: #a4133c;
+    }
+</style>
+
+<div class="container">
+
+    <div class="text-center mb-5">
+      <h1 class="shop-heading mb-2"><i class="bi bi-gem-fill text-danger me-2"></i>Gem Shop</h1>
+      <p class="text-muted">ဝတ္ထုကောင်းများကို အဆက်မပြတ်ဖတ်ရှုနိုင်ရန် မိမိကြိုက်နှစ်သက်ရာ Gem Package ကို ဝယ်ယူလိုက်ပါ
+      </p>
+    </div>
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 justify-content-center">
+
+      {% for gem in gems %}
+      {% if gem.is_popular %}
+      <div class="col">
+        <div class="card h-100 gem-card popular-card text-center p-4">
+          <div class="gem-icon-box">
+            <i class="fa-regular fa-gem"></i>
+          </div>
+          <span class="popular-badge"><i class="fa-solid fa-fire me-1"></i>Popular</span>
+          <div class="gem-amount">{{gem.gem_amount|intcomma}} Gems</div>
+          <div class="gem-price">{{gem.price|intcomma}} MMK</div>
+          <button type="button" class="btn btn-buy-gem">Buy Now</button>
+        </div>
+      </div>
+      {% else %}
+      <div class="col">
+        <div class="card h-100 gem-card text-center p-4">
+          <div class="gem-icon-box">
+            <i class="fa-regular fa-gem"></i>
+          </div>
+          <div class="gem-amount">{{gem.gem_amount|intcomma}} Gems</div>
+          <div class="gem-price">{{gem.price|intcomma}} MMK</div>
+          <button type="button" class="btn btn-buy-gem">Buy Now</button>
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
+
+    </div>
+
+  </div>
+{% endblock %}

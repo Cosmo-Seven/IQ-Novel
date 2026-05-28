@@ -1,0 +1,61 @@
+{% load static %}
+<script type="text/javascript" src="{% static 'website/js/bootstrap.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'website/js/jquery.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'website/js/swiper-bundle.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'website/js/carousel.js' %}"></script>
+<script type="text/javascript" src="{% static 'website/js/plugin.js' %}"></script>
+<script type="text/javascript" src="{% static 'website/js/jquery.nice-select.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'website/js/countto.js' %}"></script>
+<script type="text/javascript" src="{% static 'website/js/shortcodes.js' %}"></script>
+<script type="text/javascript" src="{% static 'website/js/animation_heading.js' %}"></script>
+<script type="text/javascript" src="{% static 'website/js/lazysize.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'website/js/main.js' %}"></script>
+<script type="text/javascript" src="{% static 'website/js/jquery.fancybox.js' %}"></script>
+<script>
+        var swiper = new Swiper(".mySwiper", {
+            slidesPerView: 5,
+            spaceBetween: 15,
+            loop: true,
+            breakpoints: {
+                0: {
+                    slidesPerView: 2,
+                },
+                576: {
+                    slidesPerView: 3,
+                },
+                768: {
+                    slidesPerView: 4,
+                },
+                992: {
+                    slidesPerView: 5,
+                }
+            },
+            autoplay: {
+                delay: 1500,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true,
+            },
+        });
+    </script>
+
+    <!-- search box -->
+    <script>
+        const searchToggleBtn = document.getElementById('searchToggleBtn');
+        const searchInput = document.getElementById('searchInput');
+
+        searchToggleBtn.addEventListener('click', (e) => {
+            if (searchInput.classList.contains('active') && searchInput.value.trim() !== "") {
+                alert('Searching for: ' + searchInput.value);
+            } else {
+                searchInput.classList.toggle('active');
+                if (searchInput.classList.contains('active')) {
+                    searchInput.focus();
+                }
+            }
+        });
+        document.addEventListener('click', (e) => {
+            if (!searchToggleBtn.contains(e.target) && !searchInput.contains(e.target)) {
+                searchInput.classList.remove('active');
+            }
+        });
+    </script>

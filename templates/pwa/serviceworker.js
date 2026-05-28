@@ -1,6 +1,6 @@
 console.log("SERVICE WORKER LOADED");
 
-const CACHE_NAME = "noval-v1";
+const CACHE_NAME = "novel-v1";
 const OFFLINE_URL = "/static/offline.html";
 const OFFLINE_IMAGE = "/static/dashboard/images/offline.png";
 

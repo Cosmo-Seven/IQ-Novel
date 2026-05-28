@@ -1,0 +1,52 @@
+{% load static %}
+
+<!-- navbar -->
+    <nav class="navbar navbar-expand-lg sticky-top py-2 px-2">
+        <div class="container-fluid d-flex align-items-center flex-nowrap justify-content-between">
+
+            <a class="navbar-brand d-flex align-items-center m-0" href="{% url 'home' %}">
+                <div class="bg-white rounded p-2 border d-flex align-items-center justify-content-center"
+                    style="width: 40px; height: 40px;">
+                    <img src="{% static 'website/images/logo.png' %}" alt="">
+                </div>
+            </a>
+
+            <div class="d-flex align-items-center gap-2 gap-sm-3 flex-grow-1 justify-content-end">
+
+                <div class="search-container">
+                    <input type="text" id="searchInput" class="form-control form-control-sm search-input-box"
+                        placeholder="Search novels...">
+                    <button class="search-btn d-none d-md-block" id="searchToggleBtn" type="button">
+                        <i class="fa-solid fa-magnifying-glass fs-5"></i>
+                    </button>
+                </div>
+
+                <div class="notification-container">
+                    <button class="search-btn" type="button">
+                        <i class="fa-regular fa-bell fs-5"></i>
+                    </button>
+                </div>
+
+                <div class="dropdown profile-dropdown">
+                    <div data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
+                        <img src="{% static 'dashboard/images/no-profile.png' %}"
+                            alt="Profile" class="avatar-img"
+                            style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #fff0f3;">
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-gem text-warning me-2"></i>My Gems</a>
+                        </li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-credit-card me-2"></i>Payment History</a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item text-danger" href="#"><i
+                                    class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+
+            </div>
+
+        </div>
+    </nav>
