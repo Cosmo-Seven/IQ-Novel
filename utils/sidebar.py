@@ -8,7 +8,7 @@ def sidebar(request):
                     {
                         "label": "dashboard",
                         "url_name": "dashboard",
-                        "icon": "ti ti-layout-grid",
+                        "icon": "ti ti-dashboard",
                     },
                 ],
             },
@@ -19,7 +19,7 @@ def sidebar(request):
                     {
                         "label": "slider",
                         "url_name": "slider_list",
-                        "icon": "ti ti-layout-grid",
+                        "icon": "ti ti-photo",
                         "permission": "view_slidermodel",
                     },
                 ]
@@ -31,8 +31,14 @@ def sidebar(request):
                     {
                         "label": "gems",
                         "url_name": "gem_list",
-                        "icon": "ti ti-layout-grid",
+                        "icon": "ti ti-diamond",
                         "permission": "view_gemmodle",
+                    },
+                    {
+                        "label": "gem_orders",
+                        "url_name": "gem_order_list",
+                        "icon": "ti ti-list-check",
+                        "permission": "view_gemordermodel",
                     },
                 ]
             },
@@ -46,13 +52,13 @@ def sidebar(request):
                     {
                         "label": "genre",
                         "url_name": "genre_list",
-                        "icon": "ti ti-layout-grid",
+                        "icon": "ti ti-category",
                         "permission": "view_genremodel",
                     },
                     {
                         "label": "novel",
                         "url_name": "novel_list",
-                        "icon": "ti ti-layout-grid",
+                        "icon": "ti ti-book",
                         "permission": "view_novelmodel",
                     }
                 ]
@@ -64,7 +70,7 @@ def sidebar(request):
                     {
                         "label": "payment_method",
                         "url_name": "payment_method_list",
-                        "icon": "ti ti-layout-grid",
+                        "icon": "ti ti-credit-card",
                         "permission": "view_paymentmethodmodel",
                     },
                 ]
@@ -80,13 +86,11 @@ def sidebar(request):
                         "label": "users",
                         "url_name": "user_list",
                         "icon": "ti ti-users",
-                        "permission": "view_usermodel",
                     },
                     {
                         "label": "roles_and_permissions",
                         "url_name": "role_list",
                         "icon": "ti ti-shield-lock",
-                        "permission": "view_rolemodel",
                     },
                 ],
             },
@@ -102,19 +106,16 @@ def sidebar(request):
                         "label": "company_settings",
                         "url_name": "site_settings",
                         "icon": "ti ti-building",
-                        "permission": "view_sitemodel",
                     },
                     {
                         "label": "language_settings",
                         "url_name": "language_list",
                         "icon": "ti ti-language",
-                        "permission": "view_languagemodel",
                     },
                     {
                         "label": "translation_keys",
                         "url_name": "text_key_list",
                         "icon": "ti ti-message-language",
-                        "permission": "view_textkeymodel",
                     },
                 ],
             },

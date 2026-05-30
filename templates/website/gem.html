@@ -124,7 +124,7 @@
           <span class="popular-badge"><i class="fa-solid fa-fire me-1"></i>Popular</span>
           <div class="gem-amount">{{gem.gem_amount|intcomma}} Gems</div>
           <div class="gem-price">{{gem.price|intcomma}} MMK</div>
-          <button type="button" class="btn btn-buy-gem">Buy Now</button>
+          <a href="{% url 'checkout' gem.id %}" class="btn btn-buy-gem">Buy Now</a>
         </div>
       </div>
       {% else %}
@@ -135,7 +135,7 @@
           </div>
           <div class="gem-amount">{{gem.gem_amount|intcomma}} Gems</div>
           <div class="gem-price">{{gem.price|intcomma}} MMK</div>
-          <button type="button" class="btn btn-buy-gem">Buy Now</button>
+          <a href="{% url 'checkout' gem.id %}" class="btn btn-buy-gem">Buy Now</a>
         </div>
       </div>
       {% endif %}

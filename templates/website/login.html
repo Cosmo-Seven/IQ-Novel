@@ -1,0 +1,70 @@
+{% extends 'website/components/base.html' %}
+{% block title %} {{novel.title}} - Detail {% endblock %}
+{% block body %}
+{% load static %}
+{% load humanize %}
+{% load myanmar_number %}
+  <div class="auth-wrapper">
+  <div class="auth-card" id="authCard">
+
+    <div class="auth-inner">
+
+      <!-- LOGIN -->
+      <div class="auth-face front">
+        <h4 class="text-center mb-4 fw-bold">Login</h4>
+
+        <form method="POST" action="{{website_login_url}}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" name="email" placeholder="Enter email">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-control" name="password" placeholder="Enter password">
+          </div>
+
+          <button class="btn btn-primary w-100">Login</button>
+        </form>
+
+        <p class="text-center mt-3 mb-0">
+          Don’t have an account?
+          <a href="#" id="showRegister">Register</a>
+        </p>
+      </div>
+
+      <!-- REGISTER -->
+      <div class="auth-face back">
+        <h4 class="text-center mb-4 fw-bold">Register</h4>
+
+        <form>
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input type="text" class="form-control" placeholder="Enter name">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" placeholder="Enter email">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-control" placeholder="Create password">
+          </div>
+
+          <button class="btn btn-success w-100">Register</button>
+        </form>
+
+        <p class="text-center mt-3 mb-0">
+          Already have an account?
+          <a href="#" id="showLogin">Login</a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}

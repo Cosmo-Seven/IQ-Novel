@@ -1,0 +1,236 @@
+{% extends 'website/components/base.html' %}
+{% block title %} {{novel.title}} - Detail {% endblock %}
+{% block body %}
+{% load static %}
+{% load humanize %}
+{% load myanmar_number %}
+
+
+  <div class="container pt-5">
+    <div class="novel-detail-container">
+      <div class="row g-4 align-items-center">
+
+        <div class="col-10 col-sm-6 col-md-4 mx-auto mx-md-0">
+          <img src="{% if novel.cover_image %}{{ novel.cover_image.url }}{% else %}https://html.vecurosoft.com/ebukz/demo/assets/img/product/product-img-4-1.jpg{% endif %}"
+            alt="Novel Cover" class="novel-cover-img">
+        </div>
+
+        <div class="col-md-8 ps-md-4">
+
+          <div>
+            <span class="badge badge-ongoing">ONGOING</span>
+          </div>
+
+          <h1 class="novel-main-title">{{novel.title}}</h1>
+
+          <div class="mb-4">
+            <span class="author-text">Author: Jinnie Grace</span>
+          </div>
+
+          <div class="d-flex gap-5 mb-4 text-center text-md-start">
+            <div>
+              <div class="meta-label">Viewers</div>
+              <div class="meta-value">328</div>
+            </div>
+            <div>
+              <div class="meta-label">Chapters</div>
+              <div class="meta-value">14</div>
+            </div>
+          </div>
+
+          <div class="d-flex flex-wrap gap-3 mt-4">
+            <button class="btn btn-start-reading flex-grow-1 flex-md-grow-0">Start Reading</button>
+            <form method="post" action="{% url 'bookmark' novel.id %}" class="flex-grow-1 flex-md-grow-0">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-add-library w-100">
+                {% if bookmarked %}Saved in bookmark{% else %}Save in bookmark{% endif %}
+              </button>
+            </form>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="container pt-3">
+    <div class="novel-tabs-container">
+
+      <ul class="nav nav-tabs mb-4" id="novelTab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="description-tab" data-bs-toggle="tab"
+            data-bs-target="#description-content" type="button" role="tab" aria-controls="description-content"
+            aria-selected="true">Description</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="chapters-tab" data-bs-toggle="tab" data-bs-target="#chapters-content"
+            type="button" role="tab" aria-controls="chapters-content" aria-selected="true">Chapters</button>
+        </li>
+      </ul>
+
+      <div class="tab-content" id="novelTabContent">
+
+        <div class="tab-pane fade show active" id="description-content" role="tabpanel"
+          aria-labelledby="description-tab">
+          <div class="description-text whitespace-pre-line" style="white-space: pre-wrap;">
+            {{novel.summery|linebreaks}}
+          </div>
+
+          <h3 class="review-section-title">Reviews</h3>
+
+          <div class="d-flex gap-3 align-items-center mb-4">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=60"
+              alt="User Avatar" class="user-avatar-mini">
+            <div class="flex-grow-1 position-relative">
+              <input type="text" class="form-control comment-input-box w-100" placeholder="Write a review">
+            </div>
+            <button class="btn btn-comment">Comment</button>
+          </div>
+
+          <div class="comments-list">
+            <div class="comment-item d-flex gap-3">
+              <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=60"
+                alt="User Avatar" class="user-avatar-mini">
+              <div>
+                <div class="comment-user-name">Mya Mya <span class="comment-date ms-2">2 hours ago</span></div>
+                <div class="comment-text text-muted small">ဇာတ်လမ်းလေးက ဖတ်လို့တကယ်ကောင်းပါတယ်။ နောက်ပိုင်းတွေပါ
+                  အမြန်တင်ပေးပါဦးနော်။</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane fade" id="chapters-content" role="tabpanel" aria-labelledby="chapters-tab">
+
+          <!-- <button class="btn btn-buy-all" data-bs-toggle="modal" data-bs-target="#buyAllModal">Buy All</button> -->
+
+          <div class="chapters-list-wrapper">
+            {% for chapter in novel.chapters.all %}
+            <div class="chapter-row d-flex justify-content-between">
+              <div>
+                <h5 class="chapter-title">{{ chapter.chapter_title }}</h5>
+                <p class="chapter-date">{{ chapter.created_at|date:"d M, Y" }}</p>
+              </div>
+              {% if chapter.is_free or chapter.id in purchased_chapter_ids %}
+              <div class="open-text"><a class="btn btn-success" href="{% url 'chapter_detail' chapter.id %}">Open</a></div>
+              {% else %}
+              <div class="gem-price">
+                <form method="post" action="{% url 'buy_chapter' chapter.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-warning"><i class="bi bi-gem-fill bi-gem me-1"></i> {{ chapter.gem_price }}</button>
+                </form>
+              </div>
+              {% endif %}
+            </div>
+            {% empty %}
+            <p>No Chapters Yet</p>
+          {% endfor %}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <!-- <div class="modal fade" id="buyAllModal" tabindex="-1" aria-labelledby="buyAllModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="buyAllModalLabel">Unlock All Chapters</h5>
+          <button type="button" class="btn-close" data-bs-shadow="none" data-bs-dismiss="modal"
+            aria-label="Close"></button>
+        </div>
+        <div class="modal-body py-4">
+          <p class="gem-alert-text mb-3 text-center">
+            <i class="bi bi-gem-fill bi-gem me-1"></i> You have 40 Gems. Will you exchange for all chapter?
+          </p>
+          <div class="form-group px-2">
+            <label for="gemAmountInput" class="form-label small text-muted fw-semibold">Enter Gem Amount to
+              Confirm:</label>
+            <input type="number" class="form-control gem-input" id="gemAmountInput" placeholder="e.g. 40" min="1">
+          </div>
+        </div>
+        <div class="modal-footer d-flex justify-content-end gap-2">
+          <button type="button" class="btn btn-modal-cancel" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-modal-confirm" id="btnConfirmPurchase">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- Related -->
+  <section class="py-3">
+    <div style="max-width: 950px;" class="container">
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="m-0">Related Novels</h3>
+      </div>
+
+      <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3">
+
+        <div class="col">
+          <div class="card novel-card position-relative h-100">
+            <img class="card-img-top"
+              src="https://html.vecurosoft.com/ebukz/demo/assets/img/product/product-img-4-1.jpg" />
+            <span class="badge badge-status">COMPLETED</span>
+            <div class="card-body p-2 d-flex flex-column justify-content-between">
+              <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
+              <div class="novel-meta d-flex justify-content-between">
+                <span>Chapter: 220</span>
+                <span><i class="bi bi-eye"></i> 34k</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="card novel-card position-relative h-100">
+            <img class="card-img-top"
+              src="https://html.vecurosoft.com/ebukz/demo/assets/img/product/product-img-4-1.jpg" />
+            <span class="badge badge-status">COMPLETED</span>
+            <div class="card-body p-2 d-flex flex-column justify-content-between">
+              <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
+              <div class="novel-meta d-flex justify-content-between">
+                <span>Chapter: 220</span>
+                <span><i class="bi bi-eye"></i> 34k</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="card novel-card position-relative h-100">
+            <img class="card-img-top"
+              src="https://html.vecurosoft.com/ebukz/demo/assets/img/product/product-img-4-1.jpg" />
+            <span class="badge badge-status">COMPLETED</span>
+            <div class="card-body p-2 d-flex flex-column justify-content-between">
+              <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
+              <div class="novel-meta d-flex justify-content-between">
+                <span>Chapter: 220</span>
+                <span><i class="bi bi-eye"></i> 34k</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="card novel-card position-relative h-100">
+            <img class="card-img-top"
+              src="https://html.vecurosoft.com/ebukz/demo/assets/img/product/product-img-4-1.jpg" />
+            <span class="badge badge-status">COMPLETED</span>
+            <div class="card-body p-2 d-flex flex-column justify-content-between">
+              <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
+              <div class="novel-meta d-flex justify-content-between">
+                <span>Chapter: 220</span>
+                <span><i class="bi bi-eye"></i> 34k</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+{% endblock %}

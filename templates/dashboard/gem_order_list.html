@@ -1,0 +1,85 @@
+{% extends 'dashboard/components/base.html' %}
+
+{% load translate %}
+{% load static %}
+{% load humanize %}
+{% block title %}{% translate 'gem_orders' request.session.language %}{% endblock %}
+{% block body %}
+<div class="page-wrapper">
+    <div class="content">
+        <div class="page-header">
+            <div class="add-item d-flex">
+                <div class="page-title">
+                    <h4 class="fw-bold">{% translate 'gem_orders' request.session.language %}</h4>
+                    <h6>{% translate 'review_gem_purchase_requests' request.session.language %}</h6>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    {% include 'dashboard/components/entries.html' %}
+                </div>
+            </div>
+            <div class="p-0 card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>{% translate 'table_no' request.session.language %}</th>
+                                <th>{% translate 'date' request.session.language %}</th>
+                                <th>{% translate 'user' request.session.language %}</th>
+                                <th>{% translate 'transaction_id' request.session.language %}</th>
+                                <th>{% translate 'gem_amount' request.session.language %}</th>
+                                <th>{% translate 'price' request.session.language %}</th>
+                                <th>{% translate 'status' request.session.language %}</th>
+                                <th class="text-center">{% translate 'action' request.session.language %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr>
+                                <td>{{ forloop.counter0|add:page_obj.start_index }}</td>
+                                <td>{{ order.created_at|date:'d M Y H:i' }}</td>
+                                <td>{{ order.user.email }}</td>
+                                <td>{{ order.transaction_id }}</td>
+                                <td><i class="bi bi-gem-fill text-danger me-1"></i>{{ order.gem_amount|intcomma }} Gems</td>
+                                <td>{{ order.price|intcomma }} MMK</td>
+                                <td>
+                                    <span class="badge bg-{% if order.status == 'approved' %}success{% elif order.status == 'pending' %}warning{% else %}danger{% endif %} text-{% if order.status == 'approved' %}white{% else %}dark{% endif %}">
+                                        {{ order.status|capfirst }}
+                                    </span>
+                                </td>
+                                <td class="action-table-data">
+                                    <div class="edit-delete-action d-flex justify-content-center gap-2">
+                                        {% if order.status == 'pending' %}
+                                        <form method="POST" action="{% url 'gem_order_approve' order.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                        </form>
+                                        <form method="POST" action="{% url 'gem_order_reject' order.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                                        </form>
+                                        {% else %}
+                                        <span class="text-muted">No action</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">No gem orders found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% include 'dashboard/components/pagination.html' %}
+        </div>
+    </div>
+    {% include 'dashboard/components/footer.html' %}
+</div>
+{% endblock %}

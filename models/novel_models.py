@@ -42,6 +42,11 @@ class NovelModel(BaseModel):
 
     views = models.PositiveIntegerField(default=0)
 
+    is_completed = models.BooleanField(default=False)
+    is_popular = models.BooleanField(default=False)
+    is_fanfic = models.BooleanField(default=False)
+    is_free = models.BooleanField(default=False)
+
     def __str__(self):
         return self.title
 
@@ -100,29 +105,49 @@ class NovelChapterModel(BaseModel):
 
 # ---------- Reading History ---------- #
 
-# class ReadingHistory(BaseModel):
-#     user = models.ForeignKey("core.UserModel", on_delete=models.CASCADE)
-#     novel = models.ForeignKey(NovelModel, on_delete=models.CASCADE)
-#     last_chapter = models.ForeignKey(
-#         ChapterModel,
-#         on_delete=models.SET_NULL,
-#         null=True,
-#         blank=True
-#     )
+class BookmarkModel(BaseModel):
+    user = models.ForeignKey(
+        "core.UserModel",
+        on_delete=models.CASCADE,
+        related_name="bookmarks"
+    )
+    novel = models.ForeignKey(
+        NovelModel,
+        on_delete=models.CASCADE,
+        related_name="bookmarked_by"
+    )
 
-#     def __str__(self):
-#         return f"{self.user} reading {self.novel}"
+    class Meta:
+        app_label = "core"
+        db_table = "bookmarks"
+        verbose_name = "Bookmark"
+        verbose_name_plural = "Bookmarks"
+        unique_together = ("user", "novel")
+
+    def __str__(self):
+        return f"{self.user.email} bookmarked {self.novel.title}"
 
 
 # ---------- Chapter Purchase ---------- #
+class ChapterPurchaseModel(BaseModel):
+    user = models.ForeignKey(
+        "core.UserModel",
+        on_delete=models.CASCADE,
+        related_name="chapter_purchases",
+    )
+    chapter = models.ForeignKey(
+        NovelChapterModel,
+        on_delete=models.CASCADE,
+        related_name="purchased_by",
+    )
 
-# class ChapterPurchase(BaseModel):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     chapter = models.ForeignKey(ChapterModel, on_delete=models.CASCADE)
+    class Meta:
+        app_label = "core"
+        db_table = "chapter_purchases"
+        verbose_name = "Chapter Purchase"
+        verbose_name_plural = "Chapter Purchases"
+        unique_together = ("user", "chapter")
 
-#     def __str__(self):
-#         return f"{self.user} bought {self.chapter}"
-
-#     class Meta:
-#         unique_together = ('user', 'chapter')
+    def __str__(self):
+        return f"{self.user.email} bought {self.chapter}"
     

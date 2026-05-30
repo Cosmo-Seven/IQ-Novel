@@ -15,6 +15,7 @@ from views.dashboard import (
     slider_views,
 )
 from views.website import page_views as website_page_views
+from views.website import auth_views as website_auth_views
 from views.dashboard import page_views as dashboard_page_views
 
 handler500 = dashboard_page_views.internal_server_error
@@ -79,6 +80,9 @@ urlpatterns = (
         path("dashboard/gem/create/", gem_views.gem_create, name="gem_create"),
         path("dashboard/gem/update/<uuid:pk>/", gem_views.gem_update, name="gem_update"),
         path("dashboard/gem/delete/<uuid:pk>/", gem_views.gem_delete, name="gem_delete"),
+        path("dashboard/gem/order/list/", gem_views.gem_order_list, name="gem_order_list"),
+        path("dashboard/gem/order/approve/<uuid:pk>/", gem_views.gem_order_approve, name="gem_order_approve"),
+        path("dashboard/gem/order/reject/<uuid:pk>/", gem_views.gem_order_reject, name="gem_order_reject"),
 
 
 # // NovelModel -------------------------------------------------------------------------------------------------------------
@@ -116,13 +120,19 @@ urlpatterns = (
 # // PWA --------------------------------------------------------------------------------------------------------------------
         path("", include("pwa.urls")),
         path("", website_page_views.index, name="home"),
+        path("novel/detail/<uuid:id>/", website_page_views.novel_detail, name="novel_detail"),
+        path("novel/chapter/<uuid:id>/", website_page_views.chapter_detail, name="chapter_detail"),
+        path("novel/chapter/buy/<uuid:id>/", website_page_views.buy_chapter, name="buy_chapter"),
+        path("novel/bookmark/<uuid:id>/", website_page_views.bookmark, name="bookmark"),
+        path("checkout/<uuid:id>/", website_page_views.checkout, name="checkout"),
         path("gem", website_page_views.gem, name="gem"),
-        path("login/", website_page_views.login_view, name="login"),
-        path("logout/", website_page_views.logout_view, name="logout"),
-        path("register/", website_page_views.register_view, name="register"),
-        path("verify-email/<uidb64>/<token>/",website_page_views.verify_email,name="verify_email",),
-        path("forgot-password/",website_page_views.forgot_password,name="forgot_password",),
-        path("reset-password/<uidb64>/<token>/",website_page_views.reset_password,name="reset_password",),
+        path("website/profile/", website_page_views.profile, name="website_profile"),
+        path("login/", website_auth_views.login_view, name="website_login"),
+        path("logout/", website_auth_views.logout_view, name="logout"),
+        path("register/", website_auth_views.register_view, name="register"),
+        path("verify-email/<uidb64>/<token>/",website_auth_views.verify_email,name="verify_email",),
+        path("forgot-password/",website_auth_views.forgot_password,name="forgot_password",),
+        path("reset-password/<uidb64>/<token>/",website_auth_views.reset_password,name="reset_password",),
 
 
 # // Page Not Found -----------------------------------------------------------

@@ -1,0 +1,96 @@
+{% extends 'website/components/base.html' %}
+{% block title %} {{novel.title}} - Detail {% endblock %}
+{% block body %}
+{% load static %}
+{% load humanize %}
+{% load myanmar_number %}
+<div class="container my-5">
+    <div class="row g-5 justify-content-center">
+        
+        <div class="col-md-8 col-lg-7">
+            <div class="card p-4 shadow-sm border-0 bg-light">
+                <h4 class="mb-4 fw-bold text-dark text-center">Gems Purchase Checkout</h4>
+                
+                <form method="POST" action="" enctype="multipart/form-data" class="needs-validation">
+                    {% csrf_token %}
+                    
+                    <div class="card p-3 border-0 bg-white shadow-sm mb-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="text-primary fw-bold mb-1">
+                                    <i class="bi bi-gem-fill"></i> {{ gem.gem_amount }} Gems
+                                </h5>
+                                <p class="text-muted small mb-0">For unlocking premium book chapters</p>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-success fs-5">{{ gem.price }} MMK</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="email" class="form-label fw-semibold">Your Email Address</label>
+                        <input type="email" class="form-control form-control-lg" id="email" name="email" value="{{ request.user.email }}" placeholder="username@example.com" required>
+                        <small class="text-muted">Gems will be added to this account once the payment is verified.</small>
+                    </div>
+
+                    <div class="alert alert-info border-0 shadow-sm mb-4" role="alert">
+                        <h6 class="fw-bold"><i class="bi bi-wallet2"></i> Payment Account Details:</h6>
+                        <p class="small mb-1">Please transfer the total amount to the account below before submitting:</p>
+                        <strong class="d-block small">Kpay / Wave: 09-XXXXXXX (IQ NOVEL)</strong>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h5 class="mb-3 fw-bold text-dark"><i class="bi bi-image text-danger"></i> Upload Payment Screenshot</h5>
+                    <div class="bg-white p-4 rounded border text-center shadow-sm">
+                        <label for="screenshot" class="form-label d-block text-muted mb-3">
+                            Upload a clear screenshot of your bank transaction.
+                        </label>
+                        
+                        <input type="file" class="form-control mb-3" id="screenshot" name="payment_screenshot" accept="image/*" onchange="previewImage(event)" required>
+                        
+                        <div id="preview-container" class="d-none mt-3 p-2 border rounded bg-light text-center">
+                            <p class="small text-muted mb-2">Screenshot Preview:</p>
+                            <img id="image-preview" src="#" alt="Payment Screenshot Preview" class="img-fluid rounded shadow-sm" style="max-height: 300px; object-fit: contain;">
+                        </div>
+                        
+                        <div class="form-text text-start mt-2">
+                            Accepted formats: JPG, PNG. Max size: 5MB.
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <button class="w-100 btn btn-primary btn-lg fw-bold text-uppercase py-3" type="submit">
+                        Confirm Payment & Submit
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+<script>
+    function previewImage(event) {
+        const input = event.target;
+        const previewContainer = document.getElementById('preview-container');
+        const imagePreview = document.getElementById('image-preview');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                previewContainer.classList.remove('d-none'); // Preview box ကို ပြသပေးခြင်း
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            previewContainer.classList.add('d-none'); // File မရှိလျှင် ပြန်ဖျောက်ထားခြင်း
+        }
+    }
+</script>
+
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'website/components/base.html' %}
+{% block title %} {{ chapter.chapter_title }} {% endblock %}
+{% block body %}
+{% load humanize %}
+
+<div class="container pt-5">
+  <div class="novel-detail-container">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="chapter-title">{{ chapter.chapter_title }}</h1>
+        <p class="text-muted">{{ chapter.novel.title }}</p>
+        <div class="chapter-content whitespace-pre-line" style="white-space: pre-wrap;">
+          {{ chapter.content|linebreaks }}
+        </div>
+        <div class="mt-4">
+          <a href="{% url 'novel_detail' chapter.novel.id %}" class="btn btn-secondary">Back to Novel</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

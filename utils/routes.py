@@ -37,6 +37,7 @@ def routes(request):
         # ======================================== GemModel ========================================
         "gem_list_url": reverse_lazy("gem_list"),
         "gem_create_url": reverse_lazy("gem_create"),
+        "gem_order_list_url": reverse_lazy("gem_order_list"),
         # ======================================== NovelModel ========================================
         "novel_list_url": reverse_lazy("novel_list"),
         "novel_create_url": reverse_lazy("novel_create"),
@@ -50,7 +51,8 @@ def routes(request):
         "home_url": reverse_lazy("home"),
         "gem_url": reverse_lazy("gem"),
         
-        "login_url": reverse_lazy("login"),
+        "website_profile_url": reverse_lazy("website_profile"),
+        "website_login_url": reverse_lazy("website_login"),
         "logout_url": reverse_lazy("logout"),
         "register_url": reverse_lazy("register"),
     }

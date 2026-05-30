@@ -99,6 +99,35 @@
                                             <textarea type="text" name="summery" required class="form-control" rows="10">{{ novel.summery }}</textarea>
                                         </div>
                                     </div>
+                                    <div class="mb-3">
+                                        <div class="gap-2 status-toggle modal-status d-flex justify-content-start align-items-center">
+                                            <span class="status-label">{% translate 'is_completed' request.session.language %}</span>
+                                            <input type="checkbox" id="is_completed" name="is_completed" {% if novel.is_completed %}checked{% endif %} class="check">
+                                            <label for="is_completed" class="checktoggle"></label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="gap-2 status-toggle modal-status d-flex justify-content-start align-items-center">
+                                            <span class="status-label">{% translate 'is_popular' request.session.language %}</span>
+                                            <input type="checkbox" id="is_popular" name="is_popular" {% if novel.is_popular %}checked{% endif %} class="check">
+                                            <label for="is_popular" class="checktoggle"></label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="gap-2 status-toggle modal-status d-flex justify-content-start align-items-center">
+                                            <span class="status-label">{% translate 'is_fanfic' request.session.language %}</span>
+                                            <input type="checkbox" id="is_fanfic" name="is_fanfic" {% if novel.is_fanfic %}checked{% endif %} class="check">
+                                            <label for="is_fanfic" class="checktoggle"></label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="gap-2 status-toggle modal-status d-flex justify-content-start align-items-center">
+                                            <span class="status-label">{% translate 'is_free' request.session.language %}</span>
+                                            <input type="checkbox" id="is_novel_free" name="is_free" {% if novel.is_free %}checked{% endif %} class="check">
+                                            <label for="is_free" class="checktoggle"></label>
+                                        </div>
+                                    </div>
+                                    
                                 </div>
                             </div>
                         </div>

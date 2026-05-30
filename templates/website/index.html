@@ -40,7 +40,7 @@
             <div class="col"><a href="{% url 'gem' %}"
                     class="category-card d-flex flex-column align-items-center justify-content-center p-3 text-center">
                     <span class="fw-semibold large">Gem</span></a></div>
-            <div class="col"><a href="#"
+            <div class="col"><a href="{% url 'website_profile' %}"
                     class="category-card d-flex flex-column align-items-center justify-content-center p-3 text-center">
                     <span class="fw-semibold large">My Library</span></a></div>
         </div>
@@ -48,6 +48,7 @@
 </section>
 
 <!-- popular section -->
+{% if popular_novels %}
 <section class="py-3">
     <div class="container-fluid">
 
@@ -59,15 +60,21 @@
         <!-- Swiper -->
         <div class="swiper mySwiper">
             <div class="swiper-wrapper">
-
                 <!-- Slide 1 -->
+                {% for novel in popular_novels %}
                 <div class="swiper-slide">
                     <div class="card novel-card position-relative">
-                        <img class="card-img-top"
-                            src="{% static 'website/images/agent-1.jpg' %}" />
-                        <span class="badge badge-status">COMPLETED</span>
+                        <a href="{% url 'novel_detail' novel.id %}">
+                            <img class="card-img-top"
+                                src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}" />
+                        </a>
+                        {% if novel.is_completed %}
+                            <span class="badge badge-status">Completed</span>
+                        {% elif novel.is_popular %}
+                            <span class="badge badge-status">Popular</span>
+                        {% endif %}
                         <div class="card-body p-2">
-                            <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
+                            <p class="novel-title mb-1">{{novel.title}}</p>
                             <div class="novel-meta d-flex justify-content-between">
                                 <span>Chapter: 220</span>
                                 <span><i class="bi bi-eye"></i> 34k</span>
@@ -75,82 +82,13 @@
                         </div>
                     </div>
                 </div>
-                <div class="swiper-slide">
-                    <div class="card novel-card position-relative">
-                        <img class="card-img-top"
-                            src="{% static 'website/images/agent-1.jpg' %}" />
-                        <span class="badge badge-status">COMPLETED</span>
-                        <div class="card-body p-2">
-                            <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
-                            <div class="novel-meta d-flex justify-content-between">
-                                <span>Chapter: 220</span>
-                                <span><i class="bi bi-eye"></i> 34k</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="swiper-slide">
-                    <div class="card novel-card position-relative">
-                        <img class="card-img-top"
-                            src="{% static 'website/images/agent-1.jpg' %}" />
-                        <span class="badge badge-status">COMPLETED</span>
-                        <div class="card-body p-2">
-                            <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
-                            <div class="novel-meta d-flex justify-content-between">
-                                <span>Chapter: 220</span>
-                                <span><i class="bi bi-eye"></i> 34k</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="swiper-slide">
-                    <div class="card novel-card position-relative">
-                        <img class="card-img-top"
-                            src="{% static 'website/images/agent-1.jpg' %}" />
-                        <span class="badge badge-status">COMPLETED</span>
-                        <div class="card-body p-2">
-                            <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
-                            <div class="novel-meta d-flex justify-content-between">
-                                <span>Chapter: 220</span>
-                                <span><i class="bi bi-eye"></i> 34k</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="swiper-slide">
-                    <div class="card novel-card position-relative">
-                        <img class="card-img-top"
-                            src="{% static 'website/images/agent-1.jpg' %}" />
-                        <span class="badge badge-status">COMPLETED</span>
-                        <div class="card-body p-2">
-                            <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
-                            <div class="novel-meta d-flex justify-content-between">
-                                <span>Chapter: 220</span>
-                                <span><i class="bi bi-eye"></i> 34k</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="swiper-slide">
-                    <div class="card novel-card position-relative">
-                        <img class="card-img-top"
-                            src="{% static 'website/images/agent-1.jpg' %}" />
-                        <span class="badge badge-status">COMPLETED</span>
-                        <div class="card-body p-2">
-                            <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
-                            <div class="novel-meta d-flex justify-content-between">
-                                <span>Chapter: 220</span>
-                                <span><i class="bi bi-eye"></i> 34k</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+                {% endfor %}
             </div>
         </div>
 
     </div>
 </section>
+{% endif %}
 
 <!-- new series section -->
 <section class="py-3">
@@ -162,12 +100,18 @@
         </div>
 
         <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3">
-
+            {% for novel in novels %}
             <div class="col">
                 <div class="card novel-card position-relative h-100">
-                    <img class="card-img-top"
-                        src="{% static 'website/images/agent-1.jpg' %}" />
-                    <span class="badge badge-status">COMPLETED</span>
+                    <a href="{% url 'novel_detail' novel.id %}">
+                            <img class="card-img-top"
+                                src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}" />
+                        </a>
+                    {% if novel.is_completed %}
+                            <span class="badge badge-status">Completed</span>
+                        {% elif novel.is_popular %}
+                            <span class="badge badge-status">Popular</span>
+                        {% endif %}
                     <div class="card-body p-2 d-flex flex-column justify-content-between">
                         <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
                         <div class="novel-meta d-flex justify-content-between">
@@ -177,72 +121,13 @@
                     </div>
                 </div>
             </div>
-
-            <div class="col">
-                <div class="card novel-card position-relative h-100">
-                    <img class="card-img-top"
-                        src="{% static 'website/images/agent-1.jpg' %}" />
-                    <span class="badge badge-status">COMPLETED</span>
-                    <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
-                        <div class="novel-meta d-flex justify-content-between">
-                            <span>Chapter: 220</span>
-                            <span><i class="bi bi-eye"></i> 34k</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col">
-                <div class="card novel-card position-relative h-100">
-                    <img class="card-img-top"
-                        src="{% static 'website/images/agent-1.jpg' %}" />
-                    <span class="badge badge-status">COMPLETED</span>
-                    <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
-                        <div class="novel-meta d-flex justify-content-between">
-                            <span>Chapter: 220</span>
-                            <span><i class="bi bi-eye"></i> 34k</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col">
-                <div class="card novel-card position-relative h-100">
-                    <img class="card-img-top"
-                        src="{% static 'website/images/agent-1.jpg' %}" />
-                    <span class="badge badge-status">COMPLETED</span>
-                    <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
-                        <div class="novel-meta d-flex justify-content-between">
-                            <span>Chapter: 220</span>
-                            <span><i class="bi bi-eye"></i> 34k</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col">
-                <div class="card novel-card position-relative h-100">
-                    <img class="card-img-top"
-                        src="{% static 'website/images/agent-1.jpg' %}" />
-                    <span class="badge badge-status">COMPLETED</span>
-                    <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
-                        <div class="novel-meta d-flex justify-content-between">
-                            <span>Chapter: 220</span>
-                            <span><i class="bi bi-eye"></i> 34k</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            {% endfor %}
         </div>
     </div>
 </section>
 
 <!-- fanfic section -->
+{% if fanfic_novels %}
 <section class="py-3">
     <div class="container-fluid">
 
@@ -252,14 +137,20 @@
         </div>
 
         <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3">
-
+            {% for fanfic in fanfic_novels %}
             <div class="col">
                 <div class="card novel-card position-relative h-100">
-                    <img class="card-img-top"
-                        src="{% static 'website/images/agent-1.jpg' %}" />
-                    <span class="badge badge-status">COMPLETED</span>
+                    <a href="{% url 'novel_detail' fanfic.id %}">
+                            <img class="card-img-top"
+                                src="{% if fanfic.cover_image %}{{fanfic.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}" />
+                        </a>
+                    {% if novel.is_completed %}
+                            <span class="badge badge-status">Completed</span>
+                        {% elif novel.is_popular %}
+                            <span class="badge badge-status">Popular</span>
+                        {% endif %}
                     <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
+                        <p class="novel-title mb-1">{{fanfic.title}}</p>
                         <div class="novel-meta d-flex justify-content-between">
                             <span>Chapter: 220</span>
                             <span><i class="bi bi-eye"></i> 34k</span>
@@ -267,72 +158,14 @@
                     </div>
                 </div>
             </div>
-
-            <div class="col">
-                <div class="card novel-card position-relative h-100">
-                    <img class="card-img-top"
-                        src="{% static 'website/images/agent-1.jpg' %}" />
-                    <span class="badge badge-status">COMPLETED</span>
-                    <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
-                        <div class="novel-meta d-flex justify-content-between">
-                            <span>Chapter: 220</span>
-                            <span><i class="bi bi-eye"></i> 34k</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col">
-                <div class="card novel-card position-relative h-100">
-                    <img class="card-img-top"
-                        src="{% static 'website/images/agent-1.jpg' %}" />
-                    <span class="badge badge-status">COMPLETED</span>
-                    <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
-                        <div class="novel-meta d-flex justify-content-between">
-                            <span>Chapter: 220</span>
-                            <span><i class="bi bi-eye"></i> 34k</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col">
-                <div class="card novel-card position-relative h-100">
-                    <img class="card-img-top"
-                        src="{% static 'website/images/agent-1.jpg' %}" />
-                    <span class="badge badge-status">COMPLETED</span>
-                    <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
-                        <div class="novel-meta d-flex justify-content-between">
-                            <span>Chapter: 220</span>
-                            <span><i class="bi bi-eye"></i> 34k</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col">
-                <div class="card novel-card position-relative h-100">
-                    <img class="card-img-top"
-                        src="{% static 'website/images/agent-1.jpg' %}" />
-                    <span class="badge badge-status">COMPLETED</span>
-                    <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
-                        <div class="novel-meta d-flex justify-content-between">
-                            <span>Chapter: 220</span>
-                            <span><i class="bi bi-eye"></i> 34k</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            {% endfor %}
         </div>
     </div>
 </section>
+{% endif %}
 
 <!-- complete section -->
+{% if completed_novels %}
 <section class="py-3">
     <div class="container-fluid">
 
@@ -342,14 +175,21 @@
         </div>
 
         <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3">
-
+            
+            {% for novel in completed_novels %}
             <div class="col">
                 <div class="card novel-card position-relative h-100">
-                    <img class="card-img-top"
-                        src="{% static 'website/images/agent-1.jpg' %}" />
-                    <span class="badge badge-status">COMPLETED</span>
+                    <a href="{% url 'novel_detail' novel.id %}">
+                            <img class="card-img-top"
+                                src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}" />
+                        </a>
+                    {% if novel.is_completed %}
+                            <span class="badge badge-status">Completed</span>
+                        {% elif novel.is_popular %}
+                            <span class="badge badge-status">Popular</span>
+                        {% endif %}
                     <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
+                        <p class="novel-title mb-1">{{novel.title}}</p>
                         <div class="novel-meta d-flex justify-content-between">
                             <span>Chapter: 220</span>
                             <span><i class="bi bi-eye"></i> 34k</span>
@@ -357,72 +197,14 @@
                     </div>
                 </div>
             </div>
-
-            <div class="col">
-                <div class="card novel-card position-relative h-100">
-                    <img class="card-img-top"
-                        src="{% static 'website/images/agent-1.jpg' %}" />
-                    <span class="badge badge-status">COMPLETED</span>
-                    <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
-                        <div class="novel-meta d-flex justify-content-between">
-                            <span>Chapter: 220</span>
-                            <span><i class="bi bi-eye"></i> 34k</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col">
-                <div class="card novel-card position-relative h-100">
-                    <img class="card-img-top"
-                        src="{% static 'website/images/agent-1.jpg' %}" />
-                    <span class="badge badge-status">COMPLETED</span>
-                    <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
-                        <div class="novel-meta d-flex justify-content-between">
-                            <span>Chapter: 220</span>
-                            <span><i class="bi bi-eye"></i> 34k</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col">
-                <div class="card novel-card position-relative h-100">
-                    <img class="card-img-top"
-                        src="{% static 'website/images/agent-1.jpg' %}" />
-                    <span class="badge badge-status">COMPLETED</span>
-                    <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
-                        <div class="novel-meta d-flex justify-content-between">
-                            <span>Chapter: 220</span>
-                            <span><i class="bi bi-eye"></i> 34k</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col">
-                <div class="card novel-card position-relative h-100">
-                    <img class="card-img-top"
-                        src="{% static 'website/images/agent-1.jpg' %}" />
-                    <span class="badge badge-status">COMPLETED</span>
-                    <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
-                        <div class="novel-meta d-flex justify-content-between">
-                            <span>Chapter: 220</span>
-                            <span><i class="bi bi-eye"></i> 34k</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            {% endfor %}
         </div>
     </div>
 </section>
+{% endif %}
 
 <!-- free section -->
+{% if free_novels %}
 <section class="py-3">
     <div class="container-fluid">
 
@@ -432,14 +214,20 @@
         </div>
 
         <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3">
-
+            {% for free in free_novels %}
             <div class="col">
                 <div class="card novel-card position-relative h-100">
-                    <img class="card-img-top"
-                        src="{% static 'website/images/agent-1.jpg' %}" />
-                    <span class="badge badge-status">COMPLETED</span>
+                    <a href="{% url 'novel_detail' free.id %}">
+                            <img class="card-img-top"
+                                src="{% if free.cover_image %}{{free.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}" />
+                        </a>
+                    {% if novel.is_completed %}
+                            <span class="badge badge-status">Completed</span>
+                        {% elif novel.is_popular %}
+                            <span class="badge badge-status">Popular</span>
+                        {% endif %}
                     <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
+                        <p class="novel-title mb-1">{{free.title}}</p>
                         <div class="novel-meta d-flex justify-content-between">
                             <span>Chapter: 220</span>
                             <span><i class="bi bi-eye"></i> 34k</span>
@@ -447,68 +235,9 @@
                     </div>
                 </div>
             </div>
-
-            <div class="col">
-                <div class="card novel-card position-relative h-100">
-                    <img class="card-img-top"
-                        src="{% static 'website/images/agent-1.jpg' %}" />
-                    <span class="badge badge-status">COMPLETED</span>
-                    <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
-                        <div class="novel-meta d-flex justify-content-between">
-                            <span>Chapter: 220</span>
-                            <span><i class="bi bi-eye"></i> 34k</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col">
-                <div class="card novel-card position-relative h-100">
-                    <img class="card-img-top"
-                        src="{% static 'website/images/agent-1.jpg' %}" />
-                    <span class="badge badge-status">COMPLETED</span>
-                    <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
-                        <div class="novel-meta d-flex justify-content-between">
-                            <span>Chapter: 220</span>
-                            <span><i class="bi bi-eye"></i> 34k</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col">
-                <div class="card novel-card position-relative h-100">
-                    <img class="card-img-top"
-                        src="{% static 'website/images/agent-1.jpg' %}" />
-                    <span class="badge badge-status">COMPLETED</span>
-                    <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
-                        <div class="novel-meta d-flex justify-content-between">
-                            <span>Chapter: 220</span>
-                            <span><i class="bi bi-eye"></i> 34k</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col">
-                <div class="card novel-card position-relative h-100">
-                    <img class="card-img-top"
-                        src="{% static 'website/images/agent-1.jpg' %}" />
-                    <span class="badge badge-status">COMPLETED</span>
-                    <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
-                        <div class="novel-meta d-flex justify-content-between">
-                            <span>Chapter: 220</span>
-                            <span><i class="bi bi-eye"></i> 34k</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            {% endfor %}
         </div>
     </div>
 </section>
+{% endif %}
 {% endblock %}

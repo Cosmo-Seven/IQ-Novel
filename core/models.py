@@ -8,7 +8,7 @@ from models.user_models import UserModel
 
 
 # // Project Model ------------------------------------------------------
-from models.novel_models import GenreModel, NovelModel, NovelChapterModel
+from models.novel_models import GenreModel, NovelModel, NovelChapterModel, BookmarkModel, ChapterPurchaseModel
 from models.payment_method_models import PaymentMethodModel
 from models.slider_models import SliderModel
-from models.gem_models import GemModel
+from models.gem_models import GemModel, GemOrderModel

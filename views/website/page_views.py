@@ -1,27 +1,40 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.urls import reverse
+from decorators.login_decorator import login_required
 from django.contrib.auth import login, logout, authenticate
 from helpers.mail import send_verification_email, send_reset_email
 from core.models import (
     UserModel,
     SliderModel,
     GemModel,
+    GemOrderModel,
+    NovelModel,
+    NovelChapterModel,
+    ChapterPurchaseModel,
+    BookmarkModel,
 )
-
-
-
 
 # ========================
 # Index
 # ========================
 def index(request):
     sliders = SliderModel.objects.all().order_by("-created_at")
+    novels = NovelModel.objects.all().order_by("-created_at")
+    completed_novels = NovelModel.objects.filter(is_completed=True)
+    popular_novels = NovelModel.objects.filter(is_popular=True)
+    fanfic_novels = NovelModel.objects.filter(is_fanfic=True)
+    free_novels = NovelModel.objects.filter(is_popular=True)
     context = {
         "sliders":sliders,
+        "novels": novels,
+        "completed_novels": completed_novels,
+        "popular_novels": popular_novels,
+        "fanfic_novels": fanfic_novels,
+        "free_novels": free_novels,
     }
     return render(request, "website/index.html", context)
 
@@ -33,147 +46,129 @@ def gem(request):
     }
     return render(request, "website/gem.html", context)
 
-
-
-# =========================
-# Authentication Views
-# =========================
-def login_view(request):
+def novel_detail(request, id):
+    novel = get_object_or_404(NovelModel, id=id)
+    bookmarked = False
     if request.user.is_authenticated:
-        messages.warning(request, "You're already logged in!")
-        return redirect(request.META.get("HTTP_REFERER", "/"))
-
-    if request.method == "POST":
-        user = authenticate(
-            request,
-            email=request.POST.get("email"),
-            password=request.POST.get("password"),
-        )
-
-        if user:
-            login(request, user)
-            messages.success(request, f"Welcome {user.username}!")
-            return redirect(request.META.get("HTTP_REFERER", "/"))
-
-        messages.error(request, "Invalid credentials!")
-        return redirect(request.META.get("HTTP_REFERER", "/"))
-
-    return render(request, "website/login.html")
-
-
-def logout_view(request):
-    logout(request)
-    messages.success(request, "Logout successfully!")
-    return redirect(request.META.get("HTTP_REFERER", "/"))
-
-
-def register_view(request):
+        bookmarked = BookmarkModel.objects.filter(user=request.user, novel=novel).exists()
+    purchased_chapter_ids = []
     if request.user.is_authenticated:
-        messages.warning(request, "You're already logged in!")
-        return redirect(request.META.get("HTTP_REFERER", "/"))
-
-    if request.method == "POST":
-        username = request.POST.get("username")
-        email = request.POST.get("email")
-        password = request.POST.get("password")
-        confirm_password = request.POST.get("confirm_password")
-
-        existing_user = UserModel.objects.filter(email=email).first()
-
-        if existing_user and not existing_user.is_active:
-            send_verification_email(request, existing_user)
-            messages.warning(request, "Verification email sent again!")
-            return redirect(request.META.get("HTTP_REFERER", "/"))
-
-        if existing_user:
-            messages.error(request, "Email already registered!")
-            return redirect("register")
-
-        if password != confirm_password:
-            messages.warning(request, "Password does not match!")
-            return redirect("register")
-
-        user = UserModel.objects.create_user(
-            username=username,
-            email=email,
-            password=password,
-            is_active=False,
+        purchased_chapter_ids = list(
+            request.user.chapter_purchases.values_list("chapter_id", flat=True)
         )
 
-        send_verification_email(request, user)
-
-        messages.success(request, "Check your email to verify your account.")
-        return redirect(request.META.get("HTTP_REFERER", "/"))
-
-    return render(request, "website/register.html")
-
-
-def verify_email(request, uidb64, token):
-    try:
-        uid = urlsafe_base64_decode(uidb64).decode()
-        user = UserModel.objects.get(pk=uid)
-    except:
-        user = None
-
-    if user and default_token_generator.check_token(user, token):
-        user.is_active = True
-        user.save()
-
-        login(request, user)
-        messages.success(request, "Account was verified and logged in!")
-        return redirect(request.META.get("HTTP_REFERER", "/"))
-
-    messages.error(request, "Invalid or expired link!")
-    return redirect(request.META.get("HTTP_REFERER", "/"))
+    context = {
+        "novel": novel,
+        "bookmarked": bookmarked,
+        "purchased_chapter_ids": purchased_chapter_ids,
+    }
+    return render(request, "website/novel_detail.html", context)
 
 
-def forgot_password(request):
+def bookmark(request, id):
+    novel = get_object_or_404(NovelModel, id=id)
+
+    if not request.user.is_authenticated:
+        messages.warning(request, "Please login to save bookmarks.")
+        return redirect("login")
+
     if request.method == "POST":
-        email = request.POST.get("email")
-        user = UserModel.objects.filter(email=email).first()
-
-        if not user:
-            messages.error(request, "Email not found!")
-            return redirect("forgot_password")
-
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        token = default_token_generator.make_token(user)
-
-        reset_url = request.build_absolute_uri(
-            reverse("reset_password", kwargs={"uidb64": uid, "token": token})
+        bookmark, created = BookmarkModel.objects.get_or_create(
+            user=request.user,
+            novel=novel,
         )
+        if not created:
+            bookmark.delete()
+            messages.success(request, "Removed from bookmarks.")
+        else:
+            messages.success(request, "Saved to bookmarks.")
 
-        send_reset_email(user.email, reset_url)
+    return redirect("novel_detail", id=id)
 
-        messages.success(request, "Password reset link sent to your email.")
-        return redirect(request.META.get("HTTP_REFERER", "/"))
-
-    return render(request, "website/forgot_password.html")
-
-
-def reset_password(request, uidb64, token):
-    try:
-        uid = urlsafe_base64_decode(uidb64).decode()
-        user = UserModel.objects.get(pk=uid)
-    except:
-        user = None
-
-    if not user or not default_token_generator.check_token(user, token):
-        messages.error(request, "Invalid or expired link!")
-        return redirect(request.META.get("HTTP_REFERER", "/"))
+@login_required("website_login")
+def checkout(request, id):
+    gem = get_object_or_404(GemModel, id=id)
 
     if request.method == "POST":
-        password = request.POST.get("password")
-        confirm_password = request.POST.get("confirm_password")
+        payment_screenshot = request.FILES.get("payment_screenshot")
+        if not payment_screenshot:
+            messages.error(request, "Please upload your payment screenshot.")
+        else:
+            GemOrderModel.objects.create(
+                user=request.user,
+                gem=gem,
+                gem_amount=gem.gem_amount,
+                price=gem.price,
+                payment_screenshot=payment_screenshot,
+                status=GemOrderModel.STATUS_PENDING,
+            )
+            messages.success(
+                request,
+                "Your gem purchase request has been submitted. Admin will approve it before gems are added to your account.",
+            )
+            return redirect("website_profile")
 
-        if password != confirm_password:
-            messages.error(request, "Passwords do not match!")
-            return redirect(request.path)
+    context = {
+        "gem": gem
+    }
+    return render(request, "website/checkout.html", context)
 
-        user.set_password(password)
-        user.save()
+def profile(request):
+    if not request.user.is_authenticated:
+        messages.warning(request, "Please login to view your profile.")
+        return redirect("website_login")
 
-        messages.success(request, "Password reset successful. Please login.")
-        return redirect(request.META.get("HTTP_REFERER", "/"))
+    bookmarks = request.user.bookmarks.select_related("novel").all()
+    gem_orders = request.user.gem_orders.select_related("gem").all().order_by("-created_at")
+    return render(
+        request,
+        "website/profile.html",
+        {"bookmarks": bookmarks, "gem_orders": gem_orders},
+    )
 
-    return render(request, "website/reset_password.html")
+
+@login_required("website_login")
+def buy_chapter(request, id):
+    chapter = get_object_or_404(NovelChapterModel, id=id)
+
+    if chapter.is_free:
+        messages.info(request, "This chapter is free.")
+        return redirect("novel_detail", id=chapter.novel.id)
+
+    if not request.user.is_authenticated:
+        messages.warning(request, "Please login to buy chapters.")
+        return redirect("website_login")
+
+    if ChapterPurchaseModel.objects.filter(user=request.user, chapter=chapter).exists():
+        messages.info(request, "You already own this chapter.")
+        return redirect("novel_detail", id=chapter.novel.id)
+
+    price = int(chapter.gem_price or 0)
+    if request.user.gem < price:
+        messages.error(request, "Insufficient gems. Please top up your gems.")
+        return redirect("novel_detail", id=chapter.novel.id)
+
+    if request.method == "POST":
+        request.user.gem = max(0, request.user.gem - price)
+        request.user.save()
+        ChapterPurchaseModel.objects.create(user=request.user, chapter=chapter)
+        messages.success(request, "Chapter purchased successfully. Gems deducted.")
+
+    return redirect("novel_detail", id=chapter.novel.id)
+
+
+def chapter_detail(request, id):
+    chapter = get_object_or_404(NovelChapterModel, id=id)
+
+    has_access = chapter.is_free
+    if request.user.is_authenticated:
+        has_access = has_access or ChapterPurchaseModel.objects.filter(
+            user=request.user, chapter=chapter
+        ).exists()
+
+    if not has_access:
+        messages.warning(request, "Please purchase this chapter to read it.")
+        return redirect("novel_detail", id=chapter.novel.id)
+
+    return render(request, "website/chapter_detail.html", {"chapter": chapter})
+

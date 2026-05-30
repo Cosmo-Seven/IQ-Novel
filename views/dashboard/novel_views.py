@@ -65,20 +65,33 @@ def novel_form(request, pk=None):
         summery = request.POST.get("summery")
         genre = request.POST.get("genre")
         cover_image = request.FILES.get("cover_image")
+        is_completed = request.POST.get("is_completed") == "on"
+        is_popular = request.POST.get("is_popular") == "on"
+        is_fanfic = request.POST.get("is_fanfic") == "on"
+        is_free = request.POST.get("is_free") == "on"
 
         if novel:
             novel.title = title
             novel.summery = summery
+            novel.is_completed = is_completed
+            novel.is_popular = is_popular
+            novel.is_fanfic = is_fanfic
+            novel.is_free = is_free
             if cover_image:
                 novel.cover_image = cover_image
             novel.save()
             novel.genres.set([genre])
+
             messages.success(request, UPDATE)
         else:
             novel = NovelModel.objects.create(
                 title=title,
                 summery=summery,
-                cover_image=cover_image
+                cover_image=cover_image,
+                is_completed=is_completed,
+                is_popular=is_popular,
+                is_fanfic = is_fanfic,
+                is_free = is_free
             )
             novel.genres.set([genre])
             messages.success(request, "Novel created!")
