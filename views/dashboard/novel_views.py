@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from core.models import (
     NovelModel,
-    NovelChapterModel,
+    ChapterModel,
     GenreModel,
 )
 from helpers.filters import filter_querysets
@@ -68,7 +68,6 @@ def novel_form(request, pk=None):
         is_completed = request.POST.get("is_completed") == "on"
         is_popular = request.POST.get("is_popular") == "on"
         is_fanfic = request.POST.get("is_fanfic") == "on"
-        is_free = request.POST.get("is_free") == "on"
 
         if novel:
             novel.title = title
@@ -76,7 +75,6 @@ def novel_form(request, pk=None):
             novel.is_completed = is_completed
             novel.is_popular = is_popular
             novel.is_fanfic = is_fanfic
-            novel.is_free = is_free
             if cover_image:
                 novel.cover_image = cover_image
             novel.save()

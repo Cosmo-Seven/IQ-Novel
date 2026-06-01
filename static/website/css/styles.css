@@ -9,6 +9,9 @@ body {
   background-color: #fffafb;
   color: var(--text-dark);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and Consumer Preview */
+  user-select: none;
 }
 
 /* Navbar Styling */
@@ -108,12 +111,12 @@ body {
 /* Banner/Carousel Styling */
 .carousel-section {
   background: linear-gradient(180deg, var(--primary-pink) 0%, #ffffff 100%);
-  padding: 2rem 0;
+  /* padding: 2rem 0; */
 }
 
 .banner-wrapper {
   background: #ffffff;
-  border-radius: 20px;
+  /* border-radius: 20px; */
   box-shadow: 0 10px 30px rgba(255, 179, 193, 0.2);
   overflow: hidden;
   border: 1px solid rgba(255, 179, 193, 0.4);
@@ -141,55 +144,64 @@ body {
   color: var(--dark-pink);
 }
 
-/* Novel Cards */
+/* Novel Card အပြင်အဆင် */
 .novel-card {
-  border: none;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background: #fff;
 }
 
 .novel-card:hover {
-  transform: scale(1.02);
+    transform: translateY(-4px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1) !important;
 }
 
-.badge-status {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background-color: rgba(201, 24, 74, 0.9);
-  font-size: 0.75rem;
+/* ပုံကို Book Cover အချိုးအစားအတိုင်း ပုံသေချုပ်ပေးခြင်း */
+.novel-img-wrapper {
+    display: block;
+    width: 100%;
+    aspect-ratio: 2 / 3; /* စာအုပ်ကာဗာပုံစံ 2:3 ratio ထိန်းပေးခြင်း */
+    overflow: hidden;
+    background-color: #f8f9fa;
 }
 
+.novel-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* ပုံမပြဲဘဲ ကွက်တိဖြစ်စေရန် */
+}
+
+/* စာသား အကွာအဝေးနှင့် အရွယ်အစား ညှိခြင်း */
 .novel-title {
-  font-size: 0.95rem;
-  font-weight: 600;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  height: 2.6rem;
-  line-height: 1.3rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #212529;
+    line-height: 1.3;
+}
+
+.novel-author {
+    font-size: 0.8rem;
+    color: #6c757d;
 }
 
 .novel-meta {
-  font-size: 0.8rem;
-  color: #6c757d;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: #495057;
+    border-top: 1px solid #f1f3f5;
+    padding-top: 6px;
 }
 
-/* swiper */
-.novel-card img {
-  height: 300px;
-  object-fit: cover;
-}
-
+/* Badge ကို ပုံပေါ်မှာ ပိုကျစ်လစ်စွာ ကပ်ထားရန် */
 .badge-status {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 100px;
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    font-size: 0.7rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    z-index: 2;
 }
 
 /* Footer */
@@ -257,12 +269,64 @@ footer a:hover {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
 }
 
-/* အပေါ်ပိုင်း ခေါင်းစဉ် */
-.chapter-header {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 5px;
+/* Chapter Reading Typography Optimization */
+.chapter-main-title {
+    color: #212529;
+    letter-spacing: -0.5px;
+}
+
+/* စာသားများ ဖတ်ရလွယ်ကူစေရန် Font Space ညှိခြင်း */
+.chapter-reading-content {
+    font-size: 1.15rem;       /* စာလုံးအရွယ်အစားကို ဖတ်ရလွယ်အောင် အနည်းငယ်မြှင့်ထားသည် */
+    line-height: 2;          /* စာကြောင်း တစ်ကြောင်းချင်းစီ ကြပ်မနေစေရန် */
+    color: #2b2d42 !important;
+    letter-spacing: 0.2px;
+}
+
+/* Paragraph တစ်ခုချင်းစီကြား အကွာအဝေး */
+.chapter-reading-content p {
+    margin-bottom: 1.8rem;
+}
+
+/* Navigation Box & Transition Dynamic Effects */
+.chapter-nav-box {
+    max-width: 100%;
+    transition: all 0.3s ease;
+}
+
+.chapter-nav-box .btn {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.chapter-nav-box .btn:hover:not([disabled]) {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+}
+
+.chapter-read {
+    opacity: 0.55;
+    background-color: #f8f9fa;
+    border-color: #e9ecef !important;
+}
+
+.chapter-read .chapter-title-text {
+    color: #6c757d !important;
+    font-weight: 500 !important;
+}
+
+.chapter-read:hover {
+    opacity: 0.8;
+}
+
+/* Mobile Friendly Responsive Screen Adjustments */
+@media (max-width: 768px) {
+    .reader-card {
+        padding: 1.5rem !important; /* ဖုန်းပေါ်မှာ ဘေး Padding ကို လျှော့ချပေးခြင်း */
+    }
+    .chapter-reading-content {
+        font-size: 1.08rem; /* ဖုန်း Screen ပေါ်တွင် စာလုံးအရွယ်အစား အနည်းငယ်ပြန်ညှိခြင်း */
+        line-height: 1.9;
+    }
 }
 
 /* Profile Sidebar Card */

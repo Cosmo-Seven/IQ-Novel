@@ -60,7 +60,7 @@
                                         <div class="mb-3">
                                             <label class="form-label">{% translate 'title' request.session.language %}
                                                 <span class="text-danger ms-1">*</span></label>
-                                            <input type="text" name="title" {% if novel %}readonly{% endif %} required class="form-control"
+                                            <input type="text" name="title" required class="form-control"
                                                 value="{{ novel.title }}">
                                         </div>
                                     </div>
@@ -118,13 +118,6 @@
                                             <span class="status-label">{% translate 'is_fanfic' request.session.language %}</span>
                                             <input type="checkbox" id="is_fanfic" name="is_fanfic" {% if novel.is_fanfic %}checked{% endif %} class="check">
                                             <label for="is_fanfic" class="checktoggle"></label>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <div class="gap-2 status-toggle modal-status d-flex justify-content-start align-items-center">
-                                            <span class="status-label">{% translate 'is_free' request.session.language %}</span>
-                                            <input type="checkbox" id="is_novel_free" name="is_free" {% if novel.is_free %}checked{% endif %} class="check">
-                                            <label for="is_free" class="checktoggle"></label>
                                         </div>
                                     </div>
                                     
@@ -234,6 +227,15 @@
                                         <input type="text" name="chapters_title" required class="form-control">
                                     </div>
                                 </div>
+                                <div class="col-lg-6 col-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            {% translate 'gem' request.session.language %}
+                                            <span class="text-danger ms-1">*</span>
+                                        </label>
+                                        <input type="number" id="gem_price" name="gem_price" class="form-control" value="0">
+                                    </div>
+                                </div>
 
                                 <div class="col-12">
                                     <div class="mb-3">
@@ -258,15 +260,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-lg-6 col-12">
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            {% translate 'gem' request.session.language %}
-                                            <span class="text-danger ms-1">*</span>
-                                        </label>
-                                        <input type="number" id="gem_price" name="gem_price" class="form-control" value="0">
-                                    </div>
-                                </div>
+                                
                             </div>
                         </div>
                         <div class="modal-footer">

@@ -9,28 +9,30 @@
 
 <!-- slider -->
 <section class="carousel-section">
-    <div class="container-fluid">
+    <div class="container-fluid p-0">
+
         <div class="banner-wrapper">
-            <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
-                <div class="carousel-indicators">
-                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
-                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
-                </div>
-                <div class="carousel-inner">
-                    <div class="carousel-item active">
-                        <img src="{% static 'website/images/slider-1.jpg' %}" alt="">
+
+            <div class="swiper heroSwiper">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide" style="height: 500px;">
+                        <img src="{% static 'website/images/kon_slider.jpg' %}" alt="Slider 1" class="w-100 img-fluid">
                     </div>
-                    <div class="carousel-item">
-                        <img src="{% static 'website/images/slider-3.jpg' %}" alt="">
+                    <div class="swiper-slide" style="height: 500px;">
+                        <img src="{% static 'website/images/kon_slider.jpg' %}" alt="Slider 2" class="w-100 img-fluid">
                     </div>
                 </div>
+
+                <div class="swiper-pagination"></div>
+
             </div>
+
         </div>
     </div>
 </section>
 
 <!-- Three Button -->
-<section class="py-4">
+<!-- <section class="py-4">
     <div class="container">
         <div class="row row-cols-12 row-cols-md-4 g-3 justify-content-center">
             <div class="col"><a href="{% url 'home' %}"
@@ -45,7 +47,7 @@
                     <span class="fw-semibold large">My Library</span></a></div>
         </div>
     </div>
-</section>
+</section> -->
 
 <!-- popular section -->
 {% if popular_novels %}
@@ -62,25 +64,39 @@
             <div class="swiper-wrapper">
                 <!-- Slide 1 -->
                 {% for novel in popular_novels %}
-                <div class="swiper-slide">
-                    <div class="card novel-card position-relative">
-                        <a href="{% url 'novel_detail' novel.id %}">
-                            <img class="card-img-top"
-                                src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}" />
-                        </a>
-                        {% if novel.is_completed %}
-                            <span class="badge badge-status">Completed</span>
-                        {% elif novel.is_popular %}
-                            <span class="badge badge-status">Popular</span>
-                        {% endif %}
-                        <div class="card-body p-2">
-                            <p class="novel-title mb-1">{{novel.title}}</p>
-                            <div class="novel-meta d-flex justify-content-between">
-                                <span>Chapter: 220</span>
-                                <span><i class="bi bi-eye"></i> 34k</span>
-                            </div>
+                <div class="swiper-slide mb-2">
+                     <div class="col">
+                <div class="card novel-card position-relative h-100 border-0 shadow-sm">
+
+                    <a href="{% url 'novel_detail' novel.id %}" class="novel-img-wrapper">
+                        <img class="card-img-top novel-cover"
+                            src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}"
+                            alt="{{ novel.title }}" />
+                    </a>
+
+                    {% if novel.is_completed %}
+                    <span class="badge badge-status bg-success">Completed</span>
+                    {% elif novel.is_popular %}
+                    <span class="badge badge-status bg-danger animate-pulse">Popular</span>
+                    {% endif %}
+
+                    <div class="card-body p-2 d-flex flex-column justify-content-between">
+                        <div>
+                            <p class="novel-title mb-0 text-truncate" title="{{ novel.title }}">{{ novel.title }}</p>
+
+                            <p class="novel-author mb-2 text-muted small text-truncate">
+                                <i class="bi bi-person me-1"></i>{{ novel.author|default:"Unknown" }}
+                            </p>
+                        </div>
+
+                        <div class="novel-meta d-flex justify-content-between align-items-center">
+                            <span class="small"><i class="bi bi-book me-1"></i>Ch: 220</span>
+                            <span class="small text-secondary"><i class="bi bi-eye me-1"></i>34k</span>
                         </div>
                     </div>
+
+                </div>
+            </div>
                 </div>
                 {% endfor %}
             </div>
@@ -102,23 +118,35 @@
         <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3">
             {% for novel in novels %}
             <div class="col">
-                <div class="card novel-card position-relative h-100">
-                    <a href="{% url 'novel_detail' novel.id %}">
-                            <img class="card-img-top"
-                                src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}" />
-                        </a>
+                <div class="card novel-card position-relative h-100 border-0 shadow-sm">
+
+                    <a href="{% url 'novel_detail' novel.id %}" class="novel-img-wrapper">
+                        <img class="card-img-top novel-cover"
+                            src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}"
+                            alt="{{ novel.title }}" />
+                    </a>
+
                     {% if novel.is_completed %}
-                            <span class="badge badge-status">Completed</span>
-                        {% elif novel.is_popular %}
-                            <span class="badge badge-status">Popular</span>
-                        {% endif %}
+                    <span class="badge badge-status bg-success">Completed</span>
+                    {% elif novel.is_popular %}
+                    <span class="badge badge-status bg-danger animate-pulse">Popular</span>
+                    {% endif %}
+
                     <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <p class="novel-title mb-1">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
-                        <div class="novel-meta d-flex justify-content-between">
-                            <span>Chapter: 220</span>
-                            <span><i class="bi bi-eye"></i> 34k</span>
+                        <div>
+                            <p class="novel-title mb-0 text-truncate" title="{{ novel.title }}">{{ novel.title }}</p>
+
+                            <p class="novel-author mb-2 text-muted small text-truncate">
+                                <i class="bi bi-person me-1"></i>{{ novel.author|default:"Unknown" }}
+                            </p>
+                        </div>
+
+                        <div class="novel-meta d-flex justify-content-between align-items-center">
+                            <span class="small"><i class="bi bi-book me-1"></i>Ch: 220</span>
+                            <span class="small text-secondary"><i class="bi bi-eye me-1"></i>34k</span>
                         </div>
                     </div>
+
                 </div>
             </div>
             {% endfor %}
@@ -137,25 +165,37 @@
         </div>
 
         <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3">
-            {% for fanfic in fanfic_novels %}
-            <div class="col">
-                <div class="card novel-card position-relative h-100">
-                    <a href="{% url 'novel_detail' fanfic.id %}">
-                            <img class="card-img-top"
-                                src="{% if fanfic.cover_image %}{{fanfic.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}" />
-                        </a>
+            {% for novel in fanfic_novels %}
+             <div class="col">
+                <div class="card novel-card position-relative h-100 border-0 shadow-sm">
+
+                    <a href="{% url 'novel_detail' novel.id %}" class="novel-img-wrapper">
+                        <img class="card-img-top novel-cover"
+                            src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}"
+                            alt="{{ novel.title }}" />
+                    </a>
+
                     {% if novel.is_completed %}
-                            <span class="badge badge-status">Completed</span>
-                        {% elif novel.is_popular %}
-                            <span class="badge badge-status">Popular</span>
-                        {% endif %}
+                    <span class="badge badge-status bg-success">Completed</span>
+                    {% elif novel.is_popular %}
+                    <span class="badge badge-status bg-danger animate-pulse">Popular</span>
+                    {% endif %}
+
                     <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <p class="novel-title mb-1">{{fanfic.title}}</p>
-                        <div class="novel-meta d-flex justify-content-between">
-                            <span>Chapter: 220</span>
-                            <span><i class="bi bi-eye"></i> 34k</span>
+                        <div>
+                            <p class="novel-title mb-0 text-truncate" title="{{ novel.title }}">{{ novel.title }}</p>
+
+                            <p class="novel-author mb-2 text-muted small text-truncate">
+                                <i class="bi bi-person me-1"></i>{{ novel.author|default:"Unknown" }}
+                            </p>
+                        </div>
+
+                        <div class="novel-meta d-flex justify-content-between align-items-center">
+                            <span class="small"><i class="bi bi-book me-1"></i>Ch: 220</span>
+                            <span class="small text-secondary"><i class="bi bi-eye me-1"></i>34k</span>
                         </div>
                     </div>
+
                 </div>
             </div>
             {% endfor %}
@@ -175,26 +215,38 @@
         </div>
 
         <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3">
-            
+
             {% for novel in completed_novels %}
-            <div class="col">
-                <div class="card novel-card position-relative h-100">
-                    <a href="{% url 'novel_detail' novel.id %}">
-                            <img class="card-img-top"
-                                src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}" />
-                        </a>
+             <div class="col">
+                <div class="card novel-card position-relative h-100 border-0 shadow-sm">
+
+                    <a href="{% url 'novel_detail' novel.id %}" class="novel-img-wrapper">
+                        <img class="card-img-top novel-cover"
+                            src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}"
+                            alt="{{ novel.title }}" />
+                    </a>
+
                     {% if novel.is_completed %}
-                            <span class="badge badge-status">Completed</span>
-                        {% elif novel.is_popular %}
-                            <span class="badge badge-status">Popular</span>
-                        {% endif %}
+                    <span class="badge badge-status bg-success">Completed</span>
+                    {% elif novel.is_popular %}
+                    <span class="badge badge-status bg-danger animate-pulse">Popular</span>
+                    {% endif %}
+
                     <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <p class="novel-title mb-1">{{novel.title}}</p>
-                        <div class="novel-meta d-flex justify-content-between">
-                            <span>Chapter: 220</span>
-                            <span><i class="bi bi-eye"></i> 34k</span>
+                        <div>
+                            <p class="novel-title mb-0 text-truncate" title="{{ novel.title }}">{{ novel.title }}</p>
+
+                            <p class="novel-author mb-2 text-muted small text-truncate">
+                                <i class="bi bi-person me-1"></i>{{ novel.author|default:"Unknown" }}
+                            </p>
+                        </div>
+
+                        <div class="novel-meta d-flex justify-content-between align-items-center">
+                            <span class="small"><i class="bi bi-book me-1"></i>Ch: 220</span>
+                            <span class="small text-secondary"><i class="bi bi-eye me-1"></i>34k</span>
                         </div>
                     </div>
+
                 </div>
             </div>
             {% endfor %}
@@ -214,25 +266,37 @@
         </div>
 
         <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3">
-            {% for free in free_novels %}
-            <div class="col">
-                <div class="card novel-card position-relative h-100">
-                    <a href="{% url 'novel_detail' free.id %}">
-                            <img class="card-img-top"
-                                src="{% if free.cover_image %}{{free.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}" />
-                        </a>
+            {% for novel in free_novels %}
+             <div class="col">
+                <div class="card novel-card position-relative h-100 border-0 shadow-sm">
+
+                    <a href="{% url 'novel_detail' novel.id %}" class="novel-img-wrapper">
+                        <img class="card-img-top novel-cover"
+                            src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}"
+                            alt="{{ novel.title }}" />
+                    </a>
+
                     {% if novel.is_completed %}
-                            <span class="badge badge-status">Completed</span>
-                        {% elif novel.is_popular %}
-                            <span class="badge badge-status">Popular</span>
-                        {% endif %}
+                    <span class="badge badge-status bg-success">Completed</span>
+                    {% elif novel.is_popular %}
+                    <span class="badge badge-status bg-danger animate-pulse">Popular</span>
+                    {% endif %}
+
                     <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <p class="novel-title mb-1">{{free.title}}</p>
-                        <div class="novel-meta d-flex justify-content-between">
-                            <span>Chapter: 220</span>
-                            <span><i class="bi bi-eye"></i> 34k</span>
+                        <div>
+                            <p class="novel-title mb-0 text-truncate" title="{{ novel.title }}">{{ novel.title }}</p>
+
+                            <p class="novel-author mb-2 text-muted small text-truncate">
+                                <i class="bi bi-person me-1"></i>{{ novel.author|default:"Unknown" }}
+                            </p>
+                        </div>
+
+                        <div class="novel-meta d-flex justify-content-between align-items-center">
+                            <span class="small"><i class="bi bi-book me-1"></i>Ch: 220</span>
+                            <span class="small text-secondary"><i class="bi bi-eye me-1"></i>34k</span>
                         </div>
                     </div>
+
                 </div>
             </div>
             {% endfor %}

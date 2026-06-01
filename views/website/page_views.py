@@ -13,7 +13,7 @@ from core.models import (
     GemModel,
     GemOrderModel,
     NovelModel,
-    NovelChapterModel,
+    ChapterModel,
     ChapterPurchaseModel,
     BookmarkModel,
 )
@@ -120,16 +120,30 @@ def profile(request):
 
     bookmarks = request.user.bookmarks.select_related("novel").all()
     gem_orders = request.user.gem_orders.select_related("gem").all().order_by("-created_at")
+    chapter_purchases = request.user.chapter_purchases.select_related(
+        "chapter", "chapter__novel"
+    ).all().order_by("-created_at")
+    
+    # Get distinct novels from the user's purchased chapters
+    purchased_novels = NovelModel.objects.filter(
+        chapters__purchased_by__user=request.user
+    ).distinct()
+
     return render(
         request,
         "website/profile.html",
-        {"bookmarks": bookmarks, "gem_orders": gem_orders},
+        {
+            "bookmarks": bookmarks,
+            "gem_orders": gem_orders,
+            "chapter_purchases": chapter_purchases,
+            "purchased_novels": purchased_novels,
+        },
     )
 
 
 @login_required("website_login")
 def buy_chapter(request, id):
-    chapter = get_object_or_404(NovelChapterModel, id=id)
+    chapter = get_object_or_404(ChapterModel, id=id)
 
     if chapter.is_free:
         messages.info(request, "This chapter is free.")
@@ -158,7 +172,7 @@ def buy_chapter(request, id):
 
 
 def chapter_detail(request, id):
-    chapter = get_object_or_404(NovelChapterModel, id=id)
+    chapter = get_object_or_404(ChapterModel, id=id)
 
     has_access = chapter.is_free
     if request.user.is_authenticated:

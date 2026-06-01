@@ -12,50 +12,143 @@
 <script type="text/javascript" src="{% static 'website/js/main.js' %}"></script>
 <script type="text/javascript" src="{% static 'website/js/jquery.fancybox.js' %}"></script>
 <script>
-        var swiper = new Swiper(".mySwiper", {
-            slidesPerView: 5,
-            spaceBetween: 15,
+    var swiper = new Swiper(".mySwiper", {
+        slidesPerView: 5,
+        spaceBetween: 15,
+        loop: true,
+        breakpoints: {
+            0: {
+                slidesPerView: 2,
+            },
+            576: {
+                slidesPerView: 3,
+            },
+            768: {
+                slidesPerView: 4,
+            },
+            992: {
+                slidesPerView: 5,
+            }
+        },
+        autoplay: {
+            delay: 1500,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: true,
+        },
+    });
+</script>
+
+<script>
+     document.addEventListener('DOMContentLoaded', function () {
+        const swiper = new Swiper('.heroSwiper', {
             loop: true,
-            breakpoints: {
-                0: {
-                    slidesPerView: 2,
-                },
-                576: {
-                    slidesPerView: 3,
-                },
-                768: {
-                    slidesPerView: 4,
-                },
-                992: {
-                    slidesPerView: 5,
-                }
-            },
+
             autoplay: {
-                delay: 1500,
+                delay: 3500,
                 disableOnInteraction: false,
-                pauseOnMouseEnter: true,
             },
+
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+
+            /*
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+            */
+
+            effect: 'slide',
+            speed: 800,
         });
-    </script>
+    });
+</script>
 
-    <!-- search box -->
-    <script>
-        const searchToggleBtn = document.getElementById('searchToggleBtn');
-        const searchInput = document.getElementById('searchInput');
+<!-- search box -->
+<script>
+    const searchToggleBtn = document.getElementById('searchToggleBtn');
+    const searchInput = document.getElementById('searchInput');
 
-        searchToggleBtn.addEventListener('click', (e) => {
-            if (searchInput.classList.contains('active') && searchInput.value.trim() !== "") {
-                alert('Searching for: ' + searchInput.value);
-            } else {
-                searchInput.classList.toggle('active');
-                if (searchInput.classList.contains('active')) {
-                    searchInput.focus();
-                }
+    searchToggleBtn.addEventListener('click', (e) => {
+        if (searchInput.classList.contains('active') && searchInput.value.trim() !== "") {
+            alert('Searching for: ' + searchInput.value);
+        } else {
+            searchInput.classList.toggle('active');
+            if (searchInput.classList.contains('active')) {
+                searchInput.focus();
+            }
+        }
+    });
+    document.addEventListener('click', (e) => {
+        if (!searchToggleBtn.contains(e.target) && !searchInput.contains(e.target)) {
+            searchInput.classList.remove('active');
+        }
+    });
+</script>
+
+<script>
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+    document.addEventListener('keydown', function (e) {
+        if (e.ctrlKey && (e.key === 'c' || e.key === 'x' || e.key === 'u')) {
+            e.preventDefault();
+            alert('Copy ကူးခွင့် ပိတ်ထားပါသည်။');
+        }
+    });
+</script>
+
+<script>
+    document.addEventListener('keyup', (e) => {
+        if (e.key === 'PrintScreen') {
+            navigator.clipboard.writeText('');
+            alert('Screenshot ရိုက်ခြင်းကို ခွင့်မပြုပါ။');
+        }
+    });
+</script>
+
+<!-- Novel Detail -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // 1. Check URL parameters first (e.g., ?tab=chapters)
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    
+    // 2. Check LocalStorage for previously clicked tabs
+    let activeTabId = localStorage.getItem('activeNovelTab');
+
+    // Override local storage if URL explicitly requests the chapters tab
+    if (tabParam === 'chapters') {
+        activeTabId = 'chapters-tab';
+    }
+
+    // 3. Activate the appropriate tab
+    if (activeTabId) {
+        const targetTab = document.getElementById(activeTabId);
+        if (targetTab) {
+            // Remove default active states
+            document.querySelectorAll('#novelTab .nav-link').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('#novelTabContent .tab-pane').forEach(pane => pane.classList.remove('show', 'active'));
+
+            // Set the saved tab to active
+            targetTab.classList.add('active');
+            const targetPaneId = targetTab.getAttribute('data-bs-target').substring(1);
+            document.getElementById(targetPaneId).classList.add('show', 'active');
+        }
+    }
+
+    // 4. Listen for tab clicks to save the state for future refreshes
+    document.querySelectorAll('#novelTab .nav-link').forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function(event) {
+            localStorage.setItem('activeNovelTab', event.target.id);
+            
+            // Clean up the URL so it doesn't get stuck on ?tab=chapters forever
+            if (window.history.pushState) {
+                const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                window.history.pushState({path:newUrl}, '', newUrl);
             }
         });
-        document.addEventListener('click', (e) => {
-            if (!searchToggleBtn.contains(e.target) && !searchInput.contains(e.target)) {
-                searchInput.classList.remove('active');
-            }
-        });
-    </script>
+    });
+});
+</script>
