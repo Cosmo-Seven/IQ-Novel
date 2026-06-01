@@ -155,10 +155,23 @@
                 <h4 class="fw-bold mb-1 text-dark">{{ request.user.username }}</h4>
                 <p class="text-muted small mb-3">{{ request.user.email }}</p>
 
-                <div class="gem-balance-card d-flex align-items-center justify-content-center gap-2 mb-4 shadow-sm">
+                <div class="gem-balance-card d-flex align-items-center justify-content-center gap-2 mb-3 shadow-sm">
                     <i class="bi bi-gem-fill text-warning fs-5"></i>
                     <span>{{ request.user.gem|intcomma }} Gems Available</span>
                 </div>
+
+                {% if author_profile %}
+                <div class="d-flex justify-content-center gap-3 mb-4">
+                    <div class="text-center px-3 py-2 rounded-3" style="background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); border: 1px solid #c4b5fd; min-width: 90px;">
+                        <div class="fw-bold text-dark fs-5">{{ follower_count|intcomma }}</div>
+                        <div class="text-muted" style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Followers</div>
+                    </div>
+                    <div class="text-center px-3 py-2 rounded-3" style="background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); border: 1px solid #7dd3fc; min-width: 90px;">
+                        <div class="fw-bold text-dark fs-5">{{ novel_count|intcomma }}</div>
+                        <div class="text-muted" style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Novels</div>
+                    </div>
+                </div>
+                {% endif %}
 
                 <div class="list-group profile-menu text-start" id="profileDashboardTabs" role="tablist">
                     <button class="list-group-item list-group-item-action active" id="tab-library-btn"
@@ -168,6 +181,11 @@
                     <button class="list-group-item list-group-item-action" id="tab-history-btn" data-bs-toggle="list"
                         data-bs-target="#panel-history" type="button" role="tab">
                         <i class="bi bi-clock-history me-2"></i> Order History
+                    </button>
+                    <button class="list-group-item list-group-item-action" id="tab-following-btn" data-bs-toggle="list"
+                        data-bs-target="#panel-following" type="button" role="tab">
+                        <i class="bi bi-person-heart me-2"></i> Following
+                        {% if following_authors %}<span class="badge bg-primary rounded-pill float-end">{{ following_authors|length }}</span>{% endif %}
                     </button>
                     <button class="list-group-item list-group-item-action" id="tab-edit-btn" data-bs-toggle="list"
                         data-bs-target="#panel-edit" type="button" role="tab">
@@ -333,6 +351,42 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+
+                <div class="tab-pane fade" id="panel-following" role="tabpanel" aria-labelledby="tab-following-btn">
+                    <h3 class="fw-bold mb-4 text-dark">Following Authors</h3>
+                    {% if following_authors %}
+                    <div class="row g-3">
+                        {% for follow in following_authors %}
+                        <div class="col-12 col-md-6">
+                            <div class="d-flex align-items-center gap-3 p-3 rounded-3 border" style="transition: var(--transition-smooth);">
+                                <a href="{% url 'author_profile' follow.author.id %}">
+                                    <img src="{% if follow.author.profile %}{{ follow.author.profile.url }}{% else %}{% static 'dashboard/images/no-profile.png' %}{% endif %}"
+                                        alt="{{ follow.author.display_name }}" class="rounded-circle shadow-sm"
+                                        style="width: 50px; height: 50px; object-fit: cover;">
+                                </a>
+                                <div class="flex-grow-1">
+                                    <a href="{% url 'author_profile' follow.author.id %}" class="fw-semibold text-dark text-decoration-none">{{ follow.author.display_name }}</a>
+                                    <div class="text-muted small">{{ follow.author.novels.count }} novel{{ follow.author.novels.count|pluralize }}</div>
+                                </div>
+                                <form method="post" action="{% url 'follow_author' follow.author.id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{% url 'website_profile' %}">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                                        <i class="bi bi-person-check-fill me-1"></i>Following
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-person-heart fs-1 mb-2 d-block text-secondary"></i>
+                        <span>You're not following any authors yet.</span>
+                        <br><a href="{% url 'home' %}" class="btn btn-sm btn-primary mt-3 rounded-pill px-4">Discover Novels</a>
+                    </div>
+                    {% endif %}
                 </div>
 
                 <div class="tab-pane fade" id="panel-edit" role="tabpanel" aria-labelledby="tab-edit-btn">

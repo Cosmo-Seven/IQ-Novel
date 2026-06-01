@@ -205,6 +205,23 @@ def profile(request):
         chapters__purchased_by__user=request.user
     ).distinct()
 
+    # Author stats: follower count & novel count
+    author_profile = None
+    follower_count = 0
+    novel_count = 0
+    following_authors = []
+    if hasattr(request.user, "author_profile"):
+        author_profile = request.user.author_profile
+        follower_count = author_profile.follower_records.count()
+        novel_count = author_profile.novels.count()
+
+    # Authors the user is following
+    following_authors = (
+        AuthorFollowModel.objects.filter(user=request.user)
+        .select_related("author", "author__user")
+        .order_by("-created_at")
+    )
+
     return render(
         request,
         "website/profile.html",
@@ -213,6 +230,10 @@ def profile(request):
             "gem_orders": gem_orders,
             "chapter_purchases": chapter_purchases,
             "purchased_novels": purchased_novels,
+            "author_profile": author_profile,
+            "follower_count": follower_count,
+            "novel_count": novel_count,
+            "following_authors": following_authors,
         },
     )
 
