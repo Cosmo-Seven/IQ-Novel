@@ -15,18 +15,22 @@ from core.models import (
     NovelModel,
     ChapterModel,
     ChapterPurchaseModel,
+    ChapterReadModel,
     BookmarkModel,
+    AuthorModel,
+    AuthorFollowModel,
 )
+from helpers.chapter_access import adjacent_chapters, chapter_has_access, novel_chapters_ordered
 
 # ========================
 # Index
 # ========================
 def index(request):
     sliders = SliderModel.objects.all().order_by("-created_at")
-    novels = NovelModel.objects.all().order_by("-created_at")
-    completed_novels = NovelModel.objects.filter(is_completed=True)
-    popular_novels = NovelModel.objects.filter(is_popular=True)
-    fanfic_novels = NovelModel.objects.filter(is_fanfic=True)
+    novels = NovelModel.objects.select_related("author").order_by("-created_at")
+    completed_novels = NovelModel.objects.select_related("author").filter(is_completed=True)
+    popular_novels = NovelModel.objects.select_related("author").filter(is_popular=True)
+    fanfic_novels = NovelModel.objects.select_related("author").filter(is_fanfic=True)
     free_novels = NovelModel.objects.filter(is_popular=True)
     context = {
         "sliders":sliders,
@@ -47,22 +51,94 @@ def gem(request):
     return render(request, "website/gem.html", context)
 
 def novel_detail(request, id):
-    novel = get_object_or_404(NovelModel, id=id)
+    novel = get_object_or_404(NovelModel.objects.select_related("author"), id=id)
     bookmarked = False
+    is_following_author = False
+    can_follow_author = False
+    purchased_chapter_ids = []
+    read_chapter_ids = []
     if request.user.is_authenticated:
         bookmarked = BookmarkModel.objects.filter(user=request.user, novel=novel).exists()
-    purchased_chapter_ids = []
-    if request.user.is_authenticated:
         purchased_chapter_ids = list(
             request.user.chapter_purchases.values_list("chapter_id", flat=True)
         )
+        read_chapter_ids = list(
+            request.user.chapter_reads.values_list("chapter_id", flat=True)
+        )
+        if novel.author:
+            is_following_author = AuthorFollowModel.objects.filter(
+                user=request.user, author=novel.author
+            ).exists()
+            can_follow_author = novel.author.user_id != request.user.id
 
     context = {
         "novel": novel,
         "bookmarked": bookmarked,
+        "is_following_author": is_following_author,
+        "can_follow_author": can_follow_author,
+        "chapters_ordered": novel_chapters_ordered(novel),
         "purchased_chapter_ids": purchased_chapter_ids,
+        "read_chapter_ids": read_chapter_ids,
     }
     return render(request, "website/novel_detail.html", context)
+
+
+def author_profile(request, id):
+    author = get_object_or_404(
+        AuthorModel.objects.select_related("user"),
+        id=id,
+    )
+    novels = author.novels.all().order_by("-created_at")
+    followers = (
+        author.follower_records.select_related("user")
+        .order_by("-created_at")
+    )
+    follower_count = followers.count()
+    is_following = False
+    can_follow = False
+    if request.user.is_authenticated:
+        is_following = AuthorFollowModel.objects.filter(
+            user=request.user, author=author
+        ).exists()
+        can_follow = author.user_id != request.user.id
+
+    return render(
+        request,
+        "website/author_profile.html",
+        {
+            "author": author,
+            "novels": novels,
+            "followers": followers,
+            "follower_count": follower_count,
+            "is_following": is_following,
+            "can_follow": can_follow,
+        },
+    )
+
+
+@login_required("website_login")
+def follow_author(request, id):
+    author = get_object_or_404(AuthorModel, id=id)
+
+    if author.user_id == request.user.id:
+        messages.warning(request, "You cannot follow yourself.")
+        return redirect("author_profile", id=author.id)
+
+    if request.method == "POST":
+        follow, created = AuthorFollowModel.objects.get_or_create(
+            user=request.user,
+            author=author,
+        )
+        if not created:
+            follow.delete()
+            messages.success(request, f"Unfollowed {author.display_name}.")
+        else:
+            messages.success(request, f"You are now following {author.display_name}.")
+
+    next_url = request.POST.get("next") or request.GET.get("next")
+    if next_url:
+        return redirect(next_url)
+    return redirect("author_profile", id=author.id)
 
 
 def bookmark(request, id):
@@ -163,26 +239,56 @@ def buy_chapter(request, id):
         return redirect("novel_detail", id=chapter.novel.id)
 
     if request.method == "POST":
+        from helpers.gem_pricing import gem_unit_price_mmk, gems_to_mmk
+
+        author = chapter.novel.author
+        revenue_share_percent = author.revenue_share_percent if author else 0
+        unit_price = gem_unit_price_mmk()
+        sale_price_mmk = gems_to_mmk(price)
+        author_share_mmk = author.calculate_share(sale_price_mmk) if author else 0
+
         request.user.gem = max(0, request.user.gem - price)
         request.user.save()
-        ChapterPurchaseModel.objects.create(user=request.user, chapter=chapter)
+        ChapterPurchaseModel.objects.create(
+            user=request.user,
+            chapter=chapter,
+            gems_paid=price,
+            sale_price_mmk=sale_price_mmk,
+            author_share_mmk=author_share_mmk,
+            gem_unit_price_mmk=unit_price,
+            revenue_share_percent=revenue_share_percent,
+        )
         messages.success(request, "Chapter purchased successfully. Gems deducted.")
 
     return redirect("novel_detail", id=chapter.novel.id)
 
 
 def chapter_detail(request, id):
-    chapter = get_object_or_404(ChapterModel, id=id)
+    chapter = get_object_or_404(ChapterModel.objects.select_related("novel"), id=id)
 
-    has_access = chapter.is_free
-    if request.user.is_authenticated:
-        has_access = has_access or ChapterPurchaseModel.objects.filter(
-            user=request.user, chapter=chapter
-        ).exists()
-
-    if not has_access:
+    if not chapter_has_access(request.user, chapter):
         messages.warning(request, "Please purchase this chapter to read it.")
         return redirect("novel_detail", id=chapter.novel.id)
 
-    return render(request, "website/chapter_detail.html", {"chapter": chapter})
+    if request.user.is_authenticated:
+        ChapterReadModel.objects.get_or_create(user=request.user, chapter=chapter)
+
+    prev_chapter, next_chapter = adjacent_chapters(chapter)
+
+    purchased_chapter_ids = []
+    if request.user.is_authenticated:
+        purchased_chapter_ids = list(
+            request.user.chapter_purchases.values_list("chapter_id", flat=True)
+        )
+
+    return render(
+        request,
+        "website/chapter_detail.html",
+        {
+            "chapter": chapter,
+            "prev_chapter": prev_chapter,
+            "next_chapter": next_chapter,
+            "purchased_chapter_ids": purchased_chapter_ids,
+        },
+    )
 

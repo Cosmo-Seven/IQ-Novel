@@ -304,18 +304,18 @@ footer a:hover {
 }
 
 .chapter-read {
-    opacity: 0.55;
-    background-color: #f8f9fa;
-    border-color: #e9ecef !important;
+    background-color: #f0fdf4;
+    border-color: #bbf7d0 !important;
+    border-left: 4px solid #22c55e !important;
 }
 
 .chapter-read .chapter-title-text {
-    color: #6c757d !important;
+    color: #15803d !important;
     font-weight: 500 !important;
 }
 
 .chapter-read:hover {
-    opacity: 0.8;
+    background-color: #ecfdf5;
 }
 
 /* Mobile Friendly Responsive Screen Adjustments */
@@ -473,21 +473,6 @@ footer a:hover {
   transform: rotateY(180deg);
 }
 
-/* form card */
-.auth-face {
-  position: absolute;
-  width: 100%;
-  backface-visibility: hidden;
-  background: var(--primary-pink);
-  border-radius: 16px;
-  padding: 30px;
-  box-shadow: 0 10px 30px rgba(255, 179, 193, 0.2);
-  border: 1px solid var(--accent-pink);
-}
-
-.back {
-  transform: rotateY(180deg);
-}
 
 /* inputs */
 .auth-face input {

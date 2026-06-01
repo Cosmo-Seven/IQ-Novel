@@ -47,6 +47,8 @@ def sidebar(request):
                 "permissions": [
                     "view_genremodel",
                     "view_novelmodel",
+                    "view_authormodel",
+                    "view_authorsalarymodel",
                 ],
                 "items": [
                     {
@@ -56,11 +58,29 @@ def sidebar(request):
                         "permission": "view_genremodel",
                     },
                     {
+                        "label": "authors",
+                        "url_name": "author_list",
+                        "icon": "ti ti-user-edit",
+                        "permission": "view_authormodel",
+                    },
+                    {
+                        "label": "author_salaries",
+                        "url_name": "author_salary_list",
+                        "icon": "ti ti-report-money",
+                        "permission": "view_authorsalarymodel",
+                    },
+                    {
                         "label": "novel",
                         "url_name": "novel_list",
                         "icon": "ti ti-book",
                         "permission": "view_novelmodel",
-                    }
+                    },
+                    {
+                        "label": "novel_sales",
+                        "url_name": "novel_sales_list",
+                        "icon": "ti ti-chart-bar",
+                        "permission": "view_novelmodel",
+                    },
                 ]
             },
             {

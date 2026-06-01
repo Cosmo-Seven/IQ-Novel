@@ -1,5 +1,5 @@
 {% extends 'website/components/base.html' %}
-{% block title %} {{novel.title}} - Detail {% endblock %}
+{% block title %} Register {% endblock %}
 {% block body %}
 {% load static %}
 {% load humanize %}
@@ -9,12 +9,17 @@
 
     <div class="auth-inner">
 
-      <!-- LOGIN -->
+      <!-- REGISTER -->
       <div class="auth-face front">
-        <h4 class="text-center mb-4 fw-bold">Login</h4>
+        <h4 class="text-center mb-4 fw-bold">Register</h4>
 
-        <form method="POST" action="{{website_login_url}}">
+        <form method="POST" action="{{website_register_url}}">
           {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input type="text" class="form-control" name="username" placeholder="Enter username">
+          </div>
+
           <div class="mb-3">
             <label class="form-label">Email</label>
             <input type="email" class="form-control" name="email" placeholder="Enter email">
@@ -25,12 +30,17 @@
             <input type="password" class="form-control" name="password" placeholder="Enter password">
           </div>
 
-          <button type="submit" class="btn btn-primary w-100">Login</button>
+          <div class="mb-3">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" class="form-control" name="confirm_password" placeholder="Confirm password">
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">Register</button>
         </form>
 
         <p class="text-center mt-3 mb-0">
           Don’t have an account?
-          <a href="{% url 'website_register' %}" id="showRegister">Register</a>
+          <a href="{% url 'website_login' %}" id="showLogin">Login</a>
         </p>
       </div>
 

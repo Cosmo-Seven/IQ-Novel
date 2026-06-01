@@ -68,18 +68,18 @@
                                         <div class="mb-3">
                                             <label class="form-label">{% translate 'genre' request.session.language %}
                                                 <span class="text-danger ms-1">*</span></label>
-                                            <select class="select" name="genre" {% if novel %}readonly{% else %}required{% endif %}>
-                                                <option value="" {% if not novel %}selected{% endif %} disabled>
+                                            <select class="select" name="genre" {% if novel %}readonly{% else %}required{% endif %} multiple>
+                                                <option value="" disabled>
                                                     {% translate 'choose_one' request.session.language %}
                                                 </option>
                                                 {% for genre in genres %}
-                                                <option value="{{ genre.id }}" {% if novel.genre_id == genre.id %}selected{% endif %}>
+                                                <option value="{{ genre.id }}" {% if genre in novel.genres.all %}selected{% endif %}>
                                                     {% translate genre.translation_key request.session.language %}
                                                 </option>
                                                 {% endfor %}
                                                 {% if novel %}
                                                     {% for g in novel.genres.all %}
-                                                        <input type="hidden" name="genre" value="{{ g.id }}">
+                                                        <option value="{{ g.id }}" selected>{% translate g.translation_key request.session.language %}</option>
                                                     {% endfor %}
                                                 {% endif %}
                                             </select>

@@ -51,6 +51,14 @@ class ChapterPurchaseModel(BaseModel):
         on_delete=models.CASCADE,
         related_name="purchased_by",
     )
+    gems_paid = models.PositiveIntegerField(default=0)
+    sale_price_mmk = models.PositiveIntegerField(default=0)
+    author_share_mmk = models.PositiveIntegerField(default=0)
+    gem_unit_price_mmk = models.PositiveIntegerField(
+        default=0,
+        help_text="MMK per gem at time of purchase (for historical records).",
+    )
+    revenue_share_percent = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
         app_label = "core"
@@ -61,3 +69,27 @@ class ChapterPurchaseModel(BaseModel):
 
     def __str__(self):
         return f"{self.user.email} bought {self.chapter}"
+
+
+# ---------- Chapter Read Progress ---------- #
+class ChapterReadModel(BaseModel):
+    user = models.ForeignKey(
+        "core.UserModel",
+        on_delete=models.CASCADE,
+        related_name="chapter_reads",
+    )
+    chapter = models.ForeignKey(
+        ChapterModel,
+        on_delete=models.CASCADE,
+        related_name="read_by",
+    )
+
+    class Meta:
+        app_label = "core"
+        db_table = "chapter_reads"
+        verbose_name = "Chapter Read"
+        verbose_name_plural = "Chapter Reads"
+        unique_together = ("user", "chapter")
+
+    def __str__(self):
+        return f"{self.user.email} read {self.chapter}"

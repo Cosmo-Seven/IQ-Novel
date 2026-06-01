@@ -25,7 +25,8 @@
                             class="ti ti-chevron-up"></i></a>
                 </li>
             </ul>
-            <div class="page-btn">
+            <div class="page-btn d-flex gap-2">
+                <a href="{{ novel_sales_list_url }}" class="btn btn-outline-primary"><i class="ti ti-chart-bar me-1"></i>ရောင်းအား</a>
                 <a href="{{novel_create_url}}" class="btn btn-primary"><i
                         class="ti ti-circle-plus me-1"></i>{% translate 'add_new_novel' request.session.language %}</a>
             </div>

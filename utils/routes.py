@@ -38,9 +38,14 @@ def routes(request):
         "gem_list_url": reverse_lazy("gem_list"),
         "gem_create_url": reverse_lazy("gem_create"),
         "gem_order_list_url": reverse_lazy("gem_order_list"),
+        # ======================================== AuthorModel ========================================
+        "author_list_url": reverse_lazy("author_list"),
+        "author_create_url": reverse_lazy("author_create"),
+        "author_salary_list_url": reverse_lazy("author_salary_list"),
         # ======================================== NovelModel ========================================
         "novel_list_url": reverse_lazy("novel_list"),
         "novel_create_url": reverse_lazy("novel_create"),
+        "novel_sales_list_url": reverse_lazy("novel_sales_list"),
         # ======================================== PaymentMethodModel ========================================
         "payment_method_list_url": reverse_lazy("payment_method_list"),
         "payment_method_create_url": reverse_lazy("payment_method_create"),

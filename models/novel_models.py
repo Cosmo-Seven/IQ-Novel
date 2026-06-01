@@ -15,6 +15,14 @@ class NovelModel(BaseModel):
     genres = models.ManyToManyField(GenreModel, related_name="novels")
     status = models.CharField(max_length=10, choices=StatusEnum.choices, default=StatusEnum.ONGOING)
 
+    author = models.ForeignKey(
+        "core.AuthorModel",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="novels",
+    )
+
     views = models.PositiveIntegerField(default=0)
 
     is_completed = models.BooleanField(default=False)

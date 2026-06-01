@@ -6,21 +6,63 @@ from constants.message import UPDATE, DELETE
 from helpers.filters import filter_querysets
 from core.models import (
     SiteModel,
-    UserModel, 
+    UserModel,
+    NovelModel,
+    ChapterPurchaseModel,
+    AuthorModel,
 )
 from django.contrib.auth.hashers import check_password
+from django.db.models import Count, Sum
+from django.db.models.functions import Coalesce
+from decorators.role_decorator import role_permission_required
 
-
+def _author_for_user(user):
+    return AuthorModel.objects.filter(user=user).first()
 
 # ========================
 # Dashboard
 # ========================
 @login_required("dashboard_login")
+@role_permission_required("view_novelmodel")
 def dashboard(request):
-    context = {
-    
-    }
-    return render(request, "dashboard/index.html", context)
+    novels = (
+        NovelModel.objects.select_related("author")
+        .annotate(
+            sales_count=Count("chapters__purchased_by", distinct=True),
+            gems_sold=Coalesce(Sum("chapters__purchased_by__gems_paid"), 0),
+            revenue_mmk=Coalesce(Sum("chapters__purchased_by__sale_price_mmk"), 0),
+        )
+        .order_by("-revenue_mmk", "-created_at")
+    )
+    author = _author_for_user(request.user)
+    if author and not request.user.is_staff:
+        novels = novels.filter(author=author)
+
+    filters = filter_querysets(
+        request,
+        novels,
+        search_fields=["title", "author__name", "author__user__username"],
+        date_field="created_at",
+        order="-revenue_mmk",
+    )
+
+    totals = ChapterPurchaseModel.objects.filter(
+        chapter__novel__in=filters["paginator"].object_list.values("id")
+    ).aggregate(
+        total_sales=Coalesce(Sum("sale_price_mmk"), 0),
+        total_purchases=Count("id"),
+        total_gems=Coalesce(Sum("gems_paid"), 0),
+    )
+
+    return render(
+        request,
+        "dashboard/novel_sales_list.html",
+        {
+            "novels": filters["page_obj"],
+            "totals": totals,
+            **filters,
+        },
+    )
 
 
 # ========================

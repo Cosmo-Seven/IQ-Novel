@@ -1,0 +1,104 @@
+{% extends 'website/components/base.html' %}
+{% block title %}{{ author.display_name }} - Author{% endblock %}
+{% block body %}
+{% load static %}
+{% load humanize %}
+
+<div class="container pt-4 pb-5">
+  <div class="bg-white rounded-3 shadow-sm border border-light p-4 p-md-5 mb-4">
+    <div class="row g-4 align-items-center">
+      <div class="col-auto">
+        <img
+          src="{% if author.profile %}{{ author.profile.url }}{% else %}{% static 'dashboard/images/no-profile.png' %}{% endif %}"
+          alt="{{ author.display_name }}"
+          class="rounded-circle border shadow-sm"
+          style="width: 100px; height: 100px; object-fit: cover;">
+      </div>
+      <div class="col">
+        <h1 class="h3 fw-bold text-dark mb-1">{{ author.display_name }}</h1>
+        <p class="text-muted small mb-2">@{{ author.user.username }}</p>
+        <p class="mb-2">
+          <span class="badge bg-light text-dark border">
+            <i class="bi bi-people-fill me-1 text-primary"></i>{{ follower_count|intcomma }} follower{{ follower_count|pluralize }}
+          </span>
+        </p>
+        {% if author.bio %}
+        <p class="text-secondary mb-0" style="white-space: pre-wrap;">{{ author.bio }}</p>
+        {% endif %}
+        {% if author.website %}
+        <a href="{{ author.website }}" target="_blank" rel="noopener" class="small d-inline-block mt-2">
+          <i class="bi bi-link-45deg me-1"></i>{{ author.website }}
+        </a>
+        {% endif %}
+      </div>
+      <div class="col-12 col-md-auto">
+        {% if user.is_authenticated and can_follow %}
+        <form method="post" action="{% url 'follow_author' author.id %}">
+          {% csrf_token %}
+          <button type="submit" class="btn rounded-pill px-4 {% if is_following %}btn-outline-secondary{% else %}btn-primary{% endif %}">
+            {% if is_following %}
+            <i class="bi bi-person-check-fill me-1"></i> Following
+            {% else %}
+            <i class="bi bi-person-plus me-1"></i> Follow
+            {% endif %}
+          </button>
+        </form>
+        {% elif not user.is_authenticated %}
+        <a href="{% url 'website_login' %}?next={{ request.path }}" class="btn btn-primary rounded-pill px-4">
+          <i class="bi bi-person-plus me-1"></i> Follow
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="bg-white rounded-3 shadow-sm border border-light p-4">
+        <h2 class="h5 fw-bold mb-3"><i class="bi bi-book me-2 text-primary"></i>Novels</h2>
+        {% if novels %}
+        <div class="list-group list-group-flush">
+          {% for novel in novels %}
+          <a href="{% url 'novel_detail' novel.id %}" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3 border-0 border-bottom">
+            <img src="{% if novel.cover_image %}{{ novel.cover_image.url }}{% else %}https://html.vecurosoft.com/ebukz/demo/assets/img/product/product-img-4-1.jpg{% endif %}"
+              alt="{{ novel.title }}" class="rounded" style="width: 48px; height: 64px; object-fit: cover;">
+            <div>
+              <div class="fw-semibold text-dark">{{ novel.title }}</div>
+              <small class="text-muted">{{ novel.chapters.count }} chapters</small>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted mb-0">No novels published yet.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="bg-white rounded-3 shadow-sm border border-light p-4">
+        <h2 class="h5 fw-bold mb-3"><i class="bi bi-people me-2 text-success"></i>Followers</h2>
+        {% if followers %}
+        <ul class="list-unstyled mb-0">
+          {% for follow in followers %}
+          <li class="d-flex align-items-center gap-3 py-2 border-bottom">
+            <img
+              src="{% if follow.user.profile %}{{ follow.user.profile.url }}{% else %}{% static 'dashboard/images/no-profile.png' %}{% endif %}"
+              alt="{{ follow.user.username }}"
+              class="rounded-circle"
+              style="width: 40px; height: 40px; object-fit: cover;">
+            <div>
+              <div class="fw-semibold small">{{ follow.user.username }}</div>
+              <div class="text-muted" style="font-size: 0.7rem;">Since {{ follow.created_at|date:"d M Y" }}</div>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted mb-0">No followers yet.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

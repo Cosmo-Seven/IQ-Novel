@@ -3,21 +3,31 @@ from django.shortcuts import render, redirect, get_object_or_404
 from core.models import (
     NovelModel,
     ChapterModel,
+    ChapterPurchaseModel,
     GenreModel,
+    AuthorModel,
 )
 from helpers.filters import filter_querysets
 from decorators.role_decorator import role_permission_required
 from decorators.login_decorator import login_required
 from django.db import transaction
-from django.db.models import Max
+from django.db.models import Count, Sum
+from django.db.models.functions import Coalesce
 from constants.message import CREATE, UPDATE, DELETE
+
+
+def _author_for_user(user):
+    return AuthorModel.objects.filter(user=user).first()
 
 
 # // Novel List ------------------------------------------------------
 @login_required("dashboard_login")
 @role_permission_required("view_novelmodel")
 def novel_list(request):
-    novels = NovelModel.objects.all().order_by("-created_at")
+    novels = NovelModel.objects.select_related("author").order_by("-created_at")
+    author = _author_for_user(request.user)
+    if author and not request.user.is_staff:
+        novels = novels.filter(author=author)
 
     filters = filter_querysets(
         request,
@@ -37,17 +47,64 @@ def novel_list(request):
     )
 
 
+@login_required("dashboard_login")
+@role_permission_required("view_novelmodel")
+def novel_sales_list(request):
+    novels = (
+        NovelModel.objects.select_related("author")
+        .annotate(
+            sales_count=Count("chapters__purchased_by", distinct=True),
+            gems_sold=Coalesce(Sum("chapters__purchased_by__gems_paid"), 0),
+            revenue_mmk=Coalesce(Sum("chapters__purchased_by__sale_price_mmk"), 0),
+        )
+        .order_by("-revenue_mmk", "-created_at")
+    )
+    author = _author_for_user(request.user)
+    if author and not request.user.is_staff:
+        novels = novels.filter(author=author)
+
+    filters = filter_querysets(
+        request,
+        novels,
+        search_fields=["title", "author__name", "author__user__username"],
+        date_field="created_at",
+        order="-revenue_mmk",
+    )
+
+    totals = ChapterPurchaseModel.objects.filter(
+        chapter__novel__in=filters["paginator"].object_list.values("id")
+    ).aggregate(
+        total_sales=Coalesce(Sum("sale_price_mmk"), 0),
+        total_purchases=Count("id"),
+        total_gems=Coalesce(Sum("gems_paid"), 0),
+    )
+
+    return render(
+        request,
+        "dashboard/novel_sales_list.html",
+        {
+            "novels": filters["page_obj"],
+            "totals": totals,
+            **filters,
+        },
+    )
+
+
 # // Novel Form ------------------------------------------------------
 @login_required("dashboard_login")
 @role_permission_required(["add_novelmodel", "change_novelmodel"])
 def novel_form(request, pk=None):
 
     novel = None
-    novel_chapters = NovelChapterModel.objects.none()
+    novel_chapters = ChapterModel.objects.none()
 
     if pk:
         novel = get_object_or_404(NovelModel, id=pk)
         novel_chapters = novel.chapters.all().order_by("-created_at")
+        author = _author_for_user(request.user)
+        if author and not request.user.is_staff and novel.author_id != author.id:
+            messages.error(request, "You can only edit your own novels.")
+            return redirect("novel_list")
 
     if request.method == "GET":
         return render(
@@ -63,13 +120,18 @@ def novel_form(request, pk=None):
     if request.method == "POST":
         title = request.POST.get("title")
         summery = request.POST.get("summery")
-        genre = request.POST.get("genre")
+        genres = request.POST.getlist("genre")
         cover_image = request.FILES.get("cover_image")
         is_completed = request.POST.get("is_completed") == "on"
         is_popular = request.POST.get("is_popular") == "on"
         is_fanfic = request.POST.get("is_fanfic") == "on"
 
         if novel:
+            author = _author_for_user(request.user)
+            if author and not request.user.is_staff and novel.author_id != author.id:
+                messages.error(request, "You can only edit your own novels.")
+                return redirect("novel_list")
+
             novel.title = title
             novel.summery = summery
             novel.is_completed = is_completed
@@ -78,21 +140,28 @@ def novel_form(request, pk=None):
             if cover_image:
                 novel.cover_image = cover_image
             novel.save()
-            novel.genres.set([genre])
-
+            novel.genres.set(genres)
             messages.success(request, UPDATE)
         else:
+            author = _author_for_user(request.user)
+            if not author:
+                messages.error(
+                    request,
+                    "Author profile not found. Please contact admin to set up your author account.",
+                )
+                return redirect("novel_list")
+
             novel = NovelModel.objects.create(
                 title=title,
                 summery=summery,
                 cover_image=cover_image,
                 is_completed=is_completed,
                 is_popular=is_popular,
-                is_fanfic = is_fanfic,
-                is_free = is_free
+                is_fanfic=is_fanfic,
+                author=author,
             )
-            novel.genres.set([genre])
-            messages.success(request, "Novel created!")
+            novel.genres.set(genres)
+            messages.success(request, CREATE)
 
         return redirect("novel_update", novel.id)
 
@@ -143,7 +212,7 @@ def novel_chapter_create(request, novel_id):
         return redirect("novel_update", novel.id)
 
     with transaction.atomic():
-        NovelChapterModel.objects.create(
+        ChapterModel.objects.create(
             novel=novel,
             chapter_title=chapter_title,
             content=content,
@@ -158,7 +227,7 @@ def novel_chapter_create(request, novel_id):
 @login_required("dashboard_login")
 @role_permission_required("change_novelchaptermodel")
 def novel_chapter_update(request, pk):
-    chapter = get_object_or_404(NovelChapterModel, id=pk)
+    chapter = get_object_or_404(ChapterModel, id=pk)
     novel = chapter.novel
 
     if request.method != "POST":
@@ -204,7 +273,7 @@ def novel_chapter_update(request, pk):
 @login_required("dashboard_login")
 @role_permission_required("delete_novelchaptermodel")
 def novel_chapter_delete(request, pk):
-    chapter = get_object_or_404(NovelChapterModel, id=pk)
+    chapter = get_object_or_404(ChapterModel, id=pk)
     novel = chapter.novel
 
     if request.method != "POST":

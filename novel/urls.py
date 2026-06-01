@@ -11,6 +11,7 @@ from views.dashboard import (
     genre_views,
     gem_views,
     novel_views,
+    author_views,
     payment_method_views,
     slider_views,
 )
@@ -85,11 +86,21 @@ urlpatterns = (
         path("dashboard/gem/order/reject/<uuid:pk>/", gem_views.gem_order_reject, name="gem_order_reject"),
 
 
+# // AuthorModel ------------------------------------------------------------------------------------------------------------
+        path("dashboard/author/list/", author_views.author_list, name="author_list"),
+        path("dashboard/author/create/", author_views.author_create, name="author_create"),
+        path("dashboard/author/update/<uuid:pk>/", author_views.author_update, name="author_update"),
+        path("dashboard/author/delete/<uuid:pk>/", author_views.author_delete, name="author_delete"),
+        path("dashboard/author/salary/list/", author_views.author_salary_list, name="author_salary_list"),
+        path("dashboard/author/salary/paid/<uuid:pk>/", author_views.author_salary_mark_paid, name="author_salary_mark_paid"),
+
+
 # // NovelModel -------------------------------------------------------------------------------------------------------------
         path("dashboard/novel/list/",novel_views.novel_list,name="novel_list",),
         path("dashboard/novel/create/",novel_views.novel_form,name="novel_create",),
         path("dashboard/novel/update/<uuid:pk>/",novel_views.novel_form,name="novel_update",),
         path("dashboard/novel/delete/<uuid:pk>/",novel_views.novel_delete,name="novel_delete",),
+        path("dashboard/novel/sales/", novel_views.novel_sales_list, name="novel_sales_list"),
         path("dashboard/novel-chapter/create/<uuid:novel_id>/",novel_views.novel_chapter_create,name="novel_chapter_create",),
         path("dashboard/novel-chapter/update/<uuid:pk>/",novel_views.novel_chapter_update,name="novel_chapter_update",),
         path("dashboard/novel-chapter/delete/<uuid:pk>/",novel_views.novel_chapter_delete,name="novel_chapter_delete",),
@@ -124,6 +135,8 @@ urlpatterns = (
         path("novel/chapter/<uuid:id>/", website_page_views.chapter_detail, name="chapter_detail"),
         path("novel/chapter/buy/<uuid:id>/", website_page_views.buy_chapter, name="buy_chapter"),
         path("novel/bookmark/<uuid:id>/", website_page_views.bookmark, name="bookmark"),
+        path("author/<uuid:id>/", website_page_views.author_profile, name="author_profile"),
+        path("author/<uuid:id>/follow/", website_page_views.follow_author, name="follow_author"),
         path("checkout/<uuid:id>/", website_page_views.checkout, name="checkout"),
         path("gem", website_page_views.gem, name="gem"),
         path("website/profile/", website_page_views.profile, name="website_profile"),

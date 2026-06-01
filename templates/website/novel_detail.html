@@ -4,6 +4,7 @@
 {% load static %}
 {% load humanize %}
 {% load myanmar_number %}
+{% load translate %}
 
 <div class="container pt-4 pt-md-5">
   <div class="novel-detail-container bg-white p-3 p-md-4 rounded-3 shadow-sm border border-light">
@@ -21,22 +22,45 @@
         <div>
           <div class="mb-2">
             {% if novel.is_completed %}
-            <span class="badge bg-success px-2 py-1.5">COMPLETED</span>
+            <span class="badge bg-success px-2 py-1.5">{% translate 'completed' request.session.language %}</span>
             {% else %}
-            <span class="badge bg-primary px-2 py-1.5">ONGOING</span>
+            <span class="badge bg-primary px-2 py-1.5">{% translate 'ongoing' request.session.language %}</span>
             {% endif %}
           </div>
 
           <h1 class="novel-main-title h3 mb-2 fw-bold text-dark">{{novel.title}}</h1>
 
-          <div class="mb-3">
-            <span class="text-muted small"><i class="bi bi-person me-1"></i>Author:</span> 
-            <span class="fw-semibold small text-dark">{{ novel.author|default:"Jinnie Grace" }}</span>
+          <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
+            <span class="text-muted small"><i class="bi bi-person me-1"></i>{% translate 'author' request.session.language %}:</span>
+            {% if novel.author %}
+            <a href="{% url 'author_profile' novel.author.id %}" class="fw-semibold small text-dark text-decoration-none">
+              {{ novel.author.display_name }}
+            </a>
+            {% if user.is_authenticated and can_follow_author %}
+            <form method="post" action="{% url 'follow_author' novel.author.id %}" class="m-0">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <button type="submit" class="btn btn-sm rounded-pill {% if is_following_author %}btn-outline-secondary{% else %}btn-primary{% endif %}">
+                {% if is_following_author %}
+                <i class="bi bi-person-check-fill me-1"></i> Following
+                {% else %}
+                <i class="bi bi-person-plus me-1"></i> Follow
+                {% endif %}
+              </button>
+            </form>
+            {% elif not user.is_authenticated and novel.author %}
+            <a href="{% url 'website_login' %}?next={{ request.path }}" class="btn btn-sm btn-outline-primary rounded-pill">
+              <i class="bi bi-person-plus me-1"></i> Follow
+            </a>
+            {% endif %}
+            {% else %}
+            <span class="fw-semibold small text-dark">Unknown</span>
+            {% endif %}
           </div>
 
           <div class="d-flex gap-4 mb-3 border-top border-bottom py-2 my-3">
             <div class="text-center px-2">
-              <div class="text-muted small"><i class="bi bi-eye me-1"></i>Viewers</div>
+              <div class="text-muted small"><i class="bi bi-eye me-1"></i>{% translate 'viewers' request.session.language %}</div>
               <div class="fw-bold text-dark">328</div>
             </div>
             <div class="text-center px-2 border-start">
@@ -117,10 +141,15 @@
 
       <div class="tab-pane fade" id="chapters-content" role="tabpanel" aria-labelledby="chapters-tab">
         <div class="d-flex flex-column gap-2 max-w-ch-list">
-          {% for chapter in novel.chapters.all %}
+          {% for chapter in chapters_ordered %}
           <div class="p-3 border rounded-3 d-flex justify-content-between align-items-center bg-hover-light transition-all {% if chapter.id in read_chapter_ids %}chapter-read{% endif %}">
             <div>
-              <h5 class="mb-1 text-dark fw-semibold" style="font-size: 0.95rem;">{{ chapter.chapter_title }}</h5>
+              <h5 class="mb-1 fw-semibold chapter-title-text {% if chapter.id in read_chapter_ids %}text-muted{% else %}text-dark{% endif %}" style="font-size: 0.95rem;">
+                {{ chapter.chapter_title }}
+                {% if chapter.id in read_chapter_ids %}
+                <span class="badge bg-success-subtle text-success border border-success-subtle ms-1" style="font-size: 0.65rem;">Read</span>
+                {% endif %}
+              </h5>
               <p class="text-muted mb-0" style="font-size: 0.75rem;"><i class="bi bi-clock me-1"></i>{{ chapter.created_at|date:"d M, Y" }}</p>
             </div>
 
@@ -192,7 +221,7 @@
           <div class="card-body p-2 d-flex flex-column justify-content-between">
             <div>
               <p class="novel-title mb-0 text-truncate fw-bold text-dark" style="font-size: 0.9rem;" title="{{ related.title }}">{{ related.title }}</p>
-              <p class="mb-2 text-muted" style="font-size: 0.75rem;"><i class="bi bi-person me-1"></i>{{ related.author|default:"Unknown" }}</p>
+              <p class="mb-2 text-muted" style="font-size: 0.75rem;"><i class="bi bi-person me-1"></i>{% if related.author %}{{ related.author.display_name }}{% else %}Unknown{% endif %}</p>
             </div>
             <div class="novel-meta d-flex justify-content-between pt-2 border-top" style="font-size: 0.75rem;">
               <span>Ch: 220</span>
