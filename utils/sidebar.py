@@ -10,6 +10,12 @@ def sidebar(request):
                         "url_name": "dashboard",
                         "icon": "ti ti-dashboard",
                     },
+                    {
+                        "label": "event",
+                        "url_name": "reward_list",
+                        "icon": "ti ti-calendar-event",
+                        "permission": "view_rewardmodel",
+                    },
                 ],
             },
             {

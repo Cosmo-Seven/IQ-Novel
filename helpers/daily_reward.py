@@ -34,8 +34,8 @@ def process_daily_reward(user):
 
         if not already_claimed:
             # Award the gem/amount
-            user.gem_balance = (user.gem_balance or 0) + reward.amount
-            user.save()
+            user.gem = (user.gem or 0) + reward.amount
+            user.save(update_fields=["gem"])
 
             # Record the claim
             DailyRewardModel.objects.create(

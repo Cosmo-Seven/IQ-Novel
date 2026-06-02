@@ -8,6 +8,7 @@ from django.contrib.auth.hashers import check_password
 from decorators.login_decorator import login_required
 from django.contrib.auth import login, logout, authenticate
 from helpers.mail import send_verification_email, send_reset_email
+from helpers.daily_reward import process_daily_reward
 from core.models import (
     UserModel,
 )
@@ -27,7 +28,15 @@ def login_view(request):
             user = UserModel.objects.get(email=email)
             if check_password(password, user.password):
                 login(request, user)
-                messages.success(request, f"Welcome {user.username}")
+                # Process daily login reward
+                reward_amount = process_daily_reward(user)
+                if reward_amount > 0:
+                    messages.success(
+                        request,
+                        f"Welcome {user.username}! You received {reward_amount} gems as a daily login reward!",
+                    )
+                else:
+                    messages.success(request, f"Welcome {user.username}")
                 return redirect("/")
             else:
                 messages.error(request, "Email or Password is incorrect!")

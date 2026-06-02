@@ -31,6 +31,9 @@ def routes(request):
         "role_create_url": reverse_lazy("role_create"),
         "role_export_excel_url": reverse_lazy("role_export_excel"),
         "role_export_pdf_url": reverse_lazy("role_export_pdf"),
+        # ======================================== RewardModel ========================================
+        "reward_list_url": reverse_lazy("reward_list"),
+        "reward_create_url": reverse_lazy("reward_create"),
         # ======================================== GenreModel ========================================
         "genre_list_url": reverse_lazy("genre_list"),
         "genre_create_url": reverse_lazy("genre_create"),
