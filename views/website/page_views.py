@@ -205,6 +205,17 @@ def profile(request):
         chapters__purchased_by__user=request.user
     ).distinct()
 
+    # Reading list: distinct novels the user has started reading (via chapter reads)
+    from django.db.models import Max
+    reading_list = (
+        NovelModel.objects.filter(
+            chapters__read_by__user=request.user
+        )
+        .annotate(last_read_at=Max("chapters__read_by__created_at"))
+        .order_by("-last_read_at")
+        .distinct()
+    )
+
     # Author stats: follower count & novel count
     author_profile = None
     follower_count = 0
@@ -230,6 +241,7 @@ def profile(request):
             "gem_orders": gem_orders,
             "chapter_purchases": chapter_purchases,
             "purchased_novels": purchased_novels,
+            "reading_list": reading_list,
             "author_profile": author_profile,
             "follower_count": follower_count,
             "novel_count": novel_count,

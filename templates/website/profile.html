@@ -211,6 +211,10 @@
                                 data-bs-target="#sub-bookmarks" type="button" role="tab">Bookmarks</button>
                         </li>
                         <li class="nav-item">
+                            <button class="nav-link" id="sub-reading-list-tab" data-bs-toggle="tab"
+                                data-bs-target="#sub-reading-list" type="button" role="tab">Reading List{% if reading_list %} <span class="badge bg-primary rounded-pill ms-1">{{ reading_list|length }}</span>{% endif %}</button>
+                        </li>
+                        <li class="nav-item">
                             <button class="nav-link" id="sub-purchased-tab" data-bs-toggle="tab"
                                 data-bs-target="#sub-purchased" type="button" role="tab">Purchased</button>
                         </li>
@@ -241,6 +245,32 @@
                             <div class="text-center py-5 text-muted">
                                 <i class="bi bi-bookmark fs-1 mb-2 d-block text-secondary"></i>
                                 <span>No bookmarks saved yet.</span>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="tab-pane fade" id="sub-reading-list" role="tabpanel">
+                            {% if reading_list %}
+                            <p class="text-muted small mb-3">You've started reading {{ reading_list|length }} novel{{ reading_list|length|pluralize }}.</p>
+                            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3">
+                                {% for novel in reading_list %}
+                                <div class="col">
+                                    <div class="card novel-mini-card h-100 position-relative border-0">
+                                        <img src="{% if novel.cover_image %}{{ novel.cover_image.url }}{% else %}https://html.vecurosoft.com/ebukz/demo/assets/img/product/product-img-4-1.jpg{% endif %}"
+                                            class="novel-mini-img" alt="{{ novel.title }}">
+                                        <div class="p-2 text-center">
+                                            <p class="small fw-bold m-0 text-dark text-truncate">{{ novel.title }}</p>
+                                        </div>
+                                        <a href="{% url 'novel_detail' novel.id %}" class="stretched-link"></a>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="text-center py-5 text-muted">
+                                <i class="bi bi-journal-text fs-1 mb-2 d-block text-secondary"></i>
+                                <span>No novels in your reading list yet.</span>
+                                <br><small class="text-muted">Start reading a chapter and it will appear here automatically.</small>
                             </div>
                             {% endif %}
                         </div>
