@@ -4,6 +4,7 @@ from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.hashers import check_password
 from core.models import UserModel
 from decorators.login_decorator import login_required
+from helpers.daily_reward import process_daily_reward
 
 
 # ========================
@@ -21,7 +22,14 @@ def dashboard_login(request):
             user = UserModel.objects.get(email=email)
             if check_password(password, user.password):
                 login(request, user)
-                messages.success(request, f"Welcome {user.username}")
+                
+                # Process daily rewards
+                reward_amount = process_daily_reward(user)
+                if reward_amount > 0:
+                    messages.success(request, f"Welcome {user.username}! You received {reward_amount} gems as daily reward.")
+                else:
+                    messages.success(request, f"Welcome {user.username}")
+                
                 return redirect("dashboard")
             else:
                 messages.error(request, "Email or Password is incorrect!")

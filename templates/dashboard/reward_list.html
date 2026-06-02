@@ -1,0 +1,153 @@
+{% extends 'dashboard/components/base.html' %}
+{% load translate %}
+{% block title %}{% translate 'rewards' request.session.language %}{% endblock %}
+
+{% block body %}
+{% load humanize %}
+<div class="page-wrapper">
+    <div class="content">
+        <div class="page-header">
+            <div class="add-item d-flex">
+                <div class="page-title">
+                    <h4 class="fw-bold">{% translate 'rewards' request.session.language %}</h4>
+                    <h6>{% translate 'manage_daily_rewards' request.session.language %}</h6>
+                </div>
+            </div>
+            <ul class="table-top-head">
+                <li>
+                    <a data-bs-toggle="tooltip" href="{{reward_list_url}}" data-bs-placement="top" title="{% translate 'refresh' request.session.language %}"><i class="ti ti-refresh"></i></a>
+                </li>
+                <li>
+                    <a data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'collapse' request.session.language %}" id="collapse-header"><i class="ti ti-chevron-up"></i></a>
+                </li>
+            </ul>
+            <div class="page-btn">
+                <a href="{{reward_create_url}}" class="btn btn-primary"><i class="ti ti-plus me-1"></i>
+                    {% translate 'add_reward' request.session.language %}</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table border">
+                        <thead>
+                            <tr>
+                                <th>{% translate 'user' request.session.language %}</th>
+                                <th>{% translate 'start_date' request.session.language %}</th>
+                                <th>{% translate 'end_date' request.session.language %}</th>
+                                <th>{% translate 'amount' request.session.language %}</th>
+                                <th>{% translate 'action' request.session.language %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reward in rewards %}
+                            <tr>
+                                <td>
+                                    {% if reward.user %}
+                                        <span class="text-capitalize">{{reward.user.username}}</span>
+                                    {% else %}
+                                        <span class="badge bg-success">Global</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ reward.start_date|date:"Y-m-d" }}</td>
+                                <td>{{ reward.end_date|date:"Y-m-d" }}</td>
+                                <td><span class="text-primary">{{reward.amount}} Gems</span></td>
+                                <td class="action-table-data">
+                                    <div class="edit-delete-action">
+                                        <a class="me-2 p-2 mb-0" data-bs-toggle="modal" href="javascript:void(0);" data-bs-target="#updateModal_{{reward.id}}">
+                                            <i data-feather="edit" class="feather-edit"></i>
+                                        </a>
+                                        <a data-bs-toggle="modal" data-bs-target="#deleteModal_{{reward.id}}" class="p-2 mb-0" href="javascript:void(0);">
+                                            <i data-feather="trash-2" class="feather-trash-2"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination -->
+                {% if page_obj.has_other_pages %}
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{page_obj.previous_page_number}}">Previous</a>
+                        </li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <span class="page-link">Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}</span>
+                        </li>
+
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{page_obj.next_page_number}}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{page_obj.paginator.num_pages}}">Last</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Modals -->
+    {% for reward in rewards %}
+    <div class="modal fade" id="updateModal_{{reward.id}}" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{% translate 'update_reward' request.session.language %}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{% url 'reward_update' reward.id %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        {% include 'dashboard/forms/reward_form.html' %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate 'close' request.session.language %}</button>
+                        <button type="submit" class="btn btn-primary">{% translate 'update' request.session.language %}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Delete Modals -->
+    {% for reward in rewards %}
+    <div class="modal fade" id="deleteModal_{{reward.id}}" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{% translate 'delete_reward' request.session.language %}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>{% translate 'are_you_sure' request.session.language %}</p>
+                </div>
+                <div class="modal-footer">
+                    <form method="POST" action="{% url 'reward_delete' reward.id %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate 'cancel' request.session.language %}</button>
+                        <button type="submit" class="btn btn-danger">{% translate 'delete' request.session.language %}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    {% include 'dashboard/components/footer.html' %}
+</div>
+{% endblock %}

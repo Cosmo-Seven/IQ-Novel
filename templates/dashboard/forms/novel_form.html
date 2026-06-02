@@ -68,20 +68,12 @@
                                         <div class="mb-3">
                                             <label class="form-label">{% translate 'genre' request.session.language %}
                                                 <span class="text-danger ms-1">*</span></label>
-                                            <select class="select" name="genre" {% if novel %}readonly{% else %}required{% endif %} multiple>
-                                                <option value="" disabled>
-                                                    {% translate 'choose_one' request.session.language %}
-                                                </option>
+                                            <select class="select" name="genre" required multiple>
                                                 {% for genre in genres %}
-                                                <option value="{{ genre.id }}" {% if genre in novel.genres.all %}selected{% endif %}>
+                                                <option value="{{ genre.id }}" {% if genre.id in selected_genres %}selected{% endif %}>
                                                     {% translate genre.translation_key request.session.language %}
                                                 </option>
                                                 {% endfor %}
-                                                {% if novel %}
-                                                    {% for g in novel.genres.all %}
-                                                        <option value="{{ g.id }}" selected>{% translate g.translation_key request.session.language %}</option>
-                                                    {% endfor %}
-                                                {% endif %}
                                             </select>
                                         </div>
                                     </div>

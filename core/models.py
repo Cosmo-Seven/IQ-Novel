@@ -16,3 +16,4 @@ from models.payment_method_models import PaymentMethodModel
 from models.slider_models import SliderModel
 from models.gem_models import GemModel, GemOrderModel
 from models.author_models import AuthorModel, AuthorSalaryModel, AuthorFollowModel
+from models.reward_models import RewardModel, DailyRewardModel

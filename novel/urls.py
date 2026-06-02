@@ -13,6 +13,7 @@ from views.dashboard import (
     novel_views,
     author_views,
     payment_method_views,
+    reward_views,
     slider_views,
 )
 from views.website import page_views as website_page_views
@@ -84,6 +85,13 @@ urlpatterns = (
         path("dashboard/gem/order/list/", gem_views.gem_order_list, name="gem_order_list"),
         path("dashboard/gem/order/approve/<uuid:pk>/", gem_views.gem_order_approve, name="gem_order_approve"),
         path("dashboard/gem/order/reject/<uuid:pk>/", gem_views.gem_order_reject, name="gem_order_reject"),
+
+
+# // RewardModel -----------------------------------------------------------------------------------------------------------
+        path("dashboard/reward/list/", reward_views.reward_list, name="reward_list"),
+        path("dashboard/reward/create/", reward_views.reward_create, name="reward_create"),
+        path("dashboard/reward/update/<uuid:pk>/", reward_views.reward_update, name="reward_update"),
+        path("dashboard/reward/delete/<uuid:pk>/", reward_views.reward_delete, name="reward_delete"),
 
 
 # // AuthorModel ------------------------------------------------------------------------------------------------------------

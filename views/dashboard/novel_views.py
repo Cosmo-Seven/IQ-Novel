@@ -113,6 +113,7 @@ def novel_form(request, pk=None):
             {
                 "genres": GenreModel.objects.all().order_by("-created_at"),
                 "novel": novel,
+                "selected_genres": list(novel.genres.values_list("id", flat=True)) if novel else [],
                 "novel_chapters": novel_chapters,
             },
         )

@@ -350,7 +350,7 @@ footer a:hover {
   background: linear-gradient(135deg, #ffe5ec 0%, #ffccd5 100%);
   border-radius: 12px;
   padding: 12px;
-  color: #ff3377;
+  color: var(--dark-pink);
   font-weight: 700;
 }
 
@@ -366,12 +366,12 @@ footer a:hover {
 
 .profile-menu .list-group-item.active {
   background-color: #fff0f3;
-  color: #ff3377;
+  color: var(--dark-pink);
 }
 
 .profile-menu .list-group-item:hover:not(.active) {
   background-color: #f8f9fa;
-  color: #ff3377;
+  color: var(--dark-pink);
 }
 
 /* Right Content Area Card */
@@ -393,8 +393,8 @@ footer a:hover {
 }
 
 .library-tabs .nav-link.active {
-  color: #ff3377;
-  border-bottom: 3px solid #ff3377;
+  color: var(--dark-pink);
+  border-bottom: 3px solid var(--dark-pink);
   background: transparent;
 }
 
@@ -427,12 +427,12 @@ footer a:hover {
 
 /* Form inputs customization */
 .form-control:focus {
-  border-color: #ff3377;
+  border-color: var(--dark-pink);
   box-shadow: 0 0 0 0.25rem rgba(255, 51, 119, 0.15);
 }
 
 .btn-save-profile {
-  background-color: #ff3377;
+  background-color: var(--dark-pink);
   color: white;
   font-weight: 600;
   border: none;
@@ -441,7 +441,7 @@ footer a:hover {
 }
 
 .btn-save-profile:hover {
-  background-color: #e02463;
+  background-color: var(--dark-pink);
   color: white;
 }
 
@@ -492,7 +492,7 @@ footer a:hover {
 }
 
 .btn-primary:hover {
-  background-color: #a4133c;
+  background-color: var(--accent-pink);
 }
 
 .btn-success {
@@ -502,7 +502,7 @@ footer a:hover {
 }
 
 .btn-success:hover {
-  background-color: #ff8fab;
+  background-color: var(--accent-pink);
 }
 
 /* links */
