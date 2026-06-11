@@ -4,6 +4,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.urls import reverse
+from django.db.models import F
 from decorators.login_decorator import login_required
 from django.contrib.auth import login, logout, authenticate
 from helpers.mail import send_verification_email, send_reset_email
@@ -19,6 +20,8 @@ from core.models import (
     BookmarkModel,
     AuthorModel,
     AuthorFollowModel,
+    CommentModel,
+    NovelViewModel,
 )
 from helpers.chapter_access import adjacent_chapters, chapter_has_access, novel_chapters_ordered
 
@@ -50,16 +53,44 @@ def gem(request):
     }
     return render(request, "website/gem.html", context)
 
+@login_required("website_login")
 def novel_detail(request, id):
     novel = get_object_or_404(NovelModel.objects.select_related("author"), id=id)
+
+    if request.method == "POST":
+        comment_text = request.POST.get("comment_text", "").strip()
+        if comment_text:
+            CommentModel.objects.create(
+                user=request.user,
+                novel=novel,
+                content=comment_text,
+                created_by=request.user,
+                updated_by=request.user,
+            )
+            messages.success(request, "Your comment has been posted.")
+            return redirect("novel_detail", id=id)
+        messages.error(request, "Please write a comment before submitting.")
+
+    if request.method == "GET" and request.user.is_authenticated:
+        novel_view, created = NovelViewModel.objects.get_or_create(
+            user=request.user,
+            novel=novel,
+        )
+        if created:
+            NovelModel.objects.filter(id=novel.id).update(views=F("views") + 1)
+            novel.refresh_from_db(fields=["views"])
+
     bookmarked = False
+    downloaded = False
     is_following_author = False
     can_follow_author = False
     purchased_chapter_ids = []
     read_chapter_ids = []
     if request.user.is_authenticated:
         bookmarked = BookmarkModel.objects.filter(user=request.user, novel=novel).exists()
-        purchased_chapter_ids = list(
+        from core.models import DownloadModel
+        downloaded = DownloadModel.objects.filter(user=request.user, novel=novel).exists()
+        purchased_chapter_ids = set(
             request.user.chapter_purchases.values_list("chapter_id", flat=True)
         )
         read_chapter_ids = list(
@@ -70,17 +101,77 @@ def novel_detail(request, id):
                 user=request.user, author=novel.author
             ).exists()
             can_follow_author = novel.author.user_id != request.user.id
+    else:
+        purchased_chapter_ids = set()
+        read_chapter_ids = []
+
+    purchasable_chapters = []
+    for chapter in novel_chapters_ordered(novel):
+        if len(purchasable_chapters) >= 10:
+            break
+        if chapter.is_free or chapter.id in purchased_chapter_ids:
+            continue
+        purchasable_chapters.append(chapter)
+
+    comments = novel.comments.filter(is_deleted=False, is_approved=True).select_related("user").order_by("-created_at")
+    related_novels = NovelModel.objects.filter(
+        genres__in=novel.genres.all()
+    ).exclude(id=novel.id).distinct().select_related("author").order_by("-views")[:6]
+
+    if not related_novels:
+        related_novels = NovelModel.objects.filter(
+            author=novel.author
+        ).exclude(id=novel.id).select_related("author").order_by("-views")[:6]
 
     context = {
         "novel": novel,
         "bookmarked": bookmarked,
+        "downloaded": downloaded,
         "is_following_author": is_following_author,
         "can_follow_author": can_follow_author,
         "chapters_ordered": novel_chapters_ordered(novel),
         "purchased_chapter_ids": purchased_chapter_ids,
         "read_chapter_ids": read_chapter_ids,
+        "buy_ten_count": len(purchasable_chapters),
+        "buy_ten_total": sum(int(chapter.gem_price or 0) for chapter in purchasable_chapters),
+        "comments": comments,
+        "related_novels": related_novels,
     }
     return render(request, "website/novel_detail.html", context)
+
+
+@login_required("website_login")
+def edit_comment(request, id):
+    comment = get_object_or_404(CommentModel, id=id, is_deleted=False)
+    if comment.user != request.user:
+        messages.error(request, "You can only edit your own comment.")
+        return redirect("novel_detail", id=comment.novel.id)
+
+    if request.method == "POST":
+        comment_text = request.POST.get("comment_text", "").strip()
+        if comment_text:
+            comment.content = comment_text
+            comment.updated_by = request.user
+            comment.save()
+            messages.success(request, "Comment updated successfully.")
+        else:
+            messages.error(request, "Please enter a comment before saving.")
+
+    return redirect("novel_detail", id=comment.novel.id)
+
+
+@login_required("website_login")
+def delete_comment(request, id):
+    comment = get_object_or_404(CommentModel, id=id, is_deleted=False)
+    if comment.user != request.user:
+        messages.error(request, "You can only delete your own comment.")
+        return redirect("novel_detail", id=comment.novel.id)
+
+    if request.method == "POST":
+        comment.soft_delete(user=request.user)
+        messages.success(request, "Comment deleted successfully.")
+
+    return redirect("novel_detail", id=comment.novel.id)
 
 
 def author_profile(request, id):
@@ -140,7 +231,7 @@ def follow_author(request, id):
         return redirect(next_url)
     return redirect("author_profile", id=author.id)
 
-
+@login_required("website_login")
 def bookmark(request, id):
     novel = get_object_or_404(NovelModel, id=id)
 
@@ -160,6 +251,25 @@ def bookmark(request, id):
             messages.success(request, "Saved to bookmarks.")
 
     return redirect("novel_detail", id=id)
+
+from django.http import JsonResponse
+@login_required("website_login")
+def toggle_download(request, id):
+    novel = get_object_or_404(NovelModel, id=id)
+
+    if request.method == "POST":
+        from core.models import DownloadModel
+        download, created = DownloadModel.objects.get_or_create(
+            user=request.user,
+            novel=novel,
+        )
+        if not created:
+            download.delete()
+            return JsonResponse({"status": "removed", "message": "Removed from offline downloads."})
+        else:
+            return JsonResponse({"status": "added", "message": "Downloaded for offline reading."})
+
+    return JsonResponse({"status": "error", "message": "Invalid request method."}, status=400)
 
 @login_required("website_login")
 def checkout(request, id):
@@ -216,6 +326,10 @@ def profile(request):
         .distinct()
     )
 
+    # Downloaded Novels
+    from core.models import DownloadModel
+    downloaded_novels = DownloadModel.objects.filter(user=request.user).select_related("novel").order_by("-created_at")
+
     # Author stats: follower count & novel count
     author_profile = None
     follower_count = 0
@@ -242,6 +356,7 @@ def profile(request):
             "chapter_purchases": chapter_purchases,
             "purchased_novels": purchased_novels,
             "reading_list": reading_list,
+            "downloaded_novels": downloaded_novels,
             "author_profile": author_profile,
             "follower_count": follower_count,
             "novel_count": novel_count,
@@ -294,6 +409,60 @@ def buy_chapter(request, id):
         messages.success(request, "Chapter purchased successfully. Gems deducted.")
 
     return redirect("novel_detail", id=chapter.novel.id)
+
+
+@login_required("website_login")
+def buy_ten_chapters(request, id):
+    novel = get_object_or_404(NovelModel.objects.select_related("author"), id=id)
+    purchased_chapter_ids = set(
+        request.user.chapter_purchases.values_list("chapter_id", flat=True)
+    )
+    chapters_to_buy = []
+    for chapter in novel_chapters_ordered(novel):
+        if len(chapters_to_buy) >= 10:
+            break
+        if chapter.is_free or chapter.id in purchased_chapter_ids:
+            continue
+        chapters_to_buy.append(chapter)
+
+    if not chapters_to_buy:
+        messages.info(request, "No chapters available to purchase.")
+        return redirect("novel_detail", id=novel.id)
+
+    total_price = sum(int(chapter.gem_price or 0) for chapter in chapters_to_buy)
+    if request.user.gem < total_price:
+        messages.error(request, "Insufficient gems. Please top up your gems.")
+        return redirect("novel_detail", id=novel.id)
+
+    if request.method == "POST":
+        from helpers.gem_pricing import gem_unit_price_mmk, gems_to_mmk
+
+        author = novel.author
+        revenue_share_percent = author.revenue_share_percent if author else 0
+        unit_price = gem_unit_price_mmk()
+
+        for chapter in chapters_to_buy:
+            price = int(chapter.gem_price or 0)
+            sale_price_mmk = gems_to_mmk(price)
+            author_share_mmk = author.calculate_share(sale_price_mmk) if author else 0
+            ChapterPurchaseModel.objects.create(
+                user=request.user,
+                chapter=chapter,
+                gems_paid=price,
+                sale_price_mmk=sale_price_mmk,
+                author_share_mmk=author_share_mmk,
+                gem_unit_price_mmk=unit_price,
+                revenue_share_percent=revenue_share_percent,
+            )
+
+        request.user.gem = max(0, request.user.gem - total_price)
+        request.user.save(update_fields=["gem"])
+        messages.success(
+            request,
+            f"{len(chapters_to_buy)} chapters purchased successfully. Gems deducted.",
+        )
+
+    return redirect("novel_detail", id=novel.id)
 
 
 def chapter_detail(request, id):

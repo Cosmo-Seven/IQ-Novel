@@ -119,6 +119,33 @@ def novel_form(request, pk=None):
         )
 
     if request.method == "POST":
+        if request.POST.get("bulk_update") == "1":
+            if not novel:
+                messages.error(request, "Please save the novel before applying bulk chapter updates.")
+                return redirect("novel_list")
+
+            selected_chapters = request.POST.getlist("selected_chapters")
+            if not selected_chapters:
+                messages.error(request, "Please select at least one chapter.")
+                return redirect("novel_update", novel.id)
+
+            try:
+                bulk_gem_price = int(request.POST.get("bulk_gem_price") or 0)
+            except ValueError:
+                messages.error(request, "Invalid gem price value.")
+                return redirect("novel_update", novel.id)
+
+            with transaction.atomic():
+                chapters = ChapterModel.objects.filter(id__in=selected_chapters, novel=novel)
+                updated_count = chapters.count()
+                if updated_count == 0:
+                    messages.error(request, "No matching chapters found for update.")
+                    return redirect("novel_update", novel.id)
+                chapters.update(gem_price=bulk_gem_price, is_free=(bulk_gem_price == 0))
+
+            messages.success(request, f"Updated gem price for {updated_count} chapter(s).")
+            return redirect("novel_update", novel.id)
+
         title = request.POST.get("title")
         summery = request.POST.get("summery")
         genres = request.POST.getlist("genre")
@@ -182,7 +209,7 @@ def novel_delete(request, pk):
 
 # // Novel Chapter Create ------------------------------------------------------
 @login_required("dashboard_login")
-@role_permission_required("add_novelchaptermodel")
+@role_permission_required("add_novelmodel")
 def novel_chapter_create(request, novel_id):
     novel = get_object_or_404(NovelModel, id=novel_id)
 
@@ -226,7 +253,7 @@ def novel_chapter_create(request, novel_id):
 
 # // Novel Chapter Update ------------------------------------------------------
 @login_required("dashboard_login")
-@role_permission_required("change_novelchaptermodel")
+@role_permission_required("change_novelmodel")
 def novel_chapter_update(request, pk):
     chapter = get_object_or_404(ChapterModel, id=pk)
     novel = chapter.novel
@@ -234,7 +261,7 @@ def novel_chapter_update(request, pk):
     if request.method != "POST":
         return redirect("novel_update", novel.id)
 
-    chapter_title = request.POST.get("chapter_title", "").strip()
+    chapter_title = request.POST.get("chapters_title", "").strip()
     content = request.POST.get("content", "").strip()
     is_free = request.POST.get("is_free") == "on"
 
@@ -272,7 +299,7 @@ def novel_chapter_update(request, pk):
 
 # // Novel Chapter Delete ------------------------------------------------------
 @login_required("dashboard_login")
-@role_permission_required("delete_novelchaptermodel")
+@role_permission_required("delete_novelmodel")
 def novel_chapter_delete(request, pk):
     chapter = get_object_or_404(ChapterModel, id=pk)
     novel = chapter.novel

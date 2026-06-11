@@ -33,7 +33,6 @@ urlpatterns = (
         path(settings.DASHBOARD_LOGOUT_URL,auth_views.dashboard_logout,name="dashboard_logout",),
         path("dashboard/profile/", auth_views.profile, name="dashboard_profile"),
         path("dashboard/site-settings/",dashboard_page_views.site_settings,name="site_settings",),
-        path("accounts/", include("allauth.urls")),
 
 
 # // UserModel ----------------------------------------------------------------------------------------------------
@@ -140,9 +139,13 @@ urlpatterns = (
         path("", include("pwa.urls")),
         path("", website_page_views.index, name="home"),
         path("novel/detail/<uuid:id>/", website_page_views.novel_detail, name="novel_detail"),
+        path("novel/comment/edit/<uuid:id>/", website_page_views.edit_comment, name="edit_comment"),
+        path("novel/comment/delete/<uuid:id>/", website_page_views.delete_comment, name="delete_comment"),
         path("novel/chapter/<uuid:id>/", website_page_views.chapter_detail, name="chapter_detail"),
         path("novel/chapter/buy/<uuid:id>/", website_page_views.buy_chapter, name="buy_chapter"),
+        path("novel/<uuid:id>/buy-ten/", website_page_views.buy_ten_chapters, name="buy_ten_chapters"),
         path("novel/bookmark/<uuid:id>/", website_page_views.bookmark, name="bookmark"),
+        path("novel/download/<uuid:id>/", website_page_views.toggle_download, name="toggle_download"),
         path("author/<uuid:id>/", website_page_views.author_profile, name="author_profile"),
         path("author/<uuid:id>/follow/", website_page_views.follow_author, name="follow_author"),
         path("checkout/<uuid:id>/", website_page_views.checkout, name="checkout"),

@@ -85,7 +85,7 @@ def sidebar(request):
                         "label": "novel_sales",
                         "url_name": "novel_sales_list",
                         "icon": "ti ti-chart-bar",
-                        "permission": "view_novelmodel",
+                        "permission": "view_novelviewmodel",
                     },
                 ]
             },

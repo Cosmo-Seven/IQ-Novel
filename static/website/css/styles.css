@@ -176,6 +176,7 @@ body {
 .novel-title {
     font-size: 0.95rem;
     font-weight: 600;
+    height: 2.5rem;
     color: #212529;
     line-height: 1.3;
 }
@@ -515,3 +516,4 @@ footer a:hover {
 .auth-face a:hover {
   text-decoration: underline;
 }
+

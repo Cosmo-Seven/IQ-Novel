@@ -26,7 +26,7 @@
                 </li>
             </ul>
             <div class="page-btn d-flex gap-2">
-                <a href="{{ novel_sales_list_url }}" class="btn btn-outline-primary"><i class="ti ti-chart-bar me-1"></i>ရောင်းအား</a>
+                <!-- <a href="{{ novel_sales_list_url }}" class="btn btn-outline-primary"><i class="ti ti-chart-bar me-1"></i>ရောင်းအား</a> -->
                 <a href="{{novel_create_url}}" class="btn btn-primary"><i
                         class="ti ti-circle-plus me-1"></i>{% translate 'add_new_novel' request.session.language %}</a>
             </div>
@@ -48,6 +48,7 @@
                                 <!-- <th>{% translate 'table_no' request.session.language %}</th> -->
                                 <th>{% translate 'cover_image' request.session.language %}</th>
                                 <th>{% translate 'title' request.session.language %}</th>
+                                <th>{% translate 'author' request.session.language %}</th>
                                 <th>{% translate 'genre' request.session.language %}</th>
                                 <th>{% translate 'summery' request.session.language %}</th>
                                 <th>{% translate 'created_date' request.session.language %}</th>
@@ -73,12 +74,13 @@
                                     </div>
                                 </td>
                                 <td>{{ novel.title }}</td>
+                                <td>{{ novel.author }}</td>
                                 <td>
                                     {% for genre in novel.genres.all %}
                                         {{genre.name}}
                                     {% endfor %}
                                 </td>
-                                <td>{{ novel.summery|truncatechars:"20" }}</td>
+                                <td>{{ novel.summery|safe|truncatechars:"20" }}</td>
                                 <td>{{ novel.created_at|date:'d M Y' }}</td>
                                 <td class="action-table-data">
                                     <div class="edit-delete-action">

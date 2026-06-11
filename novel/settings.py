@@ -36,15 +36,10 @@ INSTALLED_APPS = [
     "pwa",
     "core",
     "django.contrib.sites",
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
-    "allauth.socialaccount.providers.google",
 ]
 
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
-    # "allauth.account.auth_backends.AuthenticationBackend",
 )
 
 MIDDLEWARE = [
@@ -57,7 +52,6 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # "middlewares.internal_server_error.InternalServerErrorMiddleware",
-    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = f"{PROJECT_NAME}.urls"
@@ -165,22 +159,3 @@ PWA_APP_ICONS = [
     },
     {"src": "/static/website/images/logo.png", "sizes": "512x512", "purpose": "any"},
 ]
-
-LOGIN_REDIRECT_URL = "/"
-ACCOUNT_LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/"
-SOCIALACCOUNT_LOGIN_ON_GET = True
-SOCIALACCOUNT_AUTO_SIGNUP = True
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_UNIQUE_EMAIL = True
-SOCIALACCOUNT_EMAIL_REQUIRED = True
-SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
-SOCIALACCOUNT_QUERY_EMAIL = True
-SOCIALACCOUNT_ADAPTER = "core.adapters.SocialAccountAdapter"
-
-SOCIALACCOUNT_PROVIDERS = {
-    "google": {
-        "SCOPE": ["profile", "email"],
-    },
-}

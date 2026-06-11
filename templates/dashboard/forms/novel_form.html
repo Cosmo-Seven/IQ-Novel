@@ -88,7 +88,7 @@
                                     <div class="col-lg-12 col-md-6 col-12">
                                         <div class="mb-3">
                                             <label class="form-label">{% translate 'summery' request.session.language %}</label>
-                                            <textarea type="text" name="summery" required class="form-control" rows="10">{{ novel.summery }}</textarea>
+                                            <textarea id="id_summery" name="summery" required class="form-control" rows="10">{{ novel.summery }}</textarea>
                                         </div>
                                     </div>
                                     <div class="mb-3">
@@ -136,10 +136,25 @@
                                     <button type="button" data-bs-target="#createModal" data-bs-toggle="modal" class="btn btn-primary">
                                         + {% translate 'add_item' request.session.language %}
                                     </button>
+
+                                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mt-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="selectAllChapters">
+                                            <label class="form-check-label" for="selectAllChapters">Select All</label>
+                                        </div>
+                                        <div class="input-group" style="max-width: 320px;">
+                                            <input type="number" name="bulk_gem_price" class="form-control" min="0" placeholder="Bulk gem price">
+                                            <button type="submit" name="bulk_update" value="1" class="btn btn-warning">
+                                                Bulk update
+                                            </button>
+                                        </div>
+                                    </div>
+
                                     <div class="table-responsive mt-4">
                                         <table class="table border">
                                             <thead>
                                                 <tr>
+                                                    <th class="text-center"></th>
                                                     <th class="text-center">{% translate 'novel_chapters' request.session.language %}</th>
                                                     <th class="text-center">{% translate 'status' request.session.language %}</th>
                                                     <th class="text-center">{% translate 'gem' request.session.language %}</th>
@@ -149,6 +164,7 @@
                                             <tbody>
                                                 {% for item in novel_chapters %}
                                                 <tr>
+                                                    <td class="text-center"><input class="form-check-input chapter-select" type="checkbox" name="selected_chapters" value="{{ item.id }}"></td>
                                                     <td class="text-center">{{ item.chapter_title }}</td>
                                                     <td class="text-center">{% if item.is_free %}Free{% else %}Paid{% endif %}</td>
                                                     <td class="text-center">{{ item.gem_price }}</td>
@@ -187,6 +203,18 @@
         </form>
     </div>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const selectAll = document.getElementById("selectAllChapters");
+            if (!selectAll) return;
+            selectAll.addEventListener("change", function() {
+                document.querySelectorAll(".chapter-select").forEach(function(cb) {
+                    cb.checked = selectAll.checked;
+                });
+            });
+        });
+    </script>
+
     {% include 'dashboard/components/footer.html' %}
 </div>
 
@@ -207,59 +235,80 @@
                         </button>
                     </div>
                     <form action="{% url 'novel_chapter_create' novel.id %}" method="POST">
-                        {% csrf_token %}
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-lg-6 col-12">
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            {% translate 'chapter_title' request.session.language %}
-                                            <span class="text-danger ms-1">*</span>
-                                        </label>
-                                        <input type="text" name="chapters_title" required class="form-control">
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 col-12">
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            {% translate 'gem' request.session.language %}
-                                            <span class="text-danger ms-1">*</span>
-                                        </label>
-                                        <input type="number" id="gem_price" name="gem_price" class="form-control" value="0">
+                {% csrf_token %}
+                
+                <div class="modal-body px-4 py-3">
+                    <div class="row g-3"> <!-- Controlled gap layout -->
+                        
+                        <!-- Chapter Title Box -->
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold text-muted small mb-1">
+                                    {% translate 'chapter_title' request.session.language %}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" name="chapters_title" required class="form-control custom-input-field">
+                            </div>
+                        </div>
+
+                        <!-- Controlled Switch Panel -->
+                        <div class="col-12">
+                            <div class="d-flex flex-wrap align-items-center justify-content-between p-3 border" style="border-radius: 8px; background-color: #fdfdfd; border-color: #e9ecef !important;">
+                                
+                                <!-- Free Toggle Layout -->
+                                <div class="d-flex align-items-center">
+                                    <div class="status-toggle modal-status d-flex align-items-center gap-2">
+                                        <input type="checkbox" id="is_free_create" name="is_free" class="check">
+                                        <label for="is_free_create" class="checktoggle" style="margin: 0; cursor: pointer;"></label>
+                                        <span class="fw-bold text-dark ms-1" style="font-size: 0.95rem; cursor: pointer;">
+                                            {% translate 'free' request.session.language %}
+                                        </span>
                                     </div>
                                 </div>
 
-                                <div class="col-12">
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            {% translate 'content' request.session.language %}
-                                            <span class="text-danger ms-1">*</span>
+                                <!-- Gem Input Configuration Container -->
+                                <div id="gemPriceWrapper_create" style="transition: opacity 0.2s ease, transform 0.2s ease; min-width: 180px;">
+                                    <div class="d-flex align-items-center gap-2 justify-content-end">
+                                        <label class="form-label m-0 fw-semibold text-muted small text-nowrap">
+                                            {% translate 'gem' request.session.language %}:
                                         </label>
-                                        <textarea name="content" rows="5" required class="form-control"></textarea>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="mb-3">
-                                        <div class="gap-2 status-toggle modal-status d-flex align-items-center">
-                                            <span class="status-label">
-                                                {% translate 'free' request.session.language %}
+                                        <div class="input-group input-group-sm" style="max-width: 120px;">
+                                            <span class="input-group-text bg-white border-end-0 text-warning px-2">
+                                                <i class="bi bi-gem-fill"></i>
                                             </span>
-
-                                            <input type="checkbox" id="is_free" name="is_free" class="check">
-                                            <label for="is_free" class="checktoggle"></label>
+                                            <input type="number" id="gem_price_create" name="gem_price" class="form-control border-start-0 fw-bold text-center ps-1" min="0">
                                         </div>
                                     </div>
                                 </div>
 
-                                
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn me-2 btn-secondary" data-bs-dismiss="modal">{% translate 'close' request.session.language %}</button>
-                            <button type="submit" class="btn btn-primary">{% translate 'save' request.session.language %}</button>
+
+                        <!-- Content Big Text Area -->
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold text-muted small mb-1">
+                                    {% translate 'content' request.session.language %}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <textarea id="id_create_content" name="content" rows="6" required class="form-control custom-input-field text-area-adjust"></textarea>
+                            </div>
                         </div>
-                    </form>
+                        
+                    </div>
+                </div>
+
+                <!-- Footer Operations Layout -->
+                <div class="modal-footer border-top-0 pt-2 pb-4 px-4 justify-content-end gap-2">
+                    <button type="button" class="btn btn-light fw-semibold text-secondary px-4" data-bs-dismiss="modal" style="border-radius: 6px; font-size: 0.9rem;">
+                        {% translate 'close' request.session.language %}
+                    </button>
+                    <button type="submit" class="btn btn-primary fw-semibold px-4" style="border-radius: 6px; font-size: 0.9rem; background-color: #2e66ff; border: none;">
+                        {% translate 'save' request.session.language %}
+                    </button>
+                </div>
+
+            </form>
                 </div>
             </div>
         </div>
@@ -268,78 +317,130 @@
 
 <!-- Update Modal -->
 {% for item in novel_chapters %}
-<div class="modal fade" id="updateModal_{{item.id}}">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="page-wrapper-new p-0">
-                <div class="content">
-                    <div class="modal-header">
-                        <div class="page-title">
-                            <h4>{% translate 'update_item' request.session.language %}</h4>
-                        </div>
-                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+<div class="modal fade" id="updateModal_{{ item.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
+            
+            <!-- Modal Header -->
+            <div class="modal-header border-bottom-0 pt-4 px-4 pb-2">
+                <div class="page-title m-0">
+                    <h5 class="fw-bold text-dark m-0" style="font-size: 1.2rem; letter-spacing: -0.3px;">
+                        {% translate 'edit_item' request.session.language %}
+                    </h5>
+                </div>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">×</span>
                         </button>
-                    </div>
-                    <form action="{% url 'novel_chapter_update' item.id %}" method="POST" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-lg-6 col-12">
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            {% translate 'chapter_title' request.session.language %}
-                                            <span class="text-danger ms-1">*</span>
-                                        </label>
-                                        <input type="text" value="{{item.chapter_title}}" name="chapters_title" required class="form-control">
+            </div>
+
+            <!-- Form Pointing to Update Route -->
+            <form action="{% url 'novel_chapter_update' item.id %}" method="POST">
+                {% csrf_token %}
+                
+                <div class="modal-body px-4 py-3">
+                    <div class="row g-3">
+                        
+                        <!-- Chapter Title Box -->
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold text-muted small mb-1">
+                                    {% translate 'chapter_title' request.session.language %}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" name="chapters_title" value="{{ item.chapter_title }}" required class="form-control custom-input-field">
+                            </div>
+                        </div>
+
+                        <!-- Controlled Switch Panel -->
+                        <div class="col-12">
+                            <div class="d-flex flex-wrap align-items-center justify-content-between p-3 border" style="border-radius: 8px; background-color: #fdfdfd; border-color: #e9ecef !important;">
+                                
+                                <!-- Free Toggle Layout -->
+                                <div class="d-flex align-items-center">
+                                    <div class="status-toggle modal-status d-flex align-items-center gap-2">
+                                        <input type="checkbox" id="is_free_{{ item.id }}" name="is_free" class="check" {% if item.is_free %}checked{% endif %}>
+                                        <label for="is_free_{{ item.id }}" class="checktoggle" style="margin: 0; cursor: pointer;"></label>
+                                        <span class="fw-bold text-dark ms-1" style="font-size: 0.95rem; cursor: pointer;">
+                                            {% translate 'free' request.session.language %}
+                                        </span>
                                     </div>
                                 </div>
 
-                                <div class="col-12">
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            {% translate 'content' request.session.language %}
-                                            <span class="text-danger ms-1">*</span>
+                                <!-- Gem Input Configuration Container (Fixed ID here) -->
+                                <div id="gemPriceWrapper_{{ item.id }}" style="transition: opacity 0.2s ease, transform 0.2s ease; min-width: 180px;">
+                                    <div class="d-flex align-items-center gap-2 justify-content-end">
+                                        <label class="form-label m-0 fw-semibold text-muted small text-nowrap">
+                                            {% translate 'gem' request.session.language %}:
                                         </label>
-                                        <textarea name="content" rows="5" required class="form-control">{{item.content}}</textarea>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="mb-3">
-                                        <div class="gap-2 status-toggle modal-status d-flex align-items-center">
-                                            <span class="status-label">
-                                                {% translate 'free' request.session.language %}
+                                        <div class="input-group input-group-sm" style="max-width: 120px;">
+                                            <span class="input-group-text bg-white border-end-0 text-warning px-2">
+                                                <i class="bi bi-gem-fill"></i>
                                             </span>
-
-                                            <input type="checkbox" name="is_free" {% if item.is_free %}checked{% endif %} class="check">
-                                            <label for="is_free" class="checktoggle"></label>
+                                            <!-- Fixed variable context here from chapter to item -->
+                                            <input type="number" id="gem_price_{{ item.id }}" name="gem_price" class="form-control border-start-0 fw-bold text-center ps-1" value="{{ item.gem_price|default:0 }}" min="0">
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="col-lg-6 col-12">
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            {% translate 'gem' request.session.language %}
-                                            <span class="text-danger ms-1">*</span>
-                                        </label>
-                                        <input type="number" name="gem_price" class="form-control" value="0">
-                                    </div>
-                                </div>
-                                
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn me-2 btn-secondary" data-bs-dismiss="modal">{% translate 'close' request.session.language %}</button>
-                            <button type="submit" class="btn btn-primary">{% translate 'save' request.session.language %}</button>
+
+                        <!-- Content Big Text Area -->
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold text-muted small mb-1">
+                                    {% translate 'content' request.session.language %}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <textarea id="id_update_content_{{ item.id }}" name="content" rows="6" required class="form-control custom-input-field text-area-adjust">{{ item.content }}</textarea>
+                            </div>
                         </div>
-                    </form>
+                        
+                    </div>
                 </div>
-            </div>
+
+                <!-- Footer Operations Layout -->
+                <div class="modal-footer border-top-0 pt-2 pb-4 px-4 justify-content-end gap-2">
+                    <button type="button" class="btn btn-light fw-semibold text-secondary px-4" data-bs-dismiss="modal" style="border-radius: 6px; font-size: 0.9rem;">
+                        {% translate 'close' request.session.language %}
+                    </button>
+                    <button type="submit" class="btn btn-primary fw-semibold px-4" style="border-radius: 6px; font-size: 0.9rem; background-color: #2e66ff; border: none;">
+                        {% translate 'save' request.session.language %}
+                    </button>
+                </div>
+
+            </form>
         </div>
     </div>
 </div>
+
+<!-- Scoped runtime logic per item -->
+<script>
+    (function() {
+        const instanceId = "{{ item.id }}";
+        const isFreeCheckbox = document.getElementById(`is_free_${instanceId}`);
+        const gemPriceWrapper = document.getElementById(`gemPriceWrapper_${instanceId}`);
+        const gemPriceInput = document.getElementById(`gem_price_${instanceId}`);
+
+        function checkToggleState() {
+            if (isFreeCheckbox.checked) {
+                gemPriceWrapper.style.opacity = '0';
+                gemPriceWrapper.style.transform = 'translateY(-4px)';
+                gemPriceWrapper.style.pointerEvents = 'none';
+                gemPriceInput.value = 0;
+            } else {
+                gemPriceWrapper.style.opacity = '1';
+                gemPriceWrapper.style.transform = 'translateY(0)';
+                gemPriceWrapper.style.pointerEvents = 'all';
+            }
+        }
+
+        if (isFreeCheckbox && gemPriceWrapper) {
+            checkToggleState();
+            isFreeCheckbox.addEventListener('change', checkToggleState);
+        }
+    })();
+</script>
 {% endfor %}
 
 <!-- Delete Modal -->
@@ -367,5 +468,43 @@
 </div>
 {% endfor %}
 {% endif %}
+
+<script src="https://cdn.ckeditor.com/4.21.0/standard/ckeditor.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        if (window.CKEDITOR) {
+            CKEDITOR.replace('id_summery', { height: 300 });
+            const createContent = document.getElementById('id_create_content');
+            if (createContent) {
+                CKEDITOR.replace('id_create_content', { height: 300 });
+            }
+            {% if novel %}
+                {% for item in novel_chapters %}
+                    if (document.getElementById('id_update_content_{{ item.id }}')) {
+                        CKEDITOR.replace('id_update_content_{{ item.id }}', { height: 300 });
+                    }
+                {% endfor %}
+            {% endif %}
+        }
+
+        const createFreeCheckbox = document.getElementById('is_free_create');
+        const createGemWrapper = document.getElementById('gemPriceWrapper_create');
+        const createGemInput = document.getElementById('gem_price_create');
+        if (createFreeCheckbox && createGemWrapper && createGemInput) {
+            function updateCreateGemState() {
+                if (createFreeCheckbox.checked) {
+                    createGemWrapper.style.opacity = '0';
+                    createGemWrapper.style.pointerEvents = 'none';
+                    createGemInput.value = 0;
+                } else {
+                    createGemWrapper.style.opacity = '1';
+                    createGemWrapper.style.pointerEvents = 'all';
+                }
+            }
+            updateCreateGemState();
+            createFreeCheckbox.addEventListener('change', updateCreateGemState);
+        }
+    });
+</script>
 
 {% endblock %}

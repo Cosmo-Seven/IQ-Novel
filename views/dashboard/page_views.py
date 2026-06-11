@@ -10,6 +10,7 @@ from core.models import (
     NovelModel,
     ChapterPurchaseModel,
     AuthorModel,
+    GenreModel,
 )
 from django.contrib.auth.hashers import check_password
 from django.db.models import Count, Sum
@@ -25,41 +26,28 @@ def _author_for_user(user):
 @login_required("dashboard_login")
 @role_permission_required("view_novelmodel")
 def dashboard(request):
-    novels = (
-        NovelModel.objects.select_related("author")
-        .annotate(
-            sales_count=Count("chapters__purchased_by", distinct=True),
-            gems_sold=Coalesce(Sum("chapters__purchased_by__gems_paid"), 0),
-            revenue_mmk=Coalesce(Sum("chapters__purchased_by__sale_price_mmk"), 0),
-        )
-        .order_by("-revenue_mmk", "-created_at")
-    )
-    author = _author_for_user(request.user)
-    if author and not request.user.is_staff:
-        novels = novels.filter(author=author)
+    
+    genres = GenreModel.objects.all()
+    
+    if request.GET.get("genre_id"):
+        novels = NovelModel.objects.filter(genre_id=request.GET.get("genre_id")).all()
+    else:
+        novels = NovelModel.objects.all()
 
     filters = filter_querysets(
         request,
         novels,
-        search_fields=["title", "author__name", "author__user__username"],
+        search_fields=["title"],
         date_field="created_at",
-        order="-revenue_mmk",
     )
 
-    totals = ChapterPurchaseModel.objects.filter(
-        chapter__novel__in=filters["paginator"].object_list.values("id")
-    ).aggregate(
-        total_sales=Coalesce(Sum("sale_price_mmk"), 0),
-        total_purchases=Count("id"),
-        total_gems=Coalesce(Sum("gems_paid"), 0),
-    )
 
     return render(
         request,
-        "dashboard/novel_sales_list.html",
+        "dashboard/index.html",
         {
+            "genres": genres,
             "novels": filters["page_obj"],
-            "totals": totals,
             **filters,
         },
     )

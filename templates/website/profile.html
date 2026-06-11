@@ -6,7 +6,7 @@
 {% block body %}
 <style>
     :root {
-        --profile-primary: #4f46e5;
+        --profile-primary: #ffb3c1;
         --profile-bg: #f8fafc;
         --card-border-radius: 16px;
         --transition-smooth: all 0.25s ease-in-out;
@@ -36,10 +36,10 @@
     /* Premium Gem Card */
     .gem-balance-card {
         background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-        border: 1px solid #fde68a;
+        border: 1px solid #ffb3c1;
         border-radius: 12px;
         padding: 12px;
-        color: #b45309;
+        color: #c9184a;
         font-weight: 600;
     }
 
@@ -301,10 +301,27 @@
                         </div>
 
                         <div class="tab-pane fade" id="sub-downloaded" role="tabpanel">
+                            {% if downloaded_novels %}
+                            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3">
+                                {% for download in downloaded_novels %}
+                                <div class="col">
+                                    <div class="card novel-mini-card h-100 position-relative border-0">
+                                        <img src="{% if download.novel.cover_image %}{{ download.novel.cover_image.url }}{% else %}https://html.vecurosoft.com/ebukz/demo/assets/img/product/product-img-4-1.jpg{% endif %}"
+                                            class="novel-mini-img" alt="{{ download.novel.title }}">
+                                        <div class="p-2 text-center">
+                                            <p class="small fw-bold m-0 text-dark text-truncate">{{ download.novel.title }}</p>
+                                        </div>
+                                        <a href="{% url 'novel_detail' download.novel.id %}" class="stretched-link"></a>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
                             <div class="text-center py-5 text-muted">
                                 <i class="bi bi-download fs-1 mb-2 d-block text-secondary"></i>
-                                <span>No downloaded files found.</span>
+                                <span>No downloaded novels found.</span>
                             </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
