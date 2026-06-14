@@ -4,7 +4,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.urls import reverse
-from django.db.models import F
+from django.db.models import F, Q
 from decorators.login_decorator import login_required
 from django.contrib.auth import login, logout, authenticate
 from helpers.mail import send_verification_email, send_reset_email
@@ -53,7 +53,29 @@ def gem(request):
     }
     return render(request, "website/gem.html", context)
 
-@login_required("website_login")
+def novel(request):
+    novels = NovelModel.objects.all().order_by("-created_at")
+    genre_filter = request.GET.get('genre', '')
+
+    search_query = request.GET.get('search', '').strip()
+    if search_query:
+        novels = novels.filter(
+            Q(title__icontains=search_query) |
+            Q(genres__name__icontains=search_query)
+        ).distinct()
+
+    if genre_filter:
+        novels = novels.filter(genre__iexact=genre_filter)
+
+    context = {
+        "novels": novels,
+        "search_query": search_query,
+        "genre_filter": genre_filter,
+    }
+    return render(request, "website/novel.html", context)
+
+
+# @login_required("website_login")
 def novel_detail(request, id):
     novel = get_object_or_404(NovelModel.objects.select_related("author"), id=id)
 

@@ -27,7 +27,7 @@ urlpatterns = (
 
 
 # // Dashboard URLs -----------------------------------------------------------------------------------------------------
-        path("dashboard/", dashboard_page_views.dashboard, name="dashboard"),
+        path("cr@h^i/", dashboard_page_views.dashboard, name="dashboard"),
         path("under-maintenance/",dashboard_page_views.under_maintenance,name="under_maintenance",),
         path(settings.DASHBOARD_LOGIN_URL,auth_views.dashboard_login,name="dashboard_login",),
         path(settings.DASHBOARD_LOGOUT_URL,auth_views.dashboard_logout,name="dashboard_logout",),
@@ -138,6 +138,7 @@ urlpatterns = (
 # // PWA --------------------------------------------------------------------------------------------------------------------
         path("", include("pwa.urls")),
         path("", website_page_views.index, name="home"),
+        path("novel/", website_page_views.novel, name="novel"),
         path("novel/detail/<uuid:id>/", website_page_views.novel_detail, name="novel_detail"),
         path("novel/comment/edit/<uuid:id>/", website_page_views.edit_comment, name="edit_comment"),
         path("novel/comment/delete/<uuid:id>/", website_page_views.delete_comment, name="delete_comment"),

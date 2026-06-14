@@ -23,14 +23,16 @@
         </div>
 
         <div class="d-flex align-items-center gap-2 gap-sm-3">
-
-            <div class="search-container">
-                <input type="text" id="searchInput" class="form-control form-control-sm search-input-box"
-                    placeholder="Search novels...">
-                <button class="search-btn d-none d-md-block" id="searchToggleBtn" type="button">
-                    <i class="fa-solid fa-magnifying-glass fs-5"></i>
-                </button>
-            </div>
+            <form action="{% url 'novel' %}">
+                <div class="search-container">
+                    <input type="text" id="searchInput" name="search" class="form-control form-control-sm search-input-box"
+                        placeholder="Search novels..." value="{{request.GET.search}}">
+                    <button class="search-btn d-none d-md-block" id="searchToggleBtn" type="button">
+                        <i class="fa-solid fa-magnifying-glass fs-5"></i>
+                    </button>
+                </div>
+            </form>
+            
 
             <div class="notification-container">
                 <button class="search-btn" type="button">

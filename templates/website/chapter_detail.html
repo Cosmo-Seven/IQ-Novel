@@ -21,7 +21,7 @@
         </div>
 
         <div class="chapter-reading-content text-secondary" style="white-space: pre-wrap;">
-          {{ chapter.content|linebreaks }}
+          {{ chapter.content|safe|linebreaks }}
         </div>
       </div>
 
