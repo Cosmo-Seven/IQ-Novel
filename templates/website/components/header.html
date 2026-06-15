@@ -1,71 +1,105 @@
 {% load static %}
 
 <!-- navbar -->
-<nav class="navbar navbar-expand-lg sticky-top py-2 px-2">
-    <div class="container-fluid d-flex align-items-center justify-content-between">
+<nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top py-3 aesthetic-navbar">
+    <div class="container-fluid px-md-4 px-lg-5 header-grid-container">
 
-        <a class="navbar-brand d-flex align-items-center m-0" href="{% url 'home' %}">
-            <div class="bg-white rounded p-2 border d-flex align-items-center justify-content-center"
-                style="width: 40px; height: 40px;">
-                <img src="{% static 'website/images/logo.png' %}" alt="">
+        <!-- 1. LEFT: Brand Logo -->
+        <div class="header-left-zone d-flex align-items-center">
+            <!-- Mobile Toggle for Menu (Left Side) -->
+            <button class="navbar-toggler border-0 p-0 me-3 d-lg-none navbar-action-icon" type="button" 
+                    data-bs-toggle="collapse" data-bs-target="#mainNavbarMenu" aria-controls="mainNavbarMenu" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="fa-solid fa-bars fs-4"></i>
+            </button>
+
+            <a class="navbar-brand m-0 d-inline-block" href="{% url 'home' %}">
+                <div class="brand-logo-wrapper">
+                    <img src="{% static 'website/images/logo.png' %}" alt="IQ Logo" class="img-fluid">
+                </div>
+            </a>
+        </div>
+
+        <!-- 2. CENTER: Main Navigation Links -->
+        <div class="collapse navbar-collapse header-center-zone justify-content-center" id="mainNavbarMenu">
+            <!-- Mobile Close Button (Shows only inside mobile menu Drawer) -->
+            <div class="d-flex justify-content-end w-100 d-lg-none p-3">
+                <button class="btn-close" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbarMenu"></button>
             </div>
-        </a>
 
-        <div class="d-none d-lg-flex">
-            <ul class="navbar-nav gap-3 w-100">
-                <li class="nav-item"><a class="nav-link bg-light rounded" style="width: 150px; text-align: center;"
-                        href="{% url 'home' %}">Home</a></li>
-                <li class="nav-item"><a class="nav-link bg-light rounded" style="width: 150px; text-align: center;"
-                        href="{% url 'gem' %}">Gem</a></li>
-                <li class="nav-item"><a class="nav-link bg-light rounded" style="width: 150px; text-align: center;"
-                        href="{% url 'website_profile' %}">Library</a></li>
+            <ul class="navbar-nav gap-3 gap-lg-5 text-center py-3 py-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link custom-nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
+                        Home <span class="butterfly-icon">🦋</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link custom-nav-item {% if request.resolver_match.url_name == 'gem' %}active{% endif %}" href="{% url 'gem' %}">
+                        Gem <span class="butterfly-icon">🦋</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link custom-nav-item {% if request.resolver_match.url_name == 'website_profile' %}active{% endif %}" href="{% url 'website_profile' %}">
+                        Library <span class="butterfly-icon">🦋</span>
+                    </a>
+                </li>
             </ul>
         </div>
 
-        <div class="d-flex align-items-center gap-2 gap-sm-3">
-            <form action="{% url 'novel' %}">
-                <div class="search-container">
-                    <input type="text" id="searchInput" name="search" class="form-control form-control-sm search-input-box"
-                        placeholder="Search novels..." value="{{request.GET.search}}">
-                    <button class="search-btn d-none d-md-block" id="searchToggleBtn" type="button">
-                        <i class="fa-solid fa-magnifying-glass fs-5"></i>
-                    </button>
-                </div>
-            </form>
+        <!-- 3. RIGHT: Search Toggle & User Actions -->
+        <div class="header-right-zone d-flex align-items-center gap-2 gap-sm-3 justify-content-end position-relative">
             
+            <!-- Dynamic Reveal Search Wrapper -->
+            <div class="search-wrapper-container d-flex align-items-center">
+                <!-- Smooth Expandable Form -->
+                <div class="collapse collapse-horizontal" id="aestheticSearchCollapse">
+                    <form action="{% url 'novel' %}" class="m-0 me-2">
+                        <div class="input-group input-group-sm aesthetic-search-box">
+                            <input type="text" id="searchInput" name="search" class="form-control bg-light"
+                                placeholder="Search novels..." value="{{request.GET.search}}">
+                            <button class="btn btn-maroon-search" type="submit">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
 
-            <div class="notification-container">
-                <button class="search-btn" type="button">
-                    <i class="fa-regular fa-bell fs-5"></i>
+                <!-- Trigger Icon (မှန်ဘီလူးခလုတ်) -->
+                <button class="btn btn-link text-dark p-1 navbar-action-icon search-trigger-btn" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#aestheticSearchCollapse" aria-expanded="false" aria-controls="aestheticSearchCollapse">
+                    <i class="fa-solid fa-magnifying-glass fs-5 search-icon"></i>
+                    <i class="fa-solid fa-xmark fs-5 close-icon d-none"></i>
                 </button>
             </div>
 
+            <!-- Notification Bell -->
+            <button class="btn btn-link text-dark p-1 navbar-action-icon position-relative mx-1" type="button">
+                <i class="fa-regular fa-bell fs-5"></i>
+                <span class="position-absolute top-1 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+            </button>
+
+            <!-- User Auth Profile / Login Trigger -->
             {% if user.is_authenticated %}
             <div class="dropdown profile-dropdown">
-                <div data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
-                    <img src="{% static 'dashboard/images/no-profile.png' %}" alt="Profile" class="avatar-img"
-                        style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #fff0f3;">
+                <div data-bs-toggle="dropdown" aria-expanded="false" class="avatar-trigger">
+                    <img src="{% static 'dashboard/images/no-profile.png' %}" alt="Profile" class="avatar-img">
                 </div>
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
-                    <li><a class="dropdown-item" href="{{website_profile_url}}"><i
-                                class="bi bi-gem text-warning me-2"></i>My Gems</a>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3 p-2 dynamic-dropdown">
+                    <li><a class="dropdown-item rounded py-2" href="{{website_profile_url}}">
+                        <i class="bi bi-gem text-warning me-2"></i>My Gems</a>
                     </li>
-                    <li><a class="dropdown-item" href="{{website_profile_url}}"><i
-                                class="bi bi-credit-card me-2"></i>Payment History</a>
+                    <li><a class="dropdown-item rounded py-2" href="{{website_profile_url}}">
+                        <i class="bi bi-credit-card me-2"></i>Payment History</a>
                     </li>
-                    <li>
-                        <hr class="dropdown-divider">
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item rounded py-2 text-danger" href="{% url 'website_logout' %}">
+                        <i class="bi bi-box-arrow-right me-2"></i>Logout</a>
                     </li>
-                    <li><a class="dropdown-item text-danger" href="{% url 'website_logout' %}"><i
-                                class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
                 </ul>
             </div>
             {% else %}
-            <div class="notification-container">
-                <a class="search-btn" href="{% url 'website_login' %}">
-                    <i class="fa fa-sign-in fs-5"></i>
-                </a>
-            </div>
+            <a class="btn btn-sm px-3 px-sm-4 rounded-pill action-login-btn" href="{% url 'website_login' %}">
+                Sign In
+            </a>
             {% endif %}
         </div>
 
@@ -73,35 +107,187 @@
 </nav>
 
 <style>
-    .navbar-nav .nav-link {
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-        border: 1px solid rgba(0, 0, 0, 0.05);
+    :root {
+        --brand-maroon: #581825;
+        --brand-maroon-hover: #42101a;
+        --brand-maroon-light: rgba(88, 24, 37, 0.05);
+        --text-muted-dark: #4a4a4a;
     }
 
-    .navbar-nav .nav-link:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    /* --- Responsive Grid Engine --- */
+    .header-grid-container {
+        display: grid !important;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        width: 100%;
+    }
+
+    @media (max-width: 991.98px) {
+        .header-grid-container {
+            display: flex !important;
+            justify-content: space-between;
+        }
+        /* Mobile Overlay Menu Styling */
+        .navbar-collapse {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            background: #ffffff;
+            box-shadow: 5px 0 25px rgba(0,0,0,0.1);
+            z-index: 1050;
+            padding: 1rem;
+            transition: transform 0.3s ease-in-out;
+        }
+    }
+
+    .aesthetic-navbar {
         background-color: #ffffff !important;
-        color: #000000;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.02);
     }
 
-    .search-btn {
-        transition: all 0.3s ease;
+    .brand-logo-wrapper {
+        width: 40px;
+        height: 40px;
     }
 
-    .search-btn:hover {
-        transform: scale(1.08);
-
-        opacity: 0.85;
+    /* --- Aesthetic Links Menu --- */
+    .navbar-nav .custom-nav-item {
+        color: var(--text-muted-dark) !important;
+        font-weight: 500;
+        font-size: 1.05rem;
+        letter-spacing: 0.3px;
+        padding: 0.5rem 0.5rem !important;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
     }
 
-    .profile-dropdown [data-bs-toggle="dropdown"] img {
-        transition: all 0.3s ease;
+    .butterfly-icon {
+        font-size: 0.9rem;
+        opacity: 0;
+        transform: scale(0) rotate(-20deg);
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        display: inline-block;
     }
 
-    .profile-dropdown [data-bs-toggle="dropdown"]:hover img {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    .navbar-nav .custom-nav-item:hover,
+    .navbar-nav .custom-nav-item.active {
+        color: var(--brand-maroon) !important;
+    }
+
+    .navbar-nav .custom-nav-item:hover .butterfly-icon,
+    .navbar-nav .custom-nav-item.active .butterfly-icon {
+        opacity: 1;
+        transform: scale(1.2) translateY(-8px) rotate(10deg);
+        animation: flutter 0.6s ease-in-out infinite alternate;
+    }
+
+    @keyframes flutter {
+        0% { transform: scale(1.2) translateY(-6px) rotate(5deg); }
+        100% { transform: scale(1.2) translateY(-10px) rotate(15deg); }
+    }
+
+    @media (min-width: 992px) {
+        .navbar-nav .custom-nav-item::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 50%;
+            background-color: var(--brand-maroon);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+        .navbar-nav .custom-nav-item:hover::after,
+        .navbar-nav .custom-nav-item.active::after {
+            width: 100%;
+        }
+    }
+
+    /* --- Smooth Click-to-Reveal Search Engine --- */
+    .search-wrapper-container {
+        z-index: 10;
+    }
+
+    /* Collapsible search box box width adjustment */
+    .aesthetic-search-box {
+        width: 250px;
+        max-width: 60vw;
+    }
+    
+    .aesthetic-search-box .form-control {
+        border-color: #e5e7eb;
+        border-radius: 30px 0 0 30px !important;
+        padding-left: 1rem;
+    }
+    .aesthetic-search-box .form-control:focus {
+        box-shadow: none;
+        background-color: #ffffff;
+        border-color: #ced4da;
+    }
+
+    .btn-maroon-search {
+        background-color: var(--brand-maroon);
+        color: #ffffff;
+        border-radius: 0 30px 30px 0 !important;
+        border: 1px solid var(--brand-maroon);
+        padding: 0 12px;
+    }
+    .btn-maroon-search:hover {
+        background-color: var(--brand-maroon-hover);
+        color: #ffffff;
+    }
+
+    /* Flip Icon Effect when opened */
+    .search-trigger-btn[aria-expanded="true"] .search-icon {
+        display: none !important;
+    }
+    .search-trigger-btn[aria-expanded="true"] .close-icon {
+        display: inline-block !important;
+        color: var(--brand-maroon);
+    }
+
+    .navbar-action-icon {
+        color: var(--text-muted-dark) !important;
+        transition: all 0.2s ease;
+    }
+    .navbar-action-icon:hover {
+        color: var(--brand-maroon) !important;
+    }
+
+    /* --- Profile & Dropdown --- */
+    .avatar-img {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .avatar-trigger:hover .avatar-img {
+        box-shadow: 0 4px 12px rgba(88, 24, 37, 0.2);
+    }
+    .dynamic-dropdown {
+        border-radius: 12px !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
+    }
+    .dynamic-dropdown .dropdown-item:hover {
+        background-color: var(--brand-maroon-light);
+        color: var(--brand-maroon);
+    }
+
+    /* --- Sign In Button --- */
+    .action-login-btn {
+        background-color: var(--brand-maroon);
+        color: #ffffff;
+        font-weight: 500;
+        border: none;
+        transition: all 0.2s ease;
+    }
+    .action-login-btn:hover {
+        background-color: var(--brand-maroon-hover);
+        color: #ffffff;
     }
 </style>

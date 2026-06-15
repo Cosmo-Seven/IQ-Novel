@@ -12,29 +12,25 @@
 <script type="text/javascript" src="{% static 'website/js/main.js' %}"></script>
 <script type="text/javascript" src="{% static 'website/js/jquery.fancybox.js' %}"></script>
 <script>
-    var swiper = new Swiper(".mySwiper", {
-        slidesPerView: 5,
-        spaceBetween: 15,
-        loop: true,
-        breakpoints: {
-            0: {
-                slidesPerView: 2,
-            },
-            576: {
-                slidesPerView: 3,
-            },
-            768: {
-                slidesPerView: 4,
-            },
-            992: {
-                slidesPerView: 5,
+    document.addEventListener('DOMContentLoaded', function () {
+        // Popular Section Carousel (Forces 5 visible on large screens)
+        var popularSwiper = new Swiper(".popularSwiper", {
+            slidesPerView: 2,
+            spaceBetween: 16,
+            grabCursor: true,
+            breakpoints: {
+                576: { slidesPerView: 3, spaceBetween: 16 },
+                768: { slidesPerView: 4, spaceBetween: 20 },
+                1200: { slidesPerView: 5, spaceBetween: 20 } // 5 Cards Locked
             }
-        },
-        autoplay: {
-            delay: 1500,
-            disableOnInteraction: false,
-            pauseOnMouseEnter: true,
-        },
+        });
+
+        // Top Hero Slider
+        var heroSwiper = new Swiper(".heroSwiper", {
+            loop: true,
+            autoplay: { delay: 4000, disableOnInteraction: false },
+            pagination: { el: ".swiper-pagination", clickable: true },
+        });
     });
 </script>
 
@@ -66,27 +62,7 @@
     });
 </script>
 
-<!-- search box -->
-<script>
-    const searchToggleBtn = document.getElementById('searchToggleBtn');
-    const searchInput = document.getElementById('searchInput');
 
-    searchToggleBtn.addEventListener('click', (e) => {
-        if (searchInput.classList.contains('active') && searchInput.value.trim() !== "") {
-            alert('Searching for: ' + searchInput.value);
-        } else {
-            searchInput.classList.toggle('active');
-            if (searchInput.classList.contains('active')) {
-                searchInput.focus();
-            }
-        }
-    });
-    document.addEventListener('click', (e) => {
-        if (!searchToggleBtn.contains(e.target) && !searchInput.contains(e.target)) {
-            searchInput.classList.remove('active');
-        }
-    });
-</script>
 
 <script>
     document.addEventListener('contextmenu', event => event.preventDefault());

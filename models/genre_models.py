@@ -6,6 +6,7 @@ from django.utils.text import slugify
 
 class GenreModel(BaseModel):
     name = models.CharField(max_length=100, unique=True)
+    image = models.ImageField(upload_to="genre_image/", blank=True, null=True)
 
     def __str__(self):
         return self.name

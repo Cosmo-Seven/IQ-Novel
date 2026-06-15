@@ -7,21 +7,19 @@
 {% load humanize %}
 {% load myanmar_number %}
 
-<!-- slider -->
-<section class="carousel-section">
+<!-- Slider / Hero Section -->
+<section class="carousel-section mb-4">
     <div class="container-fluid p-0">
-
         {% if sliders %}
         <div class="banner-wrapper">
             <div class="swiper heroSwiper">
                 <div class="swiper-wrapper">
                     {% for slider in sliders %}
-                    <div class="swiper-slide" style="height: 500px;">
-                        <img src="{{slider.image.url}}" alt="Slider 1" class="w-100 img-fluid">
+                    <div class="swiper-slide" style="height: 420px;">
+                        <img src="{{slider.image.url}}" alt="Slider Banner" class="w-100 h-100 img-fluid object-fit-cover">
                     </div>
                     {% endfor %}
                 </div>
-
                 <div class="swiper-pagination"></div>
             </div>
         </div>
@@ -29,277 +27,271 @@
     </div>
 </section>
 
-<!-- Three Button -->
-<!-- <section class="py-4">
-    <div class="container">
-        <div class="row row-cols-12 row-cols-md-4 g-3 justify-content-center">
-            <div class="col"><a href="{% url 'home' %}"
-                    class="category-card d-flex flex-column align-items-center justify-content-center p-3 text-center">
-                    <span class="fw-semibold large">Home</span></a>
-            </div>
-            <div class="col"><a href="{% url 'gem' %}"
-                    class="category-card d-flex flex-column align-items-center justify-content-center p-3 text-center">
-                    <span class="fw-semibold large">Gem</span></a></div>
-            <div class="col"><a href="{% url 'website_profile' %}"
-                    class="category-card d-flex flex-column align-items-center justify-content-center p-3 text-center">
-                    <span class="fw-semibold large">My Library</span></a></div>
-        </div>
-    </div>
-</section> -->
+<!-- Main Layout Wrapper (Split Screen Strategy) -->
+<div class="container-fluid px-md-4 px-lg-5">
+    {% if popular_novels %}
+            <section class="novel-feed-section mb-5">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="section-heading-title m-0">Popular Series</h4>
+                    <a href="#" class="btn btn-sm view-all-pill-btn">VIEW ALL</a>
+                </div>
 
-<!-- popular section -->
-{% if popular_novels %}
-<section class="py-3">
-    <div class="container-fluid">
+                <!-- Swiper Desktop 5 Cards Engine -->
+                <div class="swiper popularSwiper pb-3">
+                    <div class="swiper-wrapper">
+                        {% for novel in popular_novels %}
+                        <div class="swiper-slide">
+                            <div class="card novel-card position-relative border-0 shadow-sm h-100">
+                                <a href="{% url 'novel_detail' novel.id %}" class="novel-img-wrapper">
+                                    <img class="card-img-top novel-cover"
+                                         src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}"
+                                         alt="{{ novel.title }}" />
+                                </a>
 
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="m-0">Popular Series</h3>
-            <a href="#" class="btn btn-sm btn-outline-danger rounded-pill px-3">VIEW ALL</a>
-        </div>
+                                {% if novel.is_completed %}
+                                <span class="badge badge-status bg-success">Completed</span>
+                                {% elif novel.is_popular %}
+                                <span class="badge badge-status bg-danger animate-pulse">Popular</span>
+                                {% endif %}
 
-        <!-- Swiper -->
-        <div class="swiper mySwiper">
-            <div class="swiper-wrapper">
-                <!-- Slide 1 -->
-                {% for novel in popular_novels %}
-                <div class="swiper-slide mb-2">
-                     <div class="col">
-                <div class="card novel-card position-relative h-100 border-0 shadow-sm">
-
-                    <a href="{% url 'novel_detail' novel.id %}" class="novel-img-wrapper">
-                        <img class="card-img-top novel-cover"
-                            src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}"
-                            alt="{{ novel.title }}" />
-                    </a>
-
-                    {% if novel.is_completed %}
-                    <span class="badge badge-status bg-success">Completed</span>
-                    {% elif novel.is_popular %}
-                    <span class="badge badge-status bg-danger animate-pulse">Popular</span>
-                    {% endif %}
-
-                    <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <div>
-                            <p class="novel-title mb-0 text-truncate" title="{{ novel.title }}">{{ novel.title }}</p>
-
-                            <p class="novel-author mb-2 text-muted small text-truncate">
-                                <i class="bi bi-person me-1"></i>{% if novel.author %}{{ novel.author.display_name }}{% else %}Unknown{% endif %}
-                            </p>
+                                <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <p class="novel-title mb-0 text-truncate" title="{{ novel.title }}">{{ novel.title }}</p>
+                                        <p class="novel-author mb-2 text-muted small text-truncate">
+                                            <i class="bi bi-person me-1"></i>{% if novel.author %}{{ novel.author.display_name }}{% else %}Unknown{% endif %}
+                                        </p>
+                                    </div>
+                                    <div class="novel-meta d-flex justify-content-between align-items-center">
+                                        <span class="small"><i class="bi bi-book me-1"></i>Ch: {{ novel.chapters.count }}</span>
+                                        <span class="small text-secondary"><i class="bi bi-eye me-1"></i>{{ novel.views|intcomma }}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-
-                        <div class="novel-meta d-flex justify-content-between align-items-center">
-                            <span class="small"><i class="bi bi-book me-1"></i>Ch: {{ novel.chapters.count }}</span>
-                            <span class="small text-secondary"><i class="bi bi-eye me-1"></i>{{ novel.views|intcomma }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+    <div class="row g-4">
+        
+        <!-- 1. LEFT SIDE: Novels Feed (占据 9 个 Grid) -->
+        <main class="col-12 col-lg-9 content-left-zone">
+            <!-- New Series Section -->
+            <section class="novel-feed-section mb-5">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="section-heading-title m-0">New Series</h4>
+                    <a href="#" class="btn btn-sm view-all-pill-btn">VIEW ALL</a>
+                </div>
+                <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-xl-4 g-3">
+                    {% for novel in novels %}
+                    <div class="col">
+                        <!-- Novel Card Component -->
+                        <div class="card novel-card position-relative border-0 shadow-sm h-100">
+                            <a href="{% url 'novel_detail' novel.id %}" class="novel-img-wrapper">
+                                <img class="card-img-top novel-cover" src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}" alt="{{ novel.title }}" />
+                            </a>
+                            <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                <div>
+                                    <p class="novel-title mb-0 text-truncate" title="{{ novel.title }}">{{ novel.title }}</p>
+                                    <p class="novel-author mb-2 text-muted small text-truncate"><i class="bi bi-person me-1"></i>{{ novel.author.display_name|default:"Unknown" }}</p>
+                                </div>
+                                <div class="novel-meta d-flex justify-content-between align-items-center">
+                                    <span class="small"><i class="bi bi-book me-1"></i>Ch: {{ novel.chapters.count }}</span>
+                                    <span class="small text-secondary"><i class="bi bi-eye me-1"></i>{{ novel.views|intcomma }}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-
+                    {% endfor %}
                 </div>
-            </div>
+            </section>
+
+            <!-- Fanfic Section -->
+            {% if fanfic_novels %}
+            <section class="novel-feed-section mb-5">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="section-heading-title m-0">Fanfic Series</h4>
+                    <a href="#" class="btn btn-sm view-all-pill-btn">VIEW ALL</a>
                 </div>
-                {% endfor %}
-            </div>
-        </div>
-
-    </div>
-</section>
-{% endif %}
-
-<!-- new series section -->
-<section class="py-3">
-    <div class="container-fluid">
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="m-0">New Series</h3>
-            <a href="#" class="btn btn-sm btn-outline-danger rounded-pill px-3">VIEW ALL</a>
-        </div>
-
-        <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3">
-            {% for novel in novels %}
-            <div class="col">
-                <div class="card novel-card position-relative h-100 border-0 shadow-sm">
-
-                    <a href="{% url 'novel_detail' novel.id %}" class="novel-img-wrapper">
-                        <img class="card-img-top novel-cover"
-                            src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}"
-                            alt="{{ novel.title }}" />
-                    </a>
-
-                    {% if novel.is_completed %}
-                    <span class="badge badge-status bg-success">Completed</span>
-                    {% elif novel.is_popular %}
-                    <span class="badge badge-status bg-danger animate-pulse">Popular</span>
-                    {% endif %}
-
-                    <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <div>
-                            <p class="novel-title mb-0 text-truncate" title="{{ novel.title }}">{{ novel.title }}</p>
-
-                            <p class="novel-author mb-2 text-muted small text-truncate">
-                                <i class="bi bi-person me-1"></i>{% if novel.author %}{{ novel.author.display_name }}{% else %}Unknown{% endif %}
-                            </p>
-                        </div>
-
-                        <div class="novel-meta d-flex justify-content-between align-items-center">
-                            <span class="small"><i class="bi bi-book me-1"></i>Ch: {{ novel.chapters.count }}</span>
-                            <span class="small text-secondary"><i class="bi bi-eye me-1"></i>{{ novel.views|intcomma }}</span>
+                <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-xl-4 g-3">
+                    {% for novel in fanfic_novels %}
+                    <div class="col">
+                        <!-- Novel Card Component -->
+                        <div class="card novel-card position-relative border-0 shadow-sm h-100">
+                            <a href="{% url 'novel_detail' novel.id %}" class="novel-img-wrapper">
+                                <img class="card-img-top novel-cover" src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}" alt="{{ novel.title }}" />
+                            </a>
+                            <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                <div>
+                                    <p class="novel-title mb-0 text-truncate" title="{{ novel.title }}">{{ novel.title }}</p>
+                                    <p class="novel-author mb-2 text-muted small text-truncate"><i class="bi bi-person me-1"></i>{{ novel.author.display_name|default:"Unknown" }}</p>
+                                </div>
+                                <div class="novel-meta d-flex justify-content-between align-items-center">
+                                    <span class="small"><i class="bi bi-book me-1"></i>Ch: {{ novel.chapters.count }}</span>
+                                    <span class="small text-secondary"><i class="bi bi-eye me-1"></i>{{ novel.views|intcomma }}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-
+                    {% endfor %}
                 </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</section>
+            </section>
+            {% endif %}
 
-<!-- fanfic section -->
-{% if fanfic_novels %}
-<section class="py-3">
-    <div class="container-fluid">
+        </main>
 
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="m-0">Fanfic Series</h3>
-            <a href="#" class="btn btn-sm btn-outline-danger rounded-pill px-3">VIEW ALL</a>
-        </div>
-
-        <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3">
-            {% for novel in fanfic_novels %}
-             <div class="col">
-                <div class="card novel-card position-relative h-100 border-0 shadow-sm">
-
-                    <a href="{% url 'novel_detail' novel.id %}" class="novel-img-wrapper">
-                        <img class="card-img-top novel-cover"
-                            src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}"
-                            alt="{{ novel.title }}" />
+        <!-- 2. RIGHT SIDE: Aesthetic Genre Sticky Sidebar (占据 3 个 Grid) -->
+        <aside class="col-12 col-lg-3 content-right-sidebar d-none d-lg-block">
+            <div class="sticky-sidebar-card p-4 border rounded-4 bg-white shadow-sm">
+                <h5 class="sidebar-genre-title mb-3 d-flex align-items-center">
+                    <i class="bi bi-tags-fill me-2 text-maroon"></i> Discover Genres
+                </h5>
+                
+                <!-- Vertical Stack Genre Items -->
+                <div class="genre-vertical-stack d-flex flex-column gap-2">
+                    <a href="{% url 'novel' %}{% if search_query %}?q={{ search_query }}{% endif %}" 
+                       class="genre-stack-item text-decoration-none {% if not active_genre_id %}active{% endif %}">
+                        <span class="genre-name">All Genres</span>
+                        <span class="badge rounded-pill bg-light text-dark border">★</span>
                     </a>
-
-                    {% if novel.is_completed %}
-                    <span class="badge badge-status bg-success">Completed</span>
-                    {% elif novel.is_popular %}
-                    <span class="badge badge-status bg-danger animate-pulse">Popular</span>
-                    {% endif %}
-
-                    <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <div>
-                            <p class="novel-title mb-0 text-truncate" title="{{ novel.title }}">{{ novel.title }}</p>
-
-                            <p class="novel-author mb-2 text-muted small text-truncate">
-                                <i class="bi bi-person me-1"></i>{% if novel.author %}{{ novel.author.display_name }}{% else %}Unknown{% endif %}
-                            </p>
-                        </div>
-
-                        <div class="novel-meta d-flex justify-content-between align-items-center">
-                            <span class="small"><i class="bi bi-book me-1"></i>Ch: {{ novel.chapters.count }}</span>
-                            <span class="small text-secondary"><i class="bi bi-eye me-1"></i>{{ novel.views|intcomma }}</span>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-{% endif %}
-
-<!-- complete section -->
-{% if completed_novels %}
-<section class="py-3">
-    <div class="container-fluid">
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="m-0">complete</h3>
-            <a href="#" class="btn btn-sm btn-outline-danger rounded-pill px-3">VIEW ALL</a>
-        </div>
-
-        <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3">
-
-            {% for novel in completed_novels %}
-             <div class="col">
-                <div class="card novel-card position-relative h-100 border-0 shadow-sm">
-
-                    <a href="{% url 'novel_detail' novel.id %}" class="novel-img-wrapper">
-                        <img class="card-img-top novel-cover"
-                            src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}"
-                            alt="{{ novel.title }}" />
+                
+                    {% for genre in genres %}
+                    <a href="{% url 'novel' %}?genre={{ genre.id }}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       class="genre-stack-item text-decoration-none {% if active_genre_id == genre.id %}active{% endif %}">
+                        <span class="genre-name">{{ genre.name }}</span>
+                        <span class="badge rounded-pill genre-count-badge">{{ genre.novel_count }}</span>
                     </a>
-
-                    {% if novel.is_completed %}
-                    <span class="badge badge-status bg-success">Completed</span>
-                    {% elif novel.is_popular %}
-                    <span class="badge badge-status bg-danger animate-pulse">Popular</span>
-                    {% endif %}
-
-                    <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <div>
-                            <p class="novel-title mb-0 text-truncate" title="{{ novel.title }}">{{ novel.title }}</p>
-
-                            <p class="novel-author mb-2 text-muted small text-truncate">
-                                <i class="bi bi-person me-1"></i>{% if novel.author %}{{ novel.author.display_name }}{% else %}Unknown{% endif %}
-                            </p>
-                        </div>
-
-                        <div class="novel-meta d-flex justify-content-between align-items-center">
-                            <span class="small"><i class="bi bi-book me-1"></i>Ch: {{ novel.chapters.count }}</span>
-                            <span class="small text-secondary"><i class="bi bi-eye me-1"></i>{{ novel.views|intcomma }}</span>
-                        </div>
-                    </div>
-
+                    {% endfor %}
                 </div>
             </div>
-            {% endfor %}
-        </div>
+        </aside>
+
     </div>
-</section>
-{% endif %}
-
-<!-- free section -->
-{% if free_novels %}
-<section class="py-3">
-    <div class="container-fluid">
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="m-0">free</h3>
-            <a href="#" class="btn btn-sm btn-outline-danger rounded-pill px-3">VIEW ALL</a>
-        </div>
-
-        <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3">
-            {% for novel in free_novels %}
-             <div class="col">
-                <div class="card novel-card position-relative h-100 border-0 shadow-sm">
-
-                    <a href="{% url 'novel_detail' novel.id %}" class="novel-img-wrapper">
-                        <img class="card-img-top novel-cover"
-                            src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}"
-                            alt="{{ novel.title }}" />
-                    </a>
-
-                    {% if novel.is_completed %}
-                    <span class="badge badge-status bg-success">Completed</span>
-                    {% elif novel.is_popular %}
-                    <span class="badge badge-status bg-danger animate-pulse">Popular</span>
-                    {% endif %}
-
-                    <div class="card-body p-2 d-flex flex-column justify-content-between">
-                        <div>
-                            <p class="novel-title mb-0 text-truncate" title="{{ novel.title }}">{{ novel.title }}</p>
-
-                            <p class="novel-author mb-2 text-muted small text-truncate">
-                                <i class="bi bi-person me-1"></i>{% if novel.author %}{{ novel.author.display_name }}{% else %}Unknown{% endif %}
-                            </p>
-                        </div>
-
-                        <div class="novel-meta d-flex justify-content-between align-items-center">
-                            <span class="small"><i class="bi bi-book me-1"></i>Ch: {{ novel.chapters.count }}</span>
-                            <span class="small text-secondary"><i class="bi bi-eye me-1"></i>{{ novel.views|intcomma }}</span>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-{% endif %}
+</div>
 {% endblock %}
+
+<!-- Swiper Initialization Script -->
+
+
+<style>
+    :root {
+        --brand-maroon: #581825;
+        --brand-maroon-hover: #42101a;
+        --brand-maroon-light: rgba(88, 24, 37, 0.04);
+    }
+
+    /* Section Typography */
+    .section-heading-title {
+        font-weight: 700;
+        color: #212529;
+        font-size: 1.35rem;
+        letter-spacing: -0.3px;
+    }
+
+    .view-all-pill-btn {
+        border: 1px solid #e5e7eb;
+        color: #6b7280 !important;
+        font-weight: 600;
+        font-size: 0.75rem;
+        border-radius: 30px;
+        padding: 0.4rem 1rem;
+        transition: all 0.2s ease;
+    }
+    .view-all-pill-btn:hover {
+        border-color: var(--brand-maroon);
+        background-color: var(--brand-maroon);
+        color: #ffffff !important;
+    }
+
+    /* Novel Card Styling Modernization */
+    .novel-card {
+        border-radius: 12px;
+        overflow: hidden;
+        transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease;
+        background: #ffffff;
+    }
+
+    .novel-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.08) !important;
+    }
+
+    .novel-img-wrapper {
+        display: block;
+        width: 100%;
+        aspect-ratio: 2 / 3;
+        overflow: hidden;
+        background-color: #f3f4f6;
+    }
+    .novel-cover {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    .novel-card:hover .novel-cover {
+        transform: scale(1.04);
+    }
+
+    .novel-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 2px;
+    }
+
+    /* Sticky Sidebar Component */
+    .content-right-sidebar {
+        position: relative;
+    }
+    .sticky-sidebar-card {
+        position: sticky;
+        top: 90px; /* Locks below the sticky header */
+        z-index: 10;
+        border-color: #f1f3f5 !important;
+    }
+
+    .sidebar-genre-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #1f2937;
+    }
+    .text-maroon {
+        color: var(--brand-maroon);
+    }
+
+    /* Vertical Genre Menu Items */
+    .genre-stack-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.7rem 1rem;
+        color: var(--brand-maroon) !important;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.92rem;
+        transition: all 0.2s ease;
+    }
+    .genre-stack-item:hover {
+        background-color: var(--brand-maroon-light);
+        color: var(--brand-maroon) !important;
+        transform: translateX(3px);
+    }
+    .genre-stack-item.active {
+        background-color: var(--brand-maroon);
+        color: #ffffff !important;
+    }
+
+    .genre-count-badge {
+        font-size: 0.75rem;
+        background-color: #f3f4f6;
+        color: #6b7280;
+        padding: 4px 8px;
+    }
+    .genre-stack-item:hover .genre-count-badge {
+        background-color: rgba(88, 24, 37, 0.1);
+        color: var(--brand-maroon);
+    }
+</style>

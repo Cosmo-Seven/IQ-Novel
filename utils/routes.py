@@ -58,6 +58,8 @@ def routes(request):
         # ======================================== Website ========================================
         "home_url": reverse_lazy("home"),
         "gem_url": reverse_lazy("gem"),
+        "genre_list_url": reverse_lazy("genre_list"),
+        "contact_url": reverse_lazy("contact"),
         
         "website_profile_url": reverse_lazy("website_profile"),
         "website_login_url": reverse_lazy("website_login"),

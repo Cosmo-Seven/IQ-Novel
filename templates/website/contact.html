@@ -1,0 +1,199 @@
+{% extends 'website/components/base.html' %}
+{% block title %} Contact Us {% endblock %}
+
+{% block body %}
+<style>
+    /* Contact Page Layout Container */
+    .contact-wrapper {
+        background: radial-gradient(circle at 10% 20%, rgba(179, 136, 255, 0.05) 0%, transparent 50%);
+        padding: 4rem 0;
+        min-height: 80vh;
+    }
+
+    /* Contact Info Cards Side */
+    .info-sidebar {
+        background-color: #ffffff;
+        border: 1px solid #eef0f3;
+        border-radius: 24px;
+        padding: 2.5rem;
+        height: 100%;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.8rem;
+    }
+
+    .info-icon {
+        width: 50px;
+        height: 50px;
+        background-color: #f3e5f5;
+        color: #b388ff;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        margin-right: 1rem;
+    }
+
+    /* Form Card Side */
+    .contact-form-card {
+        background-color: #ffffff;
+        border: 1px solid #eef0f3;
+        border-radius: 24px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+    }
+
+    .form-control-custom {
+        border: 2px solid #eef0f3;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .form-control-custom:focus {
+        border-color: #b388ff;
+        box-shadow: 0 0 12px rgba(179, 136, 255, 0.2);
+        outline: none;
+    }
+
+    /* Social Icons Styling */
+    .social-links a {
+        width: 40px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8f9fa;
+        color: #4a4e69;
+        border-radius: 50%;
+        margin-right: 0.5rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .social-links a:hover {
+        background-color: #c9184a;
+        color: #ffffff;
+        transform: translateY(-3px);
+    }
+
+    .btn-submit {
+        background: linear-gradient(45deg, #c9184a, #ff4d6d);
+        border: none;
+        color: white;
+        font-weight: 700;
+        padding: 0.8rem 2rem;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-submit:hover {
+        box-shadow: 0 8px 20px rgba(201, 24, 74, 0.3);
+        transform: translateY(-2px);
+        color: white;
+    }
+</style>
+
+<div class="contact-wrapper">
+    <div class="container">
+        
+        <!-- Django Messages (Success/Error Alerts) -->
+        {% if messages %}
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-10">
+                    {% for message in messages %}
+                        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert" style="border-radius: 12px;">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row g-4 justify-content-center">
+            
+            <!-- ဘယ်ဘက်ခြမ်း- ဆက်သွယ်ရန် အချက်အလက်များ -->
+            <div class="col-lg-4 col-md-5">
+                <div class="info-sidebar">
+                    <h3 class="fw-bold mb-2">Get in Touch</h3>
+                    <p class="text-muted small mb-4">မေးမြန်းလိုသည်များရှိပါက အချိန်မရွေး ဆက်သွယ်မေးမြန်းနိုင်ပါသည်။</p>
+                    
+                    <hr class="text-muted opacity-20 mb-4">
+
+                    <!-- Email -->
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="bi bi-envelope-fill"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Email Us</div>
+                            <a href="mailto:admin@novelphilia.com" class="text-decoration-none fw-bold text-dark">admin@novelphilia.com</a>
+                        </div>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="bi bi-telephone-fill"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Call Us</div>
+                            <a href="tel:+95912345678" class="text-decoration-none fw-bold text-dark">+95 9 123 456 78</a>
+                        </div>
+                    </div>
+
+                    <!-- Social Media Links -->
+                    <div class="mt-4">
+                        <div class="text-muted small mb-2">Follow Our Community</div>
+                        <div class="social-links">
+                            <a href="#" target="_blank"><i class="bi bi-facebook"></i></a>
+                            <a href="#" target="_blank"><i class="bi bi-telegram"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ညာဘက်ခြမ်း- Message ပို့ရန် Form -->
+            <div class="col-lg-6 col-md-7">
+                <div class="contact-form-card">
+                    <h3 class="fw-bold mb-4">Send Us a Message</h3>
+                    
+                    <form method="POST" action="">
+                        {% csrf_token %}
+                        
+                        <!-- Name Field -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary">Your Name</label>
+                            <input type="text" class="form-control form-control-custom" name="name" placeholder="Enter your name" required>
+                        </div>
+
+                        <!-- Email Field -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary">Email Address</label>
+                            <input type="email" class="form-control form-control-custom" name="email" placeholder="Enter your email" required>
+                        </div>
+
+                        <!-- Message Field -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary">Message</label>
+                            <textarea class="form-control form-control-custom" name="message" rows="5" placeholder="Type your message here..." required></textarea>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-submit w-100">
+                            Send Message <i class="bi bi-send-fill ms-2"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

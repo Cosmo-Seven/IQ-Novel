@@ -1,0 +1,149 @@
+{% extends 'website/components/base.html' %}
+{% block title %} Explore Genres {% endblock %}
+
+{% block body %}
+{% load static %}
+
+<style>
+    /* Genre Page Header styling */
+    .genre-header-section {
+        background: radial-gradient(circle at 50% 0%, rgba(179, 136, 255, 0.08) 0%, transparent 60%);
+        padding: 3rem 0 2rem 0;
+    }
+
+    /* Elegant Genre Card Layout */
+    .genre-card {
+        border: 1px solid #eef0f3;
+        border-radius: 20px;
+        overflow: hidden;
+        background-color: #ffffff;
+        transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease;
+        height: 100%;
+    }
+
+    .genre-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
+        border-color: #b388ff;
+    }
+
+    /* Image Wrapper with Scale Effect */
+    .genre-img-container {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+        background-color: #f8f9fa;
+    }
+
+    .genre-card-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .genre-card:hover .genre-card-img {
+        transform: scale(1.08);
+    }
+
+    /* Floating Count Badge styled with Glassmorphism */
+    .novel-count-badge {
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        color: #4a4e69;
+        font-size: 0.8rem;
+        font-weight: 700;
+        padding: 6px 14px;
+        border-radius: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Card Details */
+    .genre-card-body {
+        padding: 1.5rem;
+    }
+
+    .genre-title {
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: #2d3748;
+        margin-bottom: 8px;
+        transition: color 0.2s ease;
+    }
+
+    .genre-card:hover .genre-title {
+        color: #c9184a;
+    }
+
+    .genre-description {
+        font-size: 0.9rem;
+        color: #718096;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.5;
+    }
+</style>
+
+<div class="genre-header-section">
+    <div class="container text-center mb-4">
+        <h1 class="fw-bold display-6 mb-2">Browse by Genre</h1>
+        <p class="text-muted">Find your next favorite story across our curated literary worlds</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        
+        {% for genre in genres %}
+        <div class="col">
+            <!-- Clicking the card routes directly to your filtered novel view -->
+            <a href="{% url 'novel' %}?genre={{ genre.id }}" class="text-decoration-none">
+                <div class="card genre-card">
+                    
+                    <!-- Image Container -->
+                    <div class="genre-img-container">
+                        {% if genre.image %}
+                            <img src="{{ genre.image.url }}" class="genre-card-img" alt="{{ genre.name }}">
+                        {% else %}
+                            <!-- Solid color fallback icon placeholder -->
+                            <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light text-muted">
+                                <i class="fa-solid fa-book-open fa-2x opacity-50"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Floating Novel Count -->
+                        <span class="novel-count-badge">
+                            {{ genre.novel_count }} Novel{{ genre.novel_count|pluralize }}
+                        </span>
+                    </div>
+
+                    <!-- Text Details Container -->
+                    <div class="genre-card-body">
+                        <h5 class="genre-title">{{ genre.name }}</h5>
+                        {% if genre.description %}
+                            <p class="genre-description mb-0">{{ genre.description }}</p>
+                        {% else %}
+                            <p class="genre-description mb-0 text-muted italic">No description available.</p>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </a>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <p class="text-muted">No genres have been added yet.</p>
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+{% endblock %}
