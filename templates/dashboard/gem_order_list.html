@@ -53,6 +53,7 @@
                                 </td>
                                 <td class="action-table-data">
                                     <div class="edit-delete-action d-flex justify-content-center gap-2">
+                                        <button type="button" data-bs-toggle="modal" data-bs-target="#viewOrder_{{ order.id }}" class="btn btn-sm btn-success">View</button>
                                         {% if order.status == 'pending' %}
                                         <form method="POST" action="{% url 'gem_order_approve' order.id %}">
                                             {% csrf_token %}
@@ -82,4 +83,80 @@
     </div>
     {% include 'dashboard/components/footer.html' %}
 </div>
+
+
+<!-- Order Details Modals -->
+{% for order in orders %}
+<div class="modal fade" id="viewOrder_{{ order.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Order {{ order.order_id|default:order.id }} Details</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6>Customer Information</h6>
+                        <p>
+                            <strong>Name:</strong> {{ order.user.username }}<br>
+                            <strong>Email:</strong> {{ order.user.email }}<br>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Price</h6>
+                        <p>
+                            Gem: {{ order.gem_amount }}<br>
+                            Price: {{ order.price }} MMK
+                        </p>
+                    </div>
+                </div>
+
+
+                <!-- Payment Screenshot -->
+                <div class="mb-4">
+                    <h6 class="mb-3 d-flex align-items-center">
+                        <i class="ti ti-receipt-2 text-primary me-2 fs-5"></i>
+                        Payment Evidence
+                    </h6>
+                    <div class="bg-light p-3 rounded-3 border">
+                        {% if order.payment_screenshot %}
+                        <div class="text-center">
+                            <a href="{{ order.payment_screenshot.url }}" target="_blank"
+                                class="d-inline-block position-relative shadow-sm border border-white rounded-3 overflow-hidden"
+                                style="max-height: 250px; transition: transform 0.2s;"
+                                onmouseover="this.style.transform='scale(1.02)'"
+                                onmouseout="this.style.transform='scale(1)'">
+                                <img src="{{ order.payment_screenshot.url }}" alt="Payment Screenshot"
+                                    class="img-fluid object-fit-contain"
+                                    style="max-height: 250px; width: auto; background-color: #f8f9fa;">
+                                <div class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-75 text-white py-1 small text-center"
+                                    style="backdrop-filter: blur(2px);">
+                                    <i class="ti ti-zoom-in me-1"></i> View Full Screen
+                                </div>
+                            </a>
+                        </div>
+                        {% else %}
+                        <div class="d-flex flex-column align-items-center justify-content-center text-muted py-3">
+                            <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm mb-2"
+                                style="width: 50px; height: 50px;">
+                                <i class="ti ti-ban fs-3 text-secondary opacity-50"></i>
+                            </div>
+                            <p class="mb-0 fw-medium text-dark">No Payment Screenshot Provided</p>
+                            <small>Screenshot not available or pending payment.</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
 {% endblock %}
