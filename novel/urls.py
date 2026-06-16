@@ -163,7 +163,7 @@ urlpatterns = (
 
 
 # // Page Not Found -----------------------------------------------------------
-        re_path(r"^.*/$", dashboard_page_views.page_not_found),
+        re_path(r"^.*/$", website_page_views.page404),
     ]
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

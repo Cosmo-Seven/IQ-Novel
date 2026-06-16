@@ -543,3 +543,6 @@ def contact_page(request):
         return redirect('contact_page')
         
     return render(request, "website/contact.html")
+
+def page404(request):
+    return render(request, "website/page404.html")
