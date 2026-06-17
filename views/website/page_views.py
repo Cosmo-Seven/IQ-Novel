@@ -62,8 +62,10 @@ def novel(request):
     
     search_query = request.GET.get('q', '')
     genre_filter = request.GET.get('genre', '')
+    sort_filter = request.GET.get('sort', '')
     
-    active_genre_id = int(genre_filter) if genre_filter.isdigit() else None
+    # UUID-based genre id — no int() cast
+    active_genre_id = genre_filter if genre_filter else None
 
     if search_query:
         novels = novels.filter(
@@ -73,12 +75,28 @@ def novel(request):
         
     if active_genre_id:
         novels = novels.filter(genres__id=active_genre_id)
-        
+
+    if sort_filter == 'popular':
+        novels = novels.filter(is_popular=True)
+    elif sort_filter == 'new':
+        novels = novels.order_by("-created_at")
+
+    novels = novels.distinct()
+
+    # Pagination — 20 per page
+    from django.core.paginator import Paginator
+    paginator = Paginator(novels, 20)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        "novels": novels.distinct(),
+        "novels": page_obj,
+        "page_obj": page_obj,
+        "paginator": paginator,
         "genres": genres,
         "search_query": search_query,
         "active_genre_id": active_genre_id,
+        "sort_filter": sort_filter,
     }
     return render(request, "website/novel.html", context)
 

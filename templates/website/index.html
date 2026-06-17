@@ -33,7 +33,7 @@
             <section class="novel-feed-section mb-5">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="section-heading-title m-0">Popular Series</h4>
-                    <a href="#" class="btn btn-sm view-all-pill-btn">VIEW ALL</a>
+                    <a href="{% url 'novel' %}?sort=popular" class="btn btn-sm view-all-pill-btn">VIEW ALL</a>
                 </div>
 
                 <!-- Swiper Desktop 5 Cards Engine -->
@@ -81,7 +81,7 @@
             <section class="novel-feed-section mb-5">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="section-heading-title m-0">New Series</h4>
-                    <a href="#" class="btn btn-sm view-all-pill-btn">VIEW ALL</a>
+                    <a href="{% url 'novel' %}?sort=new_series" class="btn btn-sm view-all-pill-btn">VIEW ALL</a>
                 </div>
                 <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-xl-4 g-3">
                     {% for novel in novels %}

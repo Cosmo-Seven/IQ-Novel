@@ -8,9 +8,23 @@
 {% load myanmar_number %}
 
 
-<!-- new series section -->
 <section class="py-3">
     <div class="container-fluid">
+
+        {% if sort_filter or active_genre_id %}
+        <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+            <h5 class="m-0 fw-bold">
+                {% if sort_filter == 'popular' %}
+                    🔥 Popular Series
+                {% elif sort_filter == 'new' %}
+                    🆕 New Series
+                {% elif active_genre_id %}
+                    Genre Filtered
+                {% endif %}
+            </h5>
+            <a href="{% url 'novel' %}" class="btn btn-sm btn-outline-secondary rounded-pill">✕ Clear Filter</a>
+        </div>
+        {% endif %}
 
         <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3">
             {% for novel in novels %}
@@ -32,12 +46,10 @@
                     <div class="card-body p-2 d-flex flex-column justify-content-between">
                         <div>
                             <p class="novel-title mb-0 text-truncate" title="{{ novel.title }}">{{ novel.title }}</p>
-
                             <p class="novel-author mb-2 text-muted small text-truncate">
                                 <i class="bi bi-person me-1"></i>{% if novel.author %}{{ novel.author.display_name }}{% else %}Unknown{% endif %}
                             </p>
                         </div>
-
                         <div class="novel-meta d-flex justify-content-between align-items-center">
                             <span class="small"><i class="bi bi-book me-1"></i>Ch: {{ novel.chapters.count }}</span>
                             <span class="small text-secondary"><i class="bi bi-eye me-1"></i>{{ novel.views|intcomma }}</span>
@@ -47,10 +59,129 @@
                 </div>
             </div>
             {% empty %}
-            <p class="text-center text-muted">No book found</p>
+            <div class="col-12 text-center py-5">
+                <p class="text-muted fs-5">No book found</p>
+            </div>
             {% endfor %}
         </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <nav class="mt-5 d-flex justify-content-center" aria-label="Novel pagination">
+            <ul class="pagination pagination-novel">
+
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link"
+                       href="?page={{ page_obj.previous_page_number }}{% if sort_filter %}&sort={{ sort_filter }}{% endif %}{% if active_genre_id %}&genre={{ active_genre_id }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
+                       aria-label="Previous">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link"><i class="bi bi-chevron-left"></i></span>
+                </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="?page={{ num }}{% if sort_filter %}&sort={{ sort_filter }}{% endif %}{% if active_genre_id %}&genre={{ active_genre_id }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">
+                            {{ num }}
+                        </a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link"
+                       href="?page={{ page_obj.next_page_number }}{% if sort_filter %}&sort={{ sort_filter }}{% endif %}{% if active_genre_id %}&genre={{ active_genre_id }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
+                       aria-label="Next">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link"><i class="bi bi-chevron-right"></i></span>
+                </li>
+                {% endif %}
+
+            </ul>
+        </nav>
+        {% endif %}
+
     </div>
 </section>
+
+<style>
+    :root {
+        --brand-maroon: #581825;
+    }
+
+    .novel-card {
+        border-radius: 12px;
+        overflow: hidden;
+        transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease;
+        background: #ffffff;
+    }
+    .novel-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.08) !important;
+    }
+    .novel-img-wrapper {
+        display: block;
+        width: 100%;
+        aspect-ratio: 2 / 3;
+        overflow: hidden;
+        background-color: #f3f4f6;
+    }
+    .novel-cover {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    .novel-card:hover .novel-cover {
+        transform: scale(1.04);
+    }
+    .novel-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 2px;
+    }
+
+    /* Pagination */
+    .pagination-novel .page-link {
+        border: 1px solid #e5e7eb;
+        color: var(--brand-maroon);
+        border-radius: 8px !important;
+        margin: 0 3px;
+        padding: 0.45rem 0.85rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    .pagination-novel .page-item.active .page-link {
+        background-color: var(--brand-maroon);
+        border-color: var(--brand-maroon);
+        color: #fff;
+    }
+    .pagination-novel .page-link:hover {
+        background-color: var(--brand-maroon);
+        border-color: var(--brand-maroon);
+        color: #fff;
+    }
+    .pagination-novel .page-item.disabled .page-link {
+        color: #adb5bd;
+        border-color: #e5e7eb;
+    }
+</style>
 
 {% endblock %}
