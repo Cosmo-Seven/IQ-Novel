@@ -30,8 +30,10 @@ def genre_list(request):
 def genre_create(request):
     if request.method == "POST":
         name = request.POST.get("name")
+        image = request.FILES.get("image")
         genre = GenreModel.objects.create(
             name=name,
+            image=image,
         )
         genre.save()
         messages.success(request, CREATE)
@@ -45,6 +47,11 @@ def genre_update(request, pk):
     genre = get_object_or_404(GenreModel, id=pk)
     if request.method == "POST":
         genre.name = request.POST.get("name")
+        image = request.FILES.get("image")
+        if image:
+            if genre.image:
+                genre.image.delete(save=False)
+            genre.image = request.FILES.get("image")
         genre.save()
         messages.success(request, UPDATE)
         return redirect("genre_list")
@@ -55,6 +62,8 @@ def genre_update(request, pk):
 @role_permission_required("delete_genremodel")
 def genre_delete(request, pk):
     genre = get_object_or_404(GenreModel, id=pk)
+    if genre.image:
+        genre.image.delete(save=False)
     genre.delete()
     messages.success(request, DELETE)
     return redirect("genre_list")

@@ -8,6 +8,11 @@
                 <label class="form-label">{% translate 'name' request.session.language %}</label>
                 <input type="text" name="name" value="{{genre.name}}" required class="form-control">
             </div>
+            <div class="mb-3">
+                <label class="form-label">{% translate 'image' request.session.language %}</label>
+                <input type="file" name="image" required class="form-control">
+                <small class="text-muted">{{genre.image.name}}</small>
+            </div>
         </div>
     </div>
 </div>
