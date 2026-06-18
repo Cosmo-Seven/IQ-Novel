@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.humanize",
     "pwa",
+    "ckeditor",
     "core",
     "django.contrib.sites",
 ]
@@ -159,3 +160,23 @@ PWA_APP_ICONS = [
     },
     {"src": "/static/website/images/logo.png", "sizes": "512x512", "purpose": "any"},
 ]
+# CKEditor Configuration - Simple text formatting only
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'Basic',
+        'height': 300,
+        'toolbar_Basic': [
+            ['Bold', 'Italic', 'Underline', 'Strike'],
+            ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'], # ဒီကောင်တွေ အလုပ်လုပ်ဖို့က justify plugin လိုပါတယ်
+            ['NumberedList', 'BulletedList'],
+            ['Link', 'Unlink'],
+            ['RemoveFormat']
+        ],
+        'removePlugins': 'elementspath,resize',
+        'extraPlugins': 'justify', # <--- ဒီလိုင်းကို မဖြစ်မနေ ထည့်ပေးပါ
+        'allowedContent': True,
+        'extraAllowedContent': 'p;span;ul;li;ol;a;strong;em;u;s;div{text-align};*[align]',
+        'basicEntities': False,
+        'entities': False,
+    },
+}

@@ -4,6 +4,7 @@ from models.base_models import BaseModel
 from enums.status import StatusEnum
 from django.utils.text import slugify
 from core.models import NovelModel
+from ckeditor.fields import RichTextField
 
 class ChapterModel(BaseModel):
     novel = models.ForeignKey(
@@ -14,7 +15,7 @@ class ChapterModel(BaseModel):
 
     chapter_title = models.CharField(max_length=255)
 
-    content = models.TextField()
+    content = RichTextField(config_name='default')
     is_free = models.BooleanField(default=False)
 
     gem_price = models.PositiveIntegerField(default=0)

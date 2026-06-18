@@ -469,40 +469,43 @@
 {% endfor %}
 {% endif %}
 
-<script src="https://cdn.ckeditor.com/4.21.0/standard/ckeditor.js"></script>
+<script src="https://cdn.ckeditor.com/4.21.0/full/ckeditor.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         if (window.CKEDITOR) {
-            CKEDITOR.replace('id_summery', { height: 300 });
+            
+            // justify plugin ကို ရယူဖို့ CDN external path လမ်းကြောင်းကို ကြေညာပေးရပါမယ်
+            CKEDITOR.plugins.addExternal('justify', 'https://cdnjs.cloudflare.com/ajax/libs/ckeditor4/4.21.0/plugins/justify/', 'plugin.js');
+
+            const ckeditorConfig = {
+                height: 300,
+                toolbar: [
+                    ['Bold', 'Italic', 'Underline', 'Strike'],
+                    ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+                    ['NumberedList', 'BulletedList'],
+                    ['Link', 'Unlink'],
+                    ['RemoveFormat']
+                ],
+                extraPlugins: 'justify', // <--- external plugin အနေနဲ့ အလုပ်လုပ်သွားပါလိမ့်မယ်
+                removePlugins: 'elementspath,resize',
+                allowedContent: true
+            };
+
+            // အောက်က ကုဒ်တွေက အရင်အတိုင်းပါပဲ
+            CKEDITOR.replace('id_summery', ckeditorConfig);
+            
             const createContent = document.getElementById('id_create_content');
             if (createContent) {
-                CKEDITOR.replace('id_create_content', { height: 300 });
+                CKEDITOR.replace('id_create_content', ckeditorConfig);
             }
+            
             {% if novel %}
                 {% for item in novel_chapters %}
                     if (document.getElementById('id_update_content_{{ item.id }}')) {
-                        CKEDITOR.replace('id_update_content_{{ item.id }}', { height: 300 });
+                        CKEDITOR.replace('id_update_content_{{ item.id }}', ckeditorConfig);
                     }
                 {% endfor %}
             {% endif %}
-        }
-
-        const createFreeCheckbox = document.getElementById('is_free_create');
-        const createGemWrapper = document.getElementById('gemPriceWrapper_create');
-        const createGemInput = document.getElementById('gem_price_create');
-        if (createFreeCheckbox && createGemWrapper && createGemInput) {
-            function updateCreateGemState() {
-                if (createFreeCheckbox.checked) {
-                    createGemWrapper.style.opacity = '0';
-                    createGemWrapper.style.pointerEvents = 'none';
-                    createGemInput.value = 0;
-                } else {
-                    createGemWrapper.style.opacity = '1';
-                    createGemWrapper.style.pointerEvents = 'all';
-                }
-            }
-            updateCreateGemState();
-            createFreeCheckbox.addEventListener('change', updateCreateGemState);
         }
     });
 </script>

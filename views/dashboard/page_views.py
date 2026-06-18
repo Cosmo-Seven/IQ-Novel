@@ -57,6 +57,7 @@ def dashboard(request):
 # Site Settings
 # ========================
 @login_required("dashboard_login")
+@role_permission_required("view_sitemodel")
 def site_settings(request):
     site = SiteModel.objects.first()
     if request.method == "GET":

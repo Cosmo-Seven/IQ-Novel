@@ -132,6 +132,7 @@ def sidebar(request):
                         "label": "company_settings",
                         "url_name": "site_settings",
                         "icon": "ti ti-building",
+                        "permission": "view_sitemodel",
                     },
                     {
                         "label": "language_settings",

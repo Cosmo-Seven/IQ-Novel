@@ -49,9 +49,13 @@
                                 </a>
 
                                 {% if novel.is_completed %}
-                                <span class="badge badge-status bg-success">Completed</span>
+                                <span class="badge badge-status bg-success rounded-0">Completed</span>
                                 {% elif novel.is_popular %}
-                                <span class="badge badge-status bg-danger animate-pulse">Popular</span>
+                                <span class="badge badge-status bg-danger animate-pulse rounded-0">Popular</span>
+                                {% elif novel.is_fanfic %}
+                                <span class="badge badge-status bg-primary animate-pulse rounded-0">Popular</span>
+                                {% else %}
+                                <span class="badge badge-status bg-secondary animate-pulse rounded-0">Ongoing</span>
                                 {% endif %}
 
                                 <div class="card-body p-2 d-flex flex-column justify-content-between">
@@ -91,6 +95,17 @@
                             <a href="{% url 'novel_detail' novel.id %}" class="novel-img-wrapper">
                                 <img class="card-img-top novel-cover" src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}" alt="{{ novel.title }}" />
                             </a>
+
+                            {% if novel.is_completed %}
+                                <span class="badge badge-status bg-success rounded-0">Completed</span>
+                                {% elif novel.is_popular %}
+                                <span class="badge badge-status bg-danger animate-pulse rounded-0">Popular</span>
+                                {% elif novel.is_fanfic %}
+                                <span class="badge badge-status bg-primary animate-pulse rounded-0">Popular</span>
+                                {% else %}
+                                <span class="badge badge-status bg-secondary animate-pulse rounded-0">Ongoing</span>
+                                {% endif %}
+
                             <div class="card-body p-2 d-flex flex-column justify-content-between">
                                 <div>
                                     <p class="novel-title mb-0 text-truncate" title="{{ novel.title }}">{{ novel.title }}</p>
@@ -122,6 +137,16 @@
                             <a href="{% url 'novel_detail' novel.id %}" class="novel-img-wrapper">
                                 <img class="card-img-top novel-cover" src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}" alt="{{ novel.title }}" />
                             </a>
+
+                            {% if novel.is_completed %}
+                                <span class="badge badge-status bg-success rounded-0">Completed</span>
+                                {% elif novel.is_popular %}
+                                <span class="badge badge-status bg-danger animate-pulse rounded-0">Popular</span>
+                                {% elif novel.is_fanfic %}
+                                <span class="badge badge-status bg-primary animate-pulse rounded-0">Popular</span>
+                                {% else %}
+                                <span class="badge badge-status bg-secondary animate-pulse rounded-0">Ongoing</span>
+                                {% endif %}
                             <div class="card-body p-2 d-flex flex-column justify-content-between">
                                 <div>
                                     <p class="novel-title mb-0 text-truncate" title="{{ novel.title }}">{{ novel.title }}</p>
