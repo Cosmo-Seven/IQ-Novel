@@ -38,9 +38,13 @@
                     </a>
 
                     {% if novel.is_completed %}
-                    <span class="badge badge-status bg-success">Completed</span>
+                    <span class="badge badge-status bg-success rounded-0">Completed</span>
                     {% elif novel.is_popular %}
-                    <span class="badge badge-status bg-danger animate-pulse">Popular</span>
+                    <span class="badge badge-status bg-danger animate-pulse rounded-0">Popular</span>
+                    {% elif novel.is_fanfic %}
+                    <span class="badge badge-status bg-primary animate-pulse rounded-0">Popular</span>
+                    {% else %}
+                    <span class="badge badge-status bg-secondary animate-pulse rounded-0">Ongoing</span>
                     {% endif %}
 
                     <div class="card-body p-2 d-flex flex-column justify-content-between">
