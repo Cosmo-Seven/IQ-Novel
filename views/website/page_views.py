@@ -564,3 +564,60 @@ def contact_page(request):
 
 def page404(request):
     return render(request, "website/page404.html")
+
+
+# ========================
+# Account Deletion Views
+# ========================
+@login_required("website_login")
+def request_account_deletion(request):
+    """Handle user request for account deletion"""
+    from models.account_deletion_models import AccountDeletionRequestModel
+    
+    if request.method == "POST":
+        reason = request.POST.get("reason", "").strip()
+        
+        # Check if there's already a pending request
+        existing_request = AccountDeletionRequestModel.objects.filter(
+            user=request.user,
+            status=AccountDeletionRequestModel.StatusChoices.PENDING
+        ).first()
+        
+        if existing_request:
+            messages.info(request, "You already have a pending account deletion request.")
+            return redirect("website_profile")
+        
+        # Create new deletion request
+        AccountDeletionRequestModel.objects.create(
+            user=request.user,
+            reason=reason,
+            created_by=request.user,
+            updated_by=request.user
+        )
+        
+        messages.success(request, "Your account deletion request has been submitted. Admin will review it.")
+        return redirect("website_profile")
+    
+    return render(request, "website/account_deletion_request.html")
+
+
+@login_required("website_login")
+def cancel_account_deletion_request(request):
+    """Cancel pending account deletion request"""
+    from models.account_deletion_models import AccountDeletionRequestModel
+    
+    deletion_request = AccountDeletionRequestModel.objects.filter(
+        user=request.user,
+        status=AccountDeletionRequestModel.StatusChoices.PENDING
+    ).first()
+    
+    if deletion_request:
+        deletion_request.delete()
+        messages.success(request, "Your account deletion request has been cancelled.")
+    else:
+        messages.info(request, "No pending deletion request found.")
+    
+    return redirect("website_profile")
+
+def privacy_policy(request):
+    return render(request, "website/privacy_policy.html")

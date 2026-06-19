@@ -1,0 +1,185 @@
+{% extends 'website/components/base.html' %} {% load static %} {% block title %} Privacy Policy - IQ Novel {% endblock %}
+
+{% block body %}
+
+<style> .privacy-content { line-height: 1.8; } .privacy-section { margin-bottom: 2.5rem; } .privacy-section h3 { color: #333; padding-bottom: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid #f0f0f0; } .privacy-section h4 { color: #555; margin-top: 1.5rem; margin-bottom: 1rem; } .privacy-list { padding-left: 1.5rem; margin-bottom: 1.5rem; } .privacy-list li { margin-bottom: 0.75rem; } .highlight-box { background-color: #f8f9fa; border-left: 4px solid #0d6efd; padding: 1.5rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0; } .contact-info { background-color: #e8f4fd; border: 1px solid #b6d4fe; border-radius: 8px; padding: 1.5rem; margin-top: 2rem; } </style> <div class="container py-5"> <div class="row justify-content-center"> <div class="col-lg-10"> <div class="card border-0 shadow-sm"> <div class="card-header bg-white border-bottom"> <div class="d-flex align-items-center"> <div class="bg-primary bg-opacity-10 p-2 rounded me-3"> <i class="bi bi-shield-check fs-4 text-primary"></i> </div> <div> <h1 class="h3 mb-1">Privacy Policy</h1> <p class="text-muted mb-0">Last updated: {{ "now"|date:"F d, Y" }}</p> </div> </div> </div>
+            <div class="card-body privacy-content">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Important:</strong> This Privacy Policy explains how IQ Novel collects, uses, and protects your personal information when you use our services.
+                </div>
+                
+                <div class="privacy-section">
+                    <h3>1. Information We Collect</h3>
+                    
+                    <h4>Personal Information</h4>
+                    <p>When you register for an account, we collect:</p>
+                    <ul class="privacy-list">
+                        <li><strong>Username and Email Address:</strong> Used for account identification and communication.</li>
+                        <li><strong>Profile Information:</strong> Optional profile picture and display name.</li>
+                        <li><strong>Contact Information:</strong> Phone number for account verification (optional).</li>
+                    </ul>
+                    
+                    <h4>Usage Information</h4>
+                    <p>We automatically collect:</p>
+                    <ul class="privacy-list">
+                        <li><strong>Reading Activity:</strong> Novels you read, chapters purchased, bookmarks, and reading progress.</li>
+                        <li><strong>Device Information:</strong> Browser type, IP address, device type, and operating system.</li>
+                        <li><strong>Transaction Data:</strong> Gem purchases, payment methods, and transaction history.</li>
+                        <li><strong>Interaction Data:</strong> Comments, reviews, and interactions with other users.</li>
+                    </ul>
+                </div>
+                
+                <div class="privacy-section">
+                    <h3>2. How We Use Your Information</h3>
+                    
+                    <p>We use your information to:</p>
+                    <ul class="privacy-list">
+                        <li>Provide and maintain our reading platform services</li>
+                        <li>Process transactions and manage your gem balance</li>
+                        <li>Personalize your reading experience and recommendations</li>
+                        <li>Send important notifications about your account</li>
+                        <li>Improve our services and develop new features</li>
+                        <li>Ensure platform security and prevent fraud</li>
+                        <li>Comply with legal obligations</li>
+                    </ul>
+                    
+                    <div class="highlight-box">
+                        <i class="bi bi-lightbulb text-warning me-2"></i>
+                        <strong>Note:</strong> We do not sell your personal information to third parties. Your data is used solely to provide and improve our services.
+                    </div>
+                </div>
+                
+                <div class="privacy-section">
+                    <h3>3. Data Security</h3>
+                    
+                    <p>We implement appropriate security measures to protect your personal information:</p>
+                    <ul class="privacy-list">
+                        <li><strong>Encryption:</strong> Secure transmission of data using SSL/TLS encryption</li>
+                        <li><strong>Access Control:</strong> Limited access to personal information to authorized personnel only</li>
+                        <li><strong>Regular Security Audits:</strong> Periodic reviews of our security practices</li>
+                        <li><strong>Data Backup:</strong> Regular backups to prevent data loss</li>
+                    </ul>
+                    
+                    <p>While we strive to protect your information, no method of transmission over the internet is 100% secure. We cannot guarantee absolute security.</p>
+                </div>
+                
+                <div class="privacy-section">
+                    <h3>4. Data Retention</h3>
+                    
+                    <p>We retain your personal information only as long as necessary:</p>
+                    <ul class="privacy-list">
+                        <li><strong>Active Accounts:</strong> Data is retained while your account is active</li>
+                        <li><strong>Inactive Accounts:</strong> Accounts inactive for 2 years may be marked for deletion</li>
+                        <li><strong>Legal Requirements:</strong> Some data may be retained to comply with legal obligations</li>
+                        <li><strong>Transaction Records:</strong> Financial transaction records are kept for 5 years for accounting purposes</li>
+                    </ul>
+                </div>
+                
+                <div class="privacy-section">
+                    <h3>5. Account Deletion</h3>
+                    
+                    <p>You have the right to request account deletion:</p>
+                    <ul class="privacy-list">
+                        <li><strong>Deletion Request:</strong> Submit a deletion request through your profile settings</li>
+                        <li><strong>Review Process:</strong> Requests are reviewed by administrators for verification</li>
+                        <li><strong>Data Retention:</strong> Some data may be retained for legal compliance even after account deletion</li>
+                        <li><strong>Cancellation:</strong> You can cancel deletion requests before admin approval</li>
+                    </ul>
+                    
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Important:</strong> Account deletion is permanent and cannot be reversed. All your reading history, purchased chapters, and personal data will be removed from the platform.
+                    </div>
+                </div>
+                
+                <div class="privacy-section">
+                    <h3>6. Cookies and Tracking</h3>
+                    
+                    <p>We use cookies and similar technologies to:</p>
+                    <ul class="privacy-list">
+                        <li>Remember your preferences and login status</li>
+                        <li>Analyze website traffic and usage patterns</li>
+                        <li>Provide personalized content recommendations</li>
+                        <li>Improve website performance</li>
+                    </ul>
+                    
+                    <p>You can control cookie preferences through your browser settings, but this may affect your experience on our platform.</p>
+                </div>
+                
+                <div class="privacy-section">
+                    <h3>7. Third-Party Services</h3>
+                    
+                    <p>We may use third-party services that have their own privacy policies:</p>
+                    <ul class="privacy-list">
+                        <li><strong>Payment Processors:</strong> For handling gem purchases</li>
+                        <li><strong>Analytics Services:</strong> To understand platform usage</li>
+                        <li><strong>Cloud Storage:</strong> For data storage and backup</li>
+                        <li><strong>Email Services:</strong> For sending notifications</li>
+                    </ul>
+                    
+                    <p>We encourage you to review the privacy policies of these third-party services.</p>
+                </div>
+                
+                <div class="privacy-section">
+                    <h3>8. Children's Privacy</h3>
+                    
+                    <p>Our services are not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If you believe we have collected information from a child under 13, please contact us immediately.</p>
+                </div>
+                
+                <div class="privacy-section">
+                    <h3>9. Changes to Privacy Policy</h3>
+                    
+                    <p>We may update this Privacy Policy periodically. We will notify you of any significant changes by:</p>
+                    <ul class="privacy-list">
+                        <li>Posting the new Privacy Policy on this page</li>
+                        <li>Sending email notifications to registered users</li>
+                        <li>Displaying notifications within the platform</li>
+                    </ul>
+                    
+                    <p>Your continued use of the platform after changes constitutes acceptance of the updated policy.</p>
+                </div>
+                
+                <div class="privacy-section">
+                    <h3>10. Your Rights</h3>
+                    
+                    <p>You have the right to:</p>
+                    <ul class="privacy-list">
+                        <li>Access your personal information</li>
+                        <li>Correct inaccurate information</li>
+                        <li>Request deletion of your account</li>
+                        <li>Export your data</li>
+                        <li>Object to certain data processing</li>
+                        <li>Withdraw consent where applicable</li>
+                    </ul>
+                </div>
+                
+                <div class="contact-info">
+                    <h4><i class="bi bi-envelope me-2"></i>Contact Us</h4>
+                    <p>If you have questions about this Privacy Policy or your personal information, please contact us:</p>
+                    <ul class="privacy-list">
+                        <li><strong>Email:</strong> privacy@iqnovel.com</li>
+                        <li><strong>Address:</strong> IQ Novel Platform, Digital Services Division</li>
+                        <li><strong>Response Time:</strong> We aim to respond within 7 business days</li>
+                    </ul>
+                    <p class="mb-0">For account deletion requests, please use the account deletion form in your profile settings.</p>
+                </div>
+                
+                <div class="mt-4 pt-3 border-top text-muted small">
+                    <p><i class="bi bi-clock-history me-1"></i> This document was last updated on {{ "now"|date:"F d, Y" }}.</p>
+                    <p class="mb-0">By using IQ Novel, you acknowledge that you have read and understood this Privacy Policy.</p>
+                </div>
+            </div>
+            
+            <div class="card-footer bg-white border-top text-center py-3">
+                <a href="{% url 'home' %}" class="btn btn-primary">
+                    <i class="bi bi-house me-1"></i> Back to Home
+                </a>
+                <a href="{% url 'website_profile' %}" class="btn btn-outline-primary ms-2">
+                    <i class="bi bi-person me-1"></i> My Profile
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+</div> {% endblock %}

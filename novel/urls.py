@@ -161,6 +161,10 @@ urlpatterns = (
         path("forgot-password/",website_auth_views.forgot_password,name="forgot_password",),
         path("reset-password/<uidb64>/<token>/",website_auth_views.reset_password,name="reset_password",),
 
+        path("account/delete/", website_page_views.request_account_deletion, name="request_account_deletion"),
+        path("cancel/account/delete/", website_page_views.cancel_account_deletion_request, name="cancel_account_deletion_request"),
+        path("privacy-policy/", website_page_views.privacy_policy, name="privacy_policy"),
+
 
 # // Page Not Found -----------------------------------------------------------
         re_path(r"^.*/$", website_page_views.page404),
