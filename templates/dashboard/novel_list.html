@@ -50,7 +50,7 @@
                                 <th>{% translate 'title' request.session.language %}</th>
                                 <th>{% translate 'author' request.session.language %}</th>
                                 <th>{% translate 'genre' request.session.language %}</th>
-                                <th>{% translate 'summery' request.session.language %}</th>
+                                <th>{% translate 'summary' request.session.language %}</th>
                                 <th>{% translate 'created_date' request.session.language %}</th>
                                 <th class="text-center">{% translate 'action' request.session.language %}</th>
                             </tr>
@@ -80,7 +80,7 @@
                                         {{genre.name}}
                                     {% endfor %}
                                 </td>
-                                <td>{{ novel.summery|safe|truncatechars:"20" }}</td>
+                                <td>{{ novel.summary|safe|truncatechars:"20" }}</td>
                                 <td>{{ novel.created_at|date:'d M Y' }}</td>
                                 <td class="action-table-data">
                                     <div class="edit-delete-action">

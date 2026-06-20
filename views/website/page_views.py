@@ -7,6 +7,13 @@ from django.urls import reverse
 from django.db.models import F, Q, Count
 from decorators.login_decorator import login_required
 from django.contrib.auth import login, logout, authenticate
+from django.core.paginator import Paginator
+from core.models import DownloadModel
+from django.http import JsonResponse
+from core.models import DownloadModel
+from django.db.models import Max
+from helpers.gem_pricing import gem_unit_price_mmk, gems_to_mmk
+from models.account_deletion_models import AccountDeletionRequestModel
 from helpers.mail import send_verification_email, send_reset_email
 from core.models import (
     UserModel,
@@ -34,9 +41,10 @@ def index(request):
     novels = NovelModel.objects.select_related("author").order_by("-created_at")
     completed_novels = NovelModel.objects.select_related("author").filter(is_completed=True)
     popular_novels = NovelModel.objects.select_related("author").filter(is_popular=True)
-    fanfic_novels = NovelModel.objects.select_related("author").filter(is_fanfic=True)
-    free_novels = NovelModel.objects.filter(is_popular=True)
+    fanfic_novels = NovelModel.objects.select_related("author").filter(novel_type='fanfic')
+    free_novels = NovelModel.objects.select_related("author").filter(chapters__is_free=True).distinct()
     genres = GenreModel.objects.all()
+
     context = {
         "sliders":sliders,
         "novels": novels,
@@ -60,7 +68,7 @@ def novel(request):
     novels = NovelModel.objects.all().order_by("-created_at")
     genres = GenreModel.objects.annotate(novel_count=Count('novels')) 
     
-    search_query = request.GET.get('q', '')
+    search_query = request.GET.get('search', '')
     genre_filter = request.GET.get('genre', '')
     sort_filter = request.GET.get('sort', '')
     
@@ -78,13 +86,20 @@ def novel(request):
 
     if sort_filter == 'popular':
         novels = novels.filter(is_popular=True)
+    elif sort_filter == 'completed':
+        novels = novels.filter(is_completed=True)
     elif sort_filter == 'new':
         novels = novels.order_by("-created_at")
+        
+    elif sort_filter == 'fanfic':
+        novels = novels.filter(novel_type='fanfic')
+    elif sort_filter == 'translation':
+        novels = novels.filter(novel_type='translate')
+    elif sort_filter == 'own_creation':
+        novels = novels.filter(novel_type='own_creation')
 
     novels = novels.distinct()
 
-    # Pagination — 20 per page
-    from django.core.paginator import Paginator
     paginator = Paginator(novels, 20)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
@@ -135,7 +150,7 @@ def novel_detail(request, id):
     read_chapter_ids = []
     if request.user.is_authenticated:
         bookmarked = BookmarkModel.objects.filter(user=request.user, novel=novel).exists()
-        from core.models import DownloadModel
+        
         downloaded = DownloadModel.objects.filter(user=request.user, novel=novel).exists()
         purchased_chapter_ids = set(
             request.user.chapter_purchases.values_list("chapter_id", flat=True)
@@ -305,13 +320,13 @@ def bookmark(request, id):
 
     return redirect("novel_detail", id=id)
 
-from django.http import JsonResponse
+
 @login_required("website_login")
 def toggle_download(request, id):
     novel = get_object_or_404(NovelModel, id=id)
 
     if request.method == "POST":
-        from core.models import DownloadModel
+        
         download, created = DownloadModel.objects.get_or_create(
             user=request.user,
             novel=novel,
@@ -368,8 +383,7 @@ def profile(request):
         chapters__purchased_by__user=request.user
     ).distinct()
 
-    # Reading list: distinct novels the user has started reading (via chapter reads)
-    from django.db.models import Max
+    
     reading_list = (
         NovelModel.objects.filter(
             chapters__read_by__user=request.user
@@ -380,7 +394,7 @@ def profile(request):
     )
 
     # Downloaded Novels
-    from core.models import DownloadModel
+    
     downloaded_novels = DownloadModel.objects.filter(user=request.user).select_related("novel").order_by("-created_at")
 
     # Author stats: follower count & novel count
@@ -488,7 +502,6 @@ def buy_ten_chapters(request, id):
         return redirect("novel_detail", id=novel.id)
 
     if request.method == "POST":
-        from helpers.gem_pricing import gem_unit_price_mmk, gems_to_mmk
 
         author = novel.author
         revenue_share_percent = author.revenue_share_percent if author else 0
@@ -572,7 +585,7 @@ def page404(request):
 @login_required("website_login")
 def request_account_deletion(request):
     """Handle user request for account deletion"""
-    from models.account_deletion_models import AccountDeletionRequestModel
+    
     
     if request.method == "POST":
         reason = request.POST.get("reason", "").strip()
@@ -604,7 +617,6 @@ def request_account_deletion(request):
 @login_required("website_login")
 def cancel_account_deletion_request(request):
     """Cancel pending account deletion request"""
-    from models.account_deletion_models import AccountDeletionRequestModel
     
     deletion_request = AccountDeletionRequestModel.objects.filter(
         user=request.user,

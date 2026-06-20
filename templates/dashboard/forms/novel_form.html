@@ -56,12 +56,23 @@
                             aria-labelledby="productInformation">
                             <div class="accordion-body border-top">
                                 <div class="row">
-                                    <div class="col-lg-12">
+                                    <div class="col-lg-9">
                                         <div class="mb-3">
                                             <label class="form-label">{% translate 'title' request.session.language %}
                                                 <span class="text-danger ms-1">*</span></label>
                                             <input type="text" name="title" required class="form-control"
                                                 value="{{ novel.title }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <div class="mb-3">
+                                            <label class="form-label">{% translate 'novel_type' request.session.language %}
+                                                <span class="text-danger ms-1">*</span></label>
+                                            <select name="novel_type" class="form-control">
+                                                <option value="fanfic" {% if novel.novel_type == 'fanfic' %}selected{% endif %}>Fanfic</option>
+                                                <option value="translate" {% if novel.novel_type == 'translate' %}selected{% endif %}>Translate</option>
+                                                <option value="own_creation" {% if novel.novel_type == 'own_creation' %}selected{% endif %}>Own Creation</option>
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="col-lg-6 col-md-6 col-12">
@@ -87,8 +98,8 @@
                                     </div>
                                     <div class="col-lg-12 col-md-6 col-12">
                                         <div class="mb-3">
-                                            <label class="form-label">{% translate 'summery' request.session.language %}</label>
-                                            <textarea id="id_summery" name="summery" required class="form-control" rows="10">{{ novel.summery }}</textarea>
+                                            <label class="form-label">{% translate 'summary' request.session.language %}</label>
+                                            <textarea id="id_summary" name="summary" required class="form-control" rows="10">{{ novel.summary }}</textarea>
                                         </div>
                                     </div>
                                     <div class="mb-3">
@@ -103,13 +114,6 @@
                                             <span class="status-label">{% translate 'is_popular' request.session.language %}</span>
                                             <input type="checkbox" id="is_popular" name="is_popular" {% if novel.is_popular %}checked{% endif %} class="check">
                                             <label for="is_popular" class="checktoggle"></label>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <div class="gap-2 status-toggle modal-status d-flex justify-content-start align-items-center">
-                                            <span class="status-label">{% translate 'is_fanfic' request.session.language %}</span>
-                                            <input type="checkbox" id="is_fanfic" name="is_fanfic" {% if novel.is_fanfic %}checked{% endif %} class="check">
-                                            <label for="is_fanfic" class="checktoggle"></label>
                                         </div>
                                     </div>
                                     
@@ -134,7 +138,7 @@
                             <div class="accordion-body border-top">
                                 <div class="modal-body-table border">
                                     <button type="button" data-bs-target="#createModal" data-bs-toggle="modal" class="btn btn-primary">
-                                        + {% translate 'add_item' request.session.language %}
+                                        + {% translate 'add_chapter' request.session.language %}
                                     </button>
 
                                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mt-3">
@@ -228,10 +232,10 @@
                 <div class="content">
                     <div class="modal-header">
                         <div class="page-title">
-                            <h4>{% translate 'add_new_item' request.session.language %}</h4>
+                            <h4>{% translate 'add_new_chapter' request.session.language %}</h4>
                         </div>
                         <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span>
+                            <span aria-hidden="true">x</span>
                         </button>
                     </div>
                     <form action="{% url 'novel_chapter_create' novel.id %}" method="POST">
@@ -492,7 +496,7 @@
             };
 
             // အောက်က ကုဒ်တွေက အရင်အတိုင်းပါပဲ
-            CKEDITOR.replace('id_summery', ckeditorConfig);
+            CKEDITOR.replace('id_summary', ckeditorConfig);
             
             const createContent = document.getElementById('id_create_content');
             if (createContent) {

@@ -24,8 +24,8 @@ This implementation plan covers integrating CKEditor rich text editor into the D
 
 - [ ] 2. Update NovelModel summary field
   - [ ] 2.1 Modify NovelModel to use RichTextField
-    - Change `summery = models.TextField()` to `summary = RichTextField(config_name='default')`
-    - Note: Fix field name from "summery" to "summary" for consistency
+    - Change `summary = models.TextField()` to `summary = RichTextField(config_name='default')`
+    - Note: Fix field name from "summary" to "summary" for consistency
     - Import RichTextField from ckeditor.fields
     - _Requirements: 2.1_
   
@@ -124,7 +124,7 @@ This implementation plan covers integrating CKEditor rich text editor into the D
 ## Notes
 
 - Tasks marked with `*` are optional and can be skipped for faster MVP
-- Field name correction: The existing field is named "summery" (typo) but should be "summary" for consistency. The implementation will fix this.
+- Field name correction: The existing field is named "summary" (typo) but should be "summary" for consistency. The implementation will fix this.
 - Data migration must handle existing plain text content conversion to HTML
 - CKEditor configuration should exclude image upload and media embedding features as per requirements
 - Static files must be properly configured for both development and production

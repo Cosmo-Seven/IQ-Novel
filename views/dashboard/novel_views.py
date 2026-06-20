@@ -147,12 +147,13 @@ def novel_form(request, pk=None):
             return redirect("novel_update", novel.id)
 
         title = request.POST.get("title")
-        summery = request.POST.get("summery")
+        summary = request.POST.get("summary")
         genres = request.POST.getlist("genre")
         cover_image = request.FILES.get("cover_image")
         is_completed = request.POST.get("is_completed") == "on"
         is_popular = request.POST.get("is_popular") == "on"
-        is_fanfic = request.POST.get("is_fanfic") == "on"
+
+        novel_type = request.POST.get("novel_type")
 
         if novel:
             author = _author_for_user(request.user)
@@ -161,10 +162,10 @@ def novel_form(request, pk=None):
                 return redirect("novel_list")
 
             novel.title = title
-            novel.summery = summery
+            novel.summary = summary
             novel.is_completed = is_completed
             novel.is_popular = is_popular
-            novel.is_fanfic = is_fanfic
+            novel.novel_type = novel_type
             if cover_image:
                 novel.cover_image = cover_image
             novel.save()
@@ -181,11 +182,11 @@ def novel_form(request, pk=None):
 
             novel = NovelModel.objects.create(
                 title=title,
-                summery=summery,
+                summary=summary,
                 cover_image=cover_image,
                 is_completed=is_completed,
                 is_popular=is_popular,
-                is_fanfic=is_fanfic,
+                novel_type = novel_type,
                 author=author,
             )
             novel.genres.set(genres)

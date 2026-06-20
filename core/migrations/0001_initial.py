@@ -173,7 +173,7 @@ class Migration(migrations.Migration):
                 ('is_deleted', models.BooleanField(default=False)),
                 ('title', models.CharField(max_length=255)),
                 ('cover_image', models.ImageField(upload_to='novels/')),
-                ('summery', models.TextField()),
+                ('summary', models.TextField()),
                 ('status', models.CharField(choices=[('ongoing', 'Ongoing'), ('complete', 'Complete')], default='ongoing', max_length=10)),
                 ('views', models.PositiveIntegerField(default=0)),
                 ('is_completed', models.BooleanField(default=False)),

@@ -7,10 +7,23 @@ from core.models import GenreModel
 
 # ---------- Novel ---------- #
 class NovelModel(BaseModel):
+    class NovelType(models.TextChoices):
+        FANFIC = 'fanfic', 'Fanfic'
+        TRANSLATE = 'translate', 'Translate'
+        OWN_CREATION = 'own_creation', 'Own Creation'
+
     title = models.CharField(max_length=255)
 
     cover_image = models.ImageField(upload_to='novels/')
-    summery = models.TextField()
+    summary = models.TextField()
+
+    novel_type = models.CharField(
+        max_length=20,
+        choices=NovelType.choices,
+        default=NovelType.OWN_CREATION,
+        null=True,
+        blank=True,
+    )
 
     genres = models.ManyToManyField(GenreModel, related_name="novels")
     status = models.CharField(max_length=10, choices=StatusEnum.choices, default=StatusEnum.ONGOING)
@@ -27,7 +40,6 @@ class NovelModel(BaseModel):
 
     is_completed = models.BooleanField(default=False)
     is_popular = models.BooleanField(default=False)
-    is_fanfic = models.BooleanField(default=False)
     
 
     def __str__(self):
