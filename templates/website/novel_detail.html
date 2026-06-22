@@ -7,7 +7,7 @@
 {% load translate %}
 
 <div class="container-xxl pt-4 pt-md-5">
-  <div class="novel-detail-container bg-white p-3 p-md-4 rounded-3 shadow-sm border border-light">
+  <div class="novel-detail-container theme-card p-3 p-md-4 rounded-3 shadow-sm border">
     <div class="row g-4">
 
       <div class="col-12 col-sm-5 col-md-3">
@@ -28,19 +28,19 @@
             {% endif %}
           </div>
 
-          <h1 class="novel-main-title h3 mb-3 fw-bold text-dark">{{novel.title}}</h1>
+          <h1 class="novel-main-title h3 mb-3 fw-bold theme-text-main">{{novel.title}}</h1>
 
           <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
-            <span class="text-muted small"><i class="bi bi-person me-1"></i>{% translate 'author' request.session.language %}:</span>
+            <span class="theme-text-muted small"><i class="bi bi-person me-1"></i>{% translate 'author' request.session.language %}:</span>
             {% if novel.author %}
-            <a href="{% url 'author_profile' novel.author.id %}" class="fw-semibold small text-dark text-decoration-none">
+            <a href="{% url 'author_profile' novel.author.id %}" class="fw-semibold small theme-text-main text-decoration-none hover-maroon">
               {{ novel.author.display_name }}
             </a>
             {% if user.is_authenticated and can_follow_author %}
             <form method="post" action="{% url 'follow_author' novel.author.id %}" class="m-0">
               {% csrf_token %}
               <input type="hidden" name="next" value="{{ request.get_full_path }}">
-              <button type="submit" class="btn btn-sm rounded-pill {% if is_following_author %}btn-outline-secondary{% else %}btn-primary{% endif %}">
+              <button type="submit" class="btn btn-sm rounded-pill {% if is_following_author %}btn-outline-secondary theme-btn-outline{% else %}btn-primary{% endif %}">
                 {% if is_following_author %}
                 <i class="bi bi-person-check-fill me-1"></i> Following
                 {% else %}
@@ -54,18 +54,18 @@
             </a>
             {% endif %}
             {% else %}
-            <span class="fw-semibold small text-dark">Unknown</span>
+            <span class="fw-semibold small theme-text-main">Unknown</span>
             {% endif %}
           </div>
 
-          <div class="d-flex gap-4 mb-3 border-top border-bottom py-2 my-3">
+          <div class="d-flex gap-4 mb-3 border-top border-bottom py-2 my-3 theme-border">
             <div class="text-center px-2">
-              <div class="text-muted small"><i class="bi bi-eye me-1"></i>{% translate 'viewers' request.session.language %}</div>
-              <div class="fw-bold text-dark">{{ novel.views|intcomma }}</div>
+              <div class="theme-text-muted small"><i class="bi bi-eye me-1"></i>{% translate 'viewers' request.session.language %}</div>
+              <div class="fw-bold theme-text-main">{{ novel.views|intcomma }}</div>
             </div>
-            <div class="text-center px-2 border-start">
-              <div class="text-muted small"><i class="bi bi-book me-1"></i>Chapters</div>
-              <div class="fw-bold text-dark">{{ novel.chapters.count }}</div>
+            <div class="text-center px-2 border-start theme-border">
+              <div class="theme-text-muted small"><i class="bi bi-book me-1"></i>Chapters</div>
+              <div class="fw-bold theme-text-main">{{ novel.chapters.count }}</div>
             </div>
           </div>
         </div>
@@ -112,7 +112,7 @@
         {% if user.is_authenticated and buy_ten_count > 0 %}
         <div class="modal fade" id="buyTenModal" tabindex="-1" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered modal-sm">
-            <div class="modal-content border-0 shadow-lg rounded-3">
+            <div class="modal-content border-0 shadow-lg rounded-3 theme-modal">
               <div class="modal-header border-0 pb-0">
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
@@ -120,11 +120,11 @@
                 {% csrf_token %}
                 <div class="modal-body text-center py-3">
                   <div class="mb-3 text-warning"><i class="bi bi-gem-fill fs-1"></i></div>
-                  <h6 class="fw-bold mb-2">Buy {{ buy_ten_count }} Chapters</h6>
-                  <p class="text-muted small">Unlock the next {{ buy_ten_count }} paid chapters for <strong>{{ buy_ten_total }}</strong> gems?</p>
+                  <h6 class="fw-bold mb-2 theme-text-main">Buy {{ buy_ten_count }} Chapters</h6>
+                  <p class="theme-text-muted small">Unlock the next {{ buy_ten_count }} paid chapters for <strong>{{ buy_ten_total }}</strong> gems?</p>
                 </div>
                 <div class="modal-footer border-0 pt-0 d-flex justify-content-center gap-2 pb-4">
-                  <button type="button" class="btn btn-sm btn-light px-3 rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                  <button type="button" class="btn btn-sm btn-light theme-btn-light px-3 rounded-pill" data-bs-dismiss="modal">Cancel</button>
                   <button type="submit" class="btn btn-sm btn-primary px-3 rounded-pill">Unlock Now</button>
                 </div>
               </form>
@@ -140,9 +140,9 @@
 </div>
 
 <div class="container pt-4">
-  <div class="bg-white p-3 p-md-4 rounded-3 shadow-sm border border-light">
+  <div class="theme-card p-3 p-md-4 rounded-3 shadow-sm border">
 
-    <ul class="nav nav-pills mb-4 bg-light p-1 rounded-pill" id="novelTab" role="tablist" style="width: fit-content;">
+    <ul class="nav nav-pills mb-4 theme-pills p-1 rounded-pill" id="novelTab" role="tablist" style="width: fit-content;">
       <li class="nav-item" role="presentation">
         <button class="nav-link active rounded-pill px-4" id="description-tab" data-bs-toggle="tab" data-bs-target="#description-content"
           type="button" role="tab" aria-controls="description-content" aria-selected="true">Description</button>
@@ -155,20 +155,22 @@
 
     <div class="tab-content" id="novelTabContent">
 
+      <!-- Tab 1: Description -->
       <div class="tab-pane fade show active" id="description-content" role="tabpanel" aria-labelledby="description-tab">
-        <div class="text-secondary lh-lg mb-5" style="white-space: pre-wrap; font-size: 0.95rem;">
+        <div class="theme-text-muted lh-lg mb-5" style="white-space: pre-wrap; font-size: 0.95rem;">
           {{ novel.summary|safe }}
         </div>
 
-        <div class="border-top pt-4">
-          <h3 class="h5 fw-bold mb-3"><i class="bi bi-chat-left-text me-2"></i>Reviews</h3>
+        <!-- Review Section -->
+        <div class="border-top pt-4 theme-border">
+          <h3 class="h5 fw-bold mb-3 theme-text-main"><i class="bi bi-chat-left-text me-2"></i>Reviews</h3>
 
-          <form action="{% url 'novel_detail' id=novel.id %}" method="POST" class="d-flex gap-3 align-items-start mb-4 bg-light p-3 rounded-3">
+          <form action="{% url 'novel_detail' id=novel.id %}" method="POST" class="d-flex gap-3 align-items-start mb-4 theme-comment-box p-3 rounded-3">
             {% csrf_token %}
             <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=60"
               alt="User Avatar" class="rounded-circle border" style="width: 40px; height: 40px; object-fit: cover;">
             <div class="flex-grow-1">
-              <textarea name="comment_text" class="form-control border-0 shadow-none bg-transparent" rows="2" placeholder="Write a public review..."></textarea>
+              <textarea name="comment_text" class="form-control border-0 shadow-none bg-transparent theme-textarea" rows="2" placeholder="Write a public review..."></textarea>
               <div class="text-end mt-2">
                 <button type="submit" class="btn btn-sm btn-primary px-3 rounded-pill">Comment</button>
               </div>
@@ -178,18 +180,18 @@
           <div class="comments-list d-flex flex-column gap-3">
             {% if comments %}
               {% for comment in comments %}
-                <div class="comment-item p-3 border-bottom d-flex gap-3">
+                <div class="comment-item p-3 border-bottom d-flex gap-3 theme-border">
                   <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=60"
                     alt="User Avatar" class="rounded-circle" style="width: 38px; height: 38px; object-fit: cover;">
                   <div class="flex-grow-1">
                     <div class="d-flex align-items-start gap-2">
-                      <div class="fw-semibold small text-dark">{{ comment.user.username }} <span class="text-muted fw-normal ms-2" style="font-size: 0.75rem;">{{ comment.created_at|timesince }} ago</span></div>
+                      <div class="fw-semibold small theme-text-main">{{ comment.user.username }} <span class="theme-text-muted fw-normal ms-2" style="font-size: 0.75rem;">{{ comment.created_at|timesince }} ago</span></div>
                       {% if request.user == comment.user %}
                         <div class="dropdown ms-auto">
-                          <button class="btn btn-sm btn-outline-secondary p-1 rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          <button class="btn btn-sm btn-outline-secondary theme-btn-outline p-1 rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-three-dots"></i>
                           </button>
-                          <ul class="dropdown-menu dropdown-menu-end">
+                          <ul class="dropdown-menu dropdown-menu-end theme-dropdown">
                             <li>
                               <button type="button" class="dropdown-item edit-comment-button" data-comment-id="{{ comment.id }}">Edit</button>
                             </li>
@@ -203,11 +205,11 @@
                         </div>
                       {% endif %}
                     </div>
-                    <div id="comment-body-{{ comment.id }}" class="text-secondary small mt-1">{{ comment.content|linebreaksbr }}</div>
+                    <div id="comment-body-{{ comment.id }}" class="theme-text-muted small mt-1">{{ comment.content|linebreaksbr }}</div>
                     {% if request.user == comment.user %}
                       <form id="edit-form-{{ comment.id }}" action="{% url 'edit_comment' comment.id %}" method="post" class="edit-comment-form d-none mt-3">
                         {% csrf_token %}
-                        <textarea name="comment_text" class="form-control" rows="3">{{ comment.content }}</textarea>
+                        <textarea name="comment_text" class="form-control theme-textarea-edit" rows="3">{{ comment.content }}</textarea>
                         <div class="text-end mt-2">
                           <button type="submit" class="btn btn-sm btn-primary px-3 rounded-pill">Save</button>
                           <button type="button" class="btn btn-sm btn-secondary px-3 rounded-pill cancel-edit" data-comment-id="{{ comment.id }}">Cancel</button>
@@ -218,36 +220,9 @@
                 </div>
               {% endfor %}
             {% else %}
-              <div class="text-muted small py-3">No comments yet. Be the first to share your thoughts.</div>
+              <div class="theme-text-muted small py-3">No comments yet. Be the first to share your thoughts.</div>
             {% endif %}
           </div>
-          <!-- {% if related_novels %}
-            <div class="border-top pt-4 mt-4">
-              <h3 class="h5 fw-bold mb-3"><i class="bi bi-bookmarks me-2"></i>Related Novels</h3>
-              <div class="row g-3">
-                {% for related in related_novels %}
-                  <div class="col-12 col-md-4">
-                    <a href="{% url 'novel_detail' related.id %}" class="text-decoration-none">
-                      <div class="card h-100 border-0 shadow-sm overflow-hidden">
-                        <div class="ratio ratio-4x3">
-                          <img src="{% if related.cover_image %}{{ related.cover_image.url }}{% else %}https://html.vecurosoft.com/ebukz/demo/assets/img/product/product-img-4-1.jpg{% endif %}"
-                            alt="{{ related.title }}" class="card-img-top object-fit-cover">
-                        </div>
-                        <div class="card-body p-3">
-                          <h6 class="card-title fw-semibold mb-2 text-dark">{{ related.title }}</h6>
-                          <p class="card-text small text-muted mb-2">{% if related.author %}{{ related.author.display_name }}{% else %}Unknown Author{% endif %}</p>
-                          <div class="d-flex justify-content-between small text-muted">
-                            <span><i class="bi bi-eye me-1"></i>{{ related.views|intcomma }}</span>
-                            <span><i class="bi bi-book me-1"></i>{{ related.chapters.count }}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </a>
-                  </div>
-                {% endfor %}
-              </div>
-            </div>
-          {% endif %} -->
         </div>
         <script>
           document.addEventListener('DOMContentLoaded', function () {
@@ -270,18 +245,19 @@
         </script>
       </div>
 
+      <!-- Tab 2: Chapters -->
       <div class="tab-pane fade" id="chapters-content" role="tabpanel" aria-labelledby="chapters-tab">
         <div class="d-flex flex-column gap-2 max-w-ch-list">
           {% for chapter in chapters_ordered %}
-          <div class="p-3 border rounded-3 d-flex justify-content-between align-items-center bg-hover-light transition-all {% if chapter.id in read_chapter_ids %}chapter-read{% endif %}">
+          <div class="p-3 border rounded-3 d-flex justify-content-between align-items-center theme-chapter-item transition-all {% if chapter.id in read_chapter_ids %}chapter-read{% endif %}">
             <div>
-              <h5 class="mb-1 fw-semibold chapter-title-text {% if chapter.id in read_chapter_ids %}text-muted{% else %}text-dark{% endif %}" style="font-size: 0.95rem;">
+              <h5 class="mb-1 fw-semibold chapter-title-text {% if chapter.id in read_chapter_ids %}theme-text-muted{% else %}theme-text-main{% endif %}" style="font-size: 0.95rem;">
                 {{ chapter.chapter_title }}
                 {% if chapter.id in read_chapter_ids %}
                 <span class="badge bg-success-subtle text-success border border-success-subtle ms-1" style="font-size: 0.65rem;">Read</span>
                 {% endif %}
               </h5>
-              <p class="text-muted mb-0" style="font-size: 0.75rem;"><i class="bi bi-clock me-1"></i>{{ chapter.created_at|date:"d M, Y" }}</p>
+              <p class="theme-text-muted mb-0" style="font-size: 0.75rem;"><i class="bi bi-clock me-1"></i>{{ chapter.created_at|date:"d M, Y" }}</p>
             </div>
 
             {% if chapter.is_free or chapter.id in purchased_chapter_ids %}
@@ -293,14 +269,14 @@
             {% else %}
             <div>
               <button type="button" data-bs-target="#purchaseModal_{{ chapter.id }}" data-bs-toggle="modal"
-                class="btn btn-sm btn-outline-success px-3 rounded-pill text-dark fw-semibold shadow-sm">
+                class="btn btn-sm btn-outline-success px-3 rounded-pill theme-text-main fw-semibold shadow-sm">
                 <i class="bi bi-gem text-danger me-2"></i> {{ chapter.gem_price }}
               </button>
             </div>
 
             <div class="modal fade" id="purchaseModal_{{ chapter.id }}" tabindex="-1" aria-hidden="true">
               <div class="modal-dialog modal-dialog-centered modal-sm">
-                <div class="modal-content border-0 shadow-lg rounded-3">
+                <div class="modal-content border-0 shadow-lg rounded-3 theme-modal">
                   <div class="modal-header border-0 pb-0">
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
@@ -308,11 +284,11 @@
                     {% csrf_token %}
                     <div class="modal-body text-center py-3">
                       <div class="mb-3 text-warning"><i class="bi bi-gem-fill fs-1"></i></div>
-                      <h6 class="fw-bold mb-2">Confirm Purchase</h6>
-                      <p class="text-muted small">Unlock <strong>{{ chapter.chapter_title }}</strong> for {{ chapter.gem_price }} gems?</p>
+                      <h6 class="fw-bold mb-2 theme-text-main">Confirm Purchase</h6>
+                      <p class="theme-text-muted small">Unlock <strong>{{ chapter.chapter_title }}</strong> for {{ chapter.gem_price }} gems?</p>
                     </div>
                     <div class="modal-footer border-0 pt-0 d-flex justify-content-center gap-2 pb-4">
-                      <button type="button" class="btn btn-sm btn-light px-3 rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                      <button type="button" class="btn btn-sm btn-light theme-btn-light px-3 rounded-pill" data-bs-dismiss="modal">Cancel</button>
                       <button type="submit" class="btn btn-sm btn-primary px-3 rounded-pill">Unlock Now</button>
                     </div>
                   </form>
@@ -323,7 +299,7 @@
 
           </div>
           {% empty %}
-          <p class="text-muted py-3 text-center">No Chapters Available Yet.</p>
+          <p class="theme-text-muted py-3 text-center">No Chapters Available Yet.</p>
           {% endfor %}
         </div>
       </div>
@@ -332,16 +308,17 @@
   </div>
 </div>
 
+<!-- Related Novels Section -->
 <section class="py-5">
   <div style="max-width: 950px;" class="container">
     <div class="mb-3">
-      <h3 class="h5 fw-bold text-dark"><i class="bi bi-grid-fill me-2 text-primary"></i>Related Novels</h3>
+      <h3 class="h5 fw-bold theme-text-main"><i class="bi bi-grid-fill me-2 text-primary"></i>Related Novels</h3>
     </div>
 
     <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3">
       {% for related in related_novels|slice:":4" %}
       <div class="col">
-        <div class="card novel-card position-relative h-100 border-0 shadow-sm overflow-hidden">
+        <div class="card novel-card position-relative h-100 border-0 shadow-sm overflow-hidden theme-card">
           <a href="{% url 'novel_detail' related.id %}" class="novel-img-wrapper">
             <img class="card-img-top novel-cover"
               src="{% if related.cover_image %}{{ related.cover_image.url }}{% else %}https://html.vecurosoft.com/ebukz/demo/assets/img/product/product-img-4-1.jpg{% endif %}" />
@@ -351,10 +328,10 @@
           {% endif %}
           <div class="card-body p-2 d-flex flex-column justify-content-between">
             <div>
-              <p class="novel-title mb-0 text-truncate fw-bold text-dark" style="font-size: 0.9rem;" title="{{ related.title }}">{{ related.title }}</p>
-              <p class="mb-2 text-muted" style="font-size: 0.75rem;"><i class="bi bi-person me-1"></i>{% if related.author %}{{ related.author.display_name }}{% else %}Unknown{% endif %}</p>
+              <p class="novel-title mb-0 text-truncate fw-bold theme-text-main" style="font-size: 0.9rem;" title="{{ related.title }}">{{ related.title }}</p>
+              <p class="mb-2 theme-text-muted" style="font-size: 0.75rem;"><i class="bi bi-person me-1"></i>{% if related.author %}{{ related.author.display_name }}{% else %}Unknown{% endif %}</p>
             </div>
-            <div class="novel-meta d-flex justify-content-between pt-2 border-top" style="font-size: 0.75rem;">
+            <div class="novel-meta d-flex justify-content-between pt-2 border-top theme-border" style="font-size: 0.75rem;">
               <span><i class="bi bi-book me-1"></i>Ch: {{ related.chapters.count }}</span>
               <span><i class="bi bi-eye me-1"></i> {{ related.views|intcomma }}</span>
             </div>
@@ -363,14 +340,14 @@
       </div>
       {% empty %}
       <div class="col">
-        <div class="card novel-card position-relative h-100 border-0 shadow-sm overflow-hidden">
+        <div class="card novel-card position-relative h-100 border-0 shadow-sm overflow-hidden theme-card">
           <div class="novel-img-wrapper">
             <img class="card-img-top novel-cover" src="https://html.vecurosoft.com/ebukz/demo/assets/img/product/product-img-4-1.jpg" />
           </div>
           <span class="badge position-absolute bg-success top-0 start-0 m-2" style="font-size:0.65rem; z-index:2;">COMPLETED</span>
           <div class="card-body p-2 d-flex flex-column justify-content-between">
-            <p class="novel-title mb-1 text-truncate fw-bold" style="font-size:0.9rem;">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
-            <div class="novel-meta d-flex justify-content-between pt-2 border-top" style="font-size:0.75rem;">
+            <p class="novel-title mb-1 text-truncate fw-bold theme-text-main" style="font-size:0.9rem;">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
+            <div class="novel-meta d-flex justify-content-between pt-2 border-top theme-border" style="font-size:0.75rem;">
               <span>Chapter: 220</span>
               <span><i class="bi bi-eye"></i> 34k</span>
             </div>
@@ -382,6 +359,104 @@
   </div>
 </section>
 
+<!-- CSS Styles Extension -->
+<style>
+  /* --- Eye Care Theme Overrides --- */
+  .theme-card {
+    background-color: var(--card-bg, #ffffff) !important;
+    border-color: var(--border-color, #dee2e6) !important;
+    transition: background-color 0.4s ease, border-color 0.4s ease;
+  }
+  .theme-text-main {
+    color: var(--main-text, #212529) !important;
+    transition: color 0.4s ease;
+  }
+  .theme-text-muted {
+    color: var(--text-muted-dark, #6c757d) !important;
+    transition: color 0.4s ease;
+  }
+  .theme-border {
+    border-color: var(--border-color, #dee2e6) !important;
+    transition: border-color 0.4s ease;
+  }
+  .hover-maroon:hover {
+    color: var(--brand-maroon, #581825) !important;
+  }
+
+  /* Pills/Tabs Styling */
+  .theme-pills {
+    background-color: var(--border-color, #f8f9fa) !important;
+    transition: background-color 0.4s ease;
+  }
+  .theme-pills .nav-link {
+    color: var(--text-muted-dark, #4a4a4a);
+  }
+  .theme-pills .nav-link.active {
+    background-color: var(--brand-maroon, #581825) !important;
+    color: #ffffff !important;
+  }
+
+  /* Comments & Input Fields */
+  .theme-comment-box {
+    background-color: var(--border-color, #f8f9fa) !important;
+    transition: background-color 0.4s ease;
+  }
+  .theme-textarea {
+    color: var(--main-text, #212529) !important;
+  }
+  .theme-textarea::placeholder {
+    color: var(--text-muted-dark, #6c757d);
+    opacity: 0.7;
+  }
+  .theme-textarea-edit {
+    background-color: var(--card-bg, #ffffff) !important;
+    color: var(--main-text, #212529) !important;
+    border-color: var(--border-color, #ced4da) !important;
+  }
+
+  /* Chapter Items List */
+  .theme-chapter-item {
+    background-color: var(--card-bg, #ffffff);
+    border-color: var(--border-color, #dee2e6) !important;
+    transition: all 0.3s ease;
+  }
+  .theme-chapter-item:hover {
+    background-color: var(--border-color, #f8f9fa);
+  }
+  .theme-chapter-item.chapter-read {
+    background-color: var(--brand-maroon-light, rgba(88, 24, 37, 0.02)) !important;
+    opacity: 0.8;
+  }
+
+  /* Bootstrap Outlines Fix */
+  .theme-btn-outline {
+    border-color: var(--border-color, #6c757d) !important;
+    color: var(--main-text, #6c757d) !important;
+  }
+  .theme-btn-outline:hover {
+    background-color: var(--text-muted-dark, #6c757d) !important;
+    color: var(--card-bg, #ffffff) !important;
+  }
+
+  /* Modals & Dropdowns adjustments */
+  .theme-modal, .theme-dropdown {
+    background-color: var(--card-bg, #ffffff) !important;
+    border-color: var(--border-color, #dee2e6) !important;
+  }
+  .theme-dropdown .dropdown-item {
+    color: var(--main-text, #212529) !important;
+  }
+  .theme-dropdown .dropdown-item:hover {
+    background-color: var(--brand-maroon-light, rgba(88, 24, 37, 0.05)) !important;
+  }
+  .theme-btn-light {
+    background-color: var(--border-color, #efefef) !important;
+    color: var(--main-text, #212529) !important;
+    border: none;
+  }
+</style>
+
+<!-- Downloader Logic (Keep Original) -->
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const downloadBtn = document.getElementById('downloadBtn');
@@ -391,7 +466,6 @@
       const originalHtml = downloadBtn.innerHTML;
       const isDownloaded = originalHtml.includes('Downloaded');
       
-      // If already downloaded, toggle it (remove)
       if (isDownloaded) {
         downloadBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Removing...';
         downloadBtn.disabled = true;
@@ -419,20 +493,16 @@
         return;
       }
 
-      // If not downloaded, fetch chapters for offline caching
       downloadBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Downloading...';
       downloadBtn.disabled = true;
 
       try {
-        // Collect all accessible chapter URLs from the DOM
         const chapterLinks = document.querySelectorAll('#chapters-content a[href^="/novel/chapter/"]');
         const urls = Array.from(chapterLinks).map(a => a.href);
 
-        // Run fetches in parallel to cache them (handled by service worker)
         const fetchPromises = urls.map(url => fetch(url).catch(err => console.error("Failed to fetch chapter:", err)));
         await Promise.all(fetchPromises);
 
-        // Once fetched, tell backend to track it
         const response = await fetch("{% url 'toggle_download' novel.id %}", {
           method: 'POST',
           headers: {

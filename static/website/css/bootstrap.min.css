@@ -30,7 +30,7 @@
     --bs-gray-700: #495057;
     --bs-gray-800: #343a40;
     --bs-gray-900: #212529;
-    --bs-primary: #ffb3c1;
+    --bs-primary: #c9184a;
     --bs-secondary: #6c757d;
     --bs-success: #198754;
     --bs-info: #0dcaf0;
@@ -38,7 +38,7 @@
     --bs-danger: #dc3545;
     --bs-light: #f8f9fa;
     --bs-dark: #212529;
-    --bs-primary-rgb: 255, 179, 193;
+    --bs-primary-rgb: 201, 24, 74;
     --bs-secondary-rgb: 108, 117, 125;
     --bs-success-rgb: 25, 135, 84;
     --bs-info-rgb: 13, 202, 240;
@@ -3512,10 +3512,10 @@ fieldset:disabled .btn {
 
 .btn-primary {
     --bs-btn-color: #fff;
-    --bs-btn-bg: #ffb3c1;
+    --bs-btn-bg: #c9184a;
     --bs-btn-border-color: #c9184a;
     --bs-btn-hover-color: #fff;
-    --bs-btn-hover-bg: #ff8ea3;
+    --bs-btn-hover-bg: #c9184a;
     --bs-btn-hover-border-color: #c9184a;
     --bs-btn-focus-shadow-rgb: 49, 132, 253;
     --bs-btn-active-color: #fff;
@@ -3523,7 +3523,7 @@ fieldset:disabled .btn {
     --bs-btn-active-border-color: #0a53be;
     --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
     --bs-btn-disabled-color: #fff;
-    --bs-btn-disabled-bg: #ffb3c1;
+    --bs-btn-disabled-bg: #c9184a;
     --bs-btn-disabled-border-color: #ffb3c1
 }
 
@@ -3647,19 +3647,19 @@ fieldset:disabled .btn {
 }
 
 .btn-outline-primary {
-    --bs-btn-color: #ffb3c1;
+    --bs-btn-color: #c9184a;
     --bs-btn-border-color: #c9184a;
     --bs-btn-hover-color: #fff;
-    --bs-btn-hover-bg: #ff8fa3;
+    --bs-btn-hover-bg: #c9184a;
     --bs-btn-hover-border-color: #c9184a;
     --bs-btn-focus-shadow-rgb: 13, 110, 253;
     --bs-btn-active-color: #fff;
-    --bs-btn-active-bg: #ffb3c1;
+    --bs-btn-active-bg: #c9184a;
     --bs-btn-active-border-color: #c9184a;
     --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-    --bs-btn-disabled-color: #ffb3c1;
+    --bs-btn-disabled-color: #c9184a;
     --bs-btn-disabled-bg: transparent;
-    --bs-btn-disabled-border-color: #ffb3c1;
+    --bs-btn-disabled-border-color: #c9184a;
     --bs-gradient: none
 }
 

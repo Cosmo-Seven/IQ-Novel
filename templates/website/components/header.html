@@ -7,8 +7,9 @@
         <!-- 1. LEFT: Brand Logo -->
         <div class="header-left-zone d-flex align-items-center">
             <!-- Mobile Toggle for Menu (Left Side) -->
-            <button class="navbar-toggler border-0 p-0 me-3 d-lg-none navbar-action-icon" type="button" 
-                    data-bs-toggle="collapse" data-bs-target="#mainNavbarMenu" aria-controls="mainNavbarMenu" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler border-0 p-0 me-3 d-lg-none navbar-action-icon" type="button"
+                data-bs-toggle="collapse" data-bs-target="#mainNavbarMenu" aria-controls="mainNavbarMenu"
+                aria-expanded="false" aria-label="Toggle navigation">
                 <i class="fa-solid fa-bars fs-4"></i>
             </button>
 
@@ -23,22 +24,26 @@
         <div class="collapse navbar-collapse header-center-zone justify-content-center" id="mainNavbarMenu">
             <!-- Mobile Close Button (Shows only inside mobile menu Drawer) -->
             <div class="d-flex justify-content-end w-100 d-lg-none p-3">
-                <button class="btn-close" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbarMenu"></button>
+                <button class="btn-close" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#mainNavbarMenu"></button>
             </div>
 
             <ul class="navbar-nav gap-3 gap-lg-5 text-center py-3 py-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link custom-nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
+                    <a class="nav-link custom-nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+                        href="{% url 'home' %}">
                         Home <span class="butterfly-icon">🦋</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link custom-nav-item {% if request.resolver_match.url_name == 'gem' %}active{% endif %}" href="{% url 'gem' %}">
+                    <a class="nav-link custom-nav-item {% if request.resolver_match.url_name == 'gem' %}active{% endif %}"
+                        href="{% url 'gem' %}">
                         Gem <span class="butterfly-icon">🦋</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link custom-nav-item {% if request.resolver_match.url_name == 'website_profile' %}active{% endif %}" href="{% url 'website_profile' %}">
+                    <a class="nav-link custom-nav-item {% if request.resolver_match.url_name == 'website_profile' %}active{% endif %}"
+                        href="{% url 'website_profile' %}">
                         Library <span class="butterfly-icon">🦋</span>
                     </a>
                 </li>
@@ -47,7 +52,7 @@
 
         <!-- 3. RIGHT: Search Toggle & User Actions -->
         <div class="header-right-zone d-flex align-items-center gap-2 gap-sm-3 justify-content-end position-relative">
-            
+
             <!-- Dynamic Reveal Search Wrapper -->
             <div class="search-wrapper-container d-flex align-items-center">
                 <!-- Smooth Expandable Form -->
@@ -65,16 +70,24 @@
 
                 <!-- Trigger Icon (မှန်ဘီလူးခလုတ်) -->
                 <button class="btn btn-link text-dark p-1 navbar-action-icon search-trigger-btn" type="button"
-                        data-bs-toggle="collapse" data-bs-target="#aestheticSearchCollapse" aria-expanded="false" aria-controls="aestheticSearchCollapse">
+                    data-bs-toggle="collapse" data-bs-target="#aestheticSearchCollapse" aria-expanded="false"
+                    aria-controls="aestheticSearchCollapse">
                     <i class="fa-solid fa-magnifying-glass fs-5 search-icon"></i>
                     <i class="fa-solid fa-xmark fs-5 close-icon d-none"></i>
                 </button>
             </div>
 
+            <!-- Eye Care Mode Trigger Button (NEW) -->
+            <button class="btn btn-link p-1 navbar-action-icon mx-1" id="eyeCareToggle" type="button"
+                title="Toggle Eye Care Mode">
+                <i class="fa-regular fa-moon fs-5 eye-care-icon"></i>
+            </button>
+
             <!-- Notification Bell -->
             <button class="btn btn-link text-dark p-1 navbar-action-icon position-relative mx-1" type="button">
                 <i class="fa-regular fa-bell fs-5"></i>
-                <span class="position-absolute top-1 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+                <span
+                    class="position-absolute top-1 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
             </button>
 
             <!-- User Auth Profile / Login Trigger -->
@@ -85,14 +98,16 @@
                 </div>
                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3 p-2 dynamic-dropdown">
                     <li><a class="dropdown-item rounded py-2" href="{{website_profile_url}}">
-                        <i class="bi bi-gem text-warning me-2"></i>My Gems</a>
+                            <i class="bi bi-gem text-warning me-2"></i>My Gems</a>
                     </li>
                     <li><a class="dropdown-item rounded py-2" href="{{website_profile_url}}">
-                        <i class="bi bi-credit-card me-2"></i>Payment History</a>
+                            <i class="bi bi-credit-card me-2"></i>Payment History</a>
                     </li>
-                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
                     <li><a class="dropdown-item rounded py-2 text-danger" href="{% url 'website_logout' %}">
-                        <i class="bi bi-box-arrow-right me-2"></i>Logout</a>
+                            <i class="bi bi-box-arrow-right me-2"></i>Logout</a>
                     </li>
                 </ul>
             </div>
@@ -107,11 +122,47 @@
 </nav>
 
 <style>
+    /* --- Globals & Theme Variables --- */
     :root {
         --brand-maroon: #581825;
         --brand-maroon-hover: #42101a;
         --brand-maroon-light: rgba(88, 24, 37, 0.05);
         --text-muted-dark: #4a4a4a;
+
+        /* Default Bright Theme Colors */
+        --site-bg: #ffffff;
+        --card-bg: #ffffff;
+        --border-color: #dee2e6;
+        --main-text: #212529;
+    }
+
+    /* Eye Care (Warm/Sepia) Palette */
+    [data-theme="eye-care"] {
+        --site-bg: #f5edd6;
+        /* Soft Sepia Background */
+        --card-bg: #ebdcb9;
+        /* Slightly darker container tint */
+        --border-color: #dfceaa;
+        --main-text: #433422;
+        /* Dark brown contrast instead of pure black */
+        --brand-maroon: #732230;
+        /* Slightly softer tone for accessibility */
+        --brand-maroon-hover: #581825;
+        --text-muted-dark: #665544;
+    }
+
+    /* Apply transitions globally for smoother theme shifting */
+    body {
+        background-color: var(--site-bg) !important;
+        color: var(--main-text) !important;
+        transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+    }
+
+    .aesthetic-navbar {
+        background-color: var(--site-bg) !important;
+        border-color: var(--border-color) !important;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.02);
+        transition: background-color 0.4s ease, border-color 0.4s ease;
     }
 
     /* --- Responsive Grid Engine --- */
@@ -127,24 +178,19 @@
             display: flex !important;
             justify-content: space-between;
         }
-        /* Mobile Overlay Menu Styling */
+
         .navbar-collapse {
             position: fixed;
             top: 0;
             left: 0;
             height: 100vh;
             width: 280px;
-            background: #ffffff;
-            box-shadow: 5px 0 25px rgba(0,0,0,0.1);
+            background: var(--site-bg);
+            box-shadow: 5px 0 25px rgba(0, 0, 0, 0.1);
             z-index: 1050;
             padding: 1rem;
-            transition: transform 0.3s ease-in-out;
+            transition: transform 0.3s ease-in-out, background-color 0.4s ease;
         }
-    }
-
-    .aesthetic-navbar {
-        background-color: #ffffff !important;
-        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.02);
     }
 
     .brand-logo-wrapper {
@@ -186,8 +232,13 @@
     }
 
     @keyframes flutter {
-        0% { transform: scale(1.2) translateY(-6px) rotate(5deg); }
-        100% { transform: scale(1.2) translateY(-10px) rotate(15deg); }
+        0% {
+            transform: scale(1.2) translateY(-6px) rotate(5deg);
+        }
+
+        100% {
+            transform: scale(1.2) translateY(-10px) rotate(15deg);
+        }
     }
 
     @media (min-width: 992px) {
@@ -202,6 +253,7 @@
             transition: all 0.3s ease;
             transform: translateX(-50%);
         }
+
         .navbar-nav .custom-nav-item:hover::after,
         .navbar-nav .custom-nav-item.active::after {
             width: 100%;
@@ -213,21 +265,23 @@
         z-index: 10;
     }
 
-    /* Collapsible search box box width adjustment */
     .aesthetic-search-box {
         width: 250px;
         max-width: 60vw;
     }
-    
+
     .aesthetic-search-box .form-control {
-        border-color: #e5e7eb;
+        border-color: var(--border-color);
         border-radius: 30px 0 0 30px !important;
         padding-left: 1rem;
+        background-color: var(--card-bg) !important;
+        color: var(--main-text);
     }
+
     .aesthetic-search-box .form-control:focus {
         box-shadow: none;
-        background-color: #ffffff;
-        border-color: #ced4da;
+        background-color: var(--site-bg) !important;
+        border-color: var(--brand-maroon);
     }
 
     .btn-maroon-search {
@@ -237,15 +291,16 @@
         border: 1px solid var(--brand-maroon);
         padding: 0 12px;
     }
+
     .btn-maroon-search:hover {
         background-color: var(--brand-maroon-hover);
         color: #ffffff;
     }
 
-    /* Flip Icon Effect when opened */
     .search-trigger-btn[aria-expanded="true"] .search-icon {
         display: none !important;
     }
+
     .search-trigger-btn[aria-expanded="true"] .close-icon {
         display: inline-block !important;
         color: var(--brand-maroon);
@@ -255,6 +310,7 @@
         color: var(--text-muted-dark) !important;
         transition: all 0.2s ease;
     }
+
     .navbar-action-icon:hover {
         color: var(--brand-maroon) !important;
     }
@@ -266,16 +322,24 @@
         border-radius: 50%;
         object-fit: cover;
     }
+
     .avatar-trigger:hover .avatar-img {
         box-shadow: 0 4px 12px rgba(88, 24, 37, 0.2);
     }
+
     .dynamic-dropdown {
+        background-color: var(--card-bg) !important;
         border-radius: 12px !important;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
     }
+
+    .dynamic-dropdown .dropdown-item {
+        color: var(--main-text) !important;
+    }
+
     .dynamic-dropdown .dropdown-item:hover {
         background-color: var(--brand-maroon-light);
-        color: var(--brand-maroon);
+        color: var(--brand-maroon) !important;
     }
 
     /* --- Sign In Button --- */
@@ -286,8 +350,42 @@
         border: none;
         transition: all 0.2s ease;
     }
+
     .action-login-btn:hover {
         background-color: var(--brand-maroon-hover);
         color: #ffffff;
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const eyeCareToggle = document.getElementById('eyeCareToggle');
+        const eyeCareIcon = eyeCareToggle.querySelector('.eye-care-icon');
+
+        const savedTheme = localStorage.getItem('siteTheme');
+        if (savedTheme === 'eye-care') {
+            document.documentElement.setAttribute('data-theme', 'eye-care');
+            eyeCareIcon.classList.replace('fa-moon', 'fa-sun');
+            eyeCareIcon.classList.replace('fa-regular', 'fa-solid');
+            eyeCareToggle.classList.add('text-warning');
+        }
+
+        eyeCareToggle.addEventListener('click', () => {
+            const isEyeCare = document.documentElement.getAttribute('data-theme') === 'eye-care';
+
+            if (!isEyeCare) {
+                document.documentElement.setAttribute('data-theme', 'eye-care');
+                localStorage.setItem('siteTheme', 'eye-care');
+                eyeCareIcon.classList.replace('fa-moon', 'fa-sun');
+                eyeCareIcon.classList.replace('fa-regular', 'fa-solid');
+                eyeCareToggle.classList.add('text-warning');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('siteTheme', 'bright');
+                eyeCareIcon.classList.replace('fa-sun', 'fa-moon');
+                eyeCareIcon.classList.replace('fa-solid', 'fa-regular');
+                eyeCareToggle.classList.remove('text-warning');
+            }
+        });
+    });
+</script>

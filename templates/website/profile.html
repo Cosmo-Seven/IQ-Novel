@@ -6,22 +6,51 @@
 {% block body %}
 <style>
     :root {
-        --profile-primary: #ffb3c1;
+        --profile-primary: #c9184a;
         --profile-bg: #f8fafc;
         --card-border-radius: 16px;
         --transition-smooth: all 0.25s ease-in-out;
     }
 
-    body {
-        background-color: var(--profile-bg);
+    /* Eye Care Adaptations (Global Overrides for Profile) */
+    .text-dark {
+        color: var(--main-text, #212529) !important;
+        transition: color 0.4s ease;
+    }
+    .text-muted, .text-secondary {
+        color: var(--text-muted-dark, #6c757d) !important;
+        transition: color 0.4s ease;
+    }
+    .bg-light {
+        background-color: var(--border-color, #f8f9fa) !important;
+        transition: background-color 0.4s ease;
+    }
+    .border, .border-top, .border-light-subtle, .border-danger {
+        border-color: var(--border-color, #dee2e6) !important;
+        transition: border-color 0.4s ease;
+    }
+    .form-control, .form-control-sm {
+        background-color: var(--card-bg, #fff) !important;
+        color: var(--main-text, #212529) !important;
+        border-color: var(--border-color, #dee2e6) !important;
+        transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+    }
+    .form-control:focus {
+        background-color: var(--card-bg, #fff) !important;
+        color: var(--main-text, #212529) !important;
+    }
+    .modal-content {
+        background-color: var(--card-bg, #fff) !important;
+        transition: background-color 0.4s ease;
     }
 
     /* Card & Sidebar Custom Styling */
     .modern-card {
-        border: 1px solid #edf2f7;
+        border: 1px solid var(--border-color, #edf2f7);
         border-radius: var(--card-border-radius);
-        background: #ffffff;
+        background: var(--card-bg, #ffffff);
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+        transition: background-color 0.4s ease, border-color 0.4s ease;
     }
 
     .main-avatar {
@@ -29,8 +58,9 @@
         height: 100px;
         border-radius: 50%;
         object-fit: cover;
-        border: 4px solid #fff;
+        border: 4px solid var(--card-bg, #fff);
         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transition: border-color 0.4s ease;
     }
 
     /* Premium Gem Card */
@@ -50,13 +80,14 @@
         margin-bottom: 6px;
         padding: 12px 16px;
         font-weight: 500;
-        color: #4a5568;
-        transition: var(--transition-smooth);
+        color: var(--main-text, #4a5568);
+        background-color: var(--card-bg, #ffffff);
+        transition: var(--transition-smooth), background-color 0.4s ease, color 0.4s ease;
     }
 
     .profile-menu .list-group-item:hover {
-        background-color: #f1f5f9;
-        color: #1e293b;
+        background-color: var(--border-color, #f1f5f9);
+        color: var(--main-text, #1e293b);
     }
 
     .profile-menu .list-group-item.active {
@@ -67,20 +98,20 @@
 
     /* Sub-tabs for Navigation inside Library */
     .library-tabs {
-        border-bottom: 2px solid #e2e8f0;
+        border-bottom: 2px solid var(--border-color, #e2e8f0);
     }
 
     .library-tabs .nav-link {
         border: none !important;
-        color: #64748b;
+        color: var(--text-muted-dark, #64748b);
         font-weight: 600;
         padding: 10px 20px;
         border-bottom: 2px solid transparent !important;
-        transition: var(--transition-smooth);
+        transition: var(--transition-smooth), color 0.4s ease;
     }
 
     .library-tabs .nav-link:hover {
-        color: #1e293b;
+        color: var(--main-text, #1e293b);
     }
 
     .library-tabs .nav-link.active {
@@ -95,8 +126,8 @@
         border-radius: 12px;
         overflow: hidden;
         box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-        transition: var(--transition-smooth);
-        background: #fff;
+        transition: var(--transition-smooth), background-color 0.4s ease;
+        background: var(--card-bg, #fff);
     }
 
     .novel-mini-card:hover {
@@ -112,17 +143,25 @@
 
     /* Tables UI updates */
     .table-custom th {
-        background-color: #f8fafc;
-        color: #64748b;
+        background-color: var(--border-color, #f8fafc) !important;
+        color: var(--text-muted-dark, #64748b) !important;
         font-size: 0.8rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         padding: 14px;
+        border-color: var(--border-color, #dee2e6) !important;
+        transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
     }
     
     .table-custom td {
         padding: 14px;
-        color: #334155;
+        color: var(--main-text, #334155) !important;
+        border-color: var(--border-color, #dee2e6) !important;
+        background-color: var(--card-bg, #fff) !important;
+        transition: color 0.4s ease, border-color 0.4s ease, background-color 0.4s ease;
+    }
+    .table-custom tr:hover td {
+        background-color: var(--border-color, #f1f5f9) !important;
     }
 
     /* Forms Settings button profile styling */
@@ -140,6 +179,18 @@
         background-color: #4338ca;
         color: #fff;
         box-shadow: 0 4px 12px rgba(67, 56, 202, 0.2);
+    }
+    
+    /* Account Deletion Card */
+    .card.border-danger .card-header {
+        background-color: var(--card-bg, #dc3545) !important;
+        border-bottom-color: var(--border-color, #dc3545) !important;
+        color: var(--main-text, #fff) !important;
+        transition: background-color 0.4s ease, color 0.4s ease;
+    }
+    .card.border-danger .card-body {
+        background-color: var(--card-bg, #fff) !important;
+        transition: background-color 0.4s ease;
     }
 </style>
 
@@ -351,7 +402,7 @@
                                         </a>
                                     </td>
                                     <td class="fw-medium text-amber-700"><i class="bi bi-gem-fill text-warning me-1"></i>{{ purchase.chapter.gem_price|intcomma }} Gems</td>
-                                    <td><span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1">Success</span></td>
+                                    <td><span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1">primary</span></td>
                                 </tr>
                                 {% endfor %}
                                 {% else %}
@@ -363,7 +414,7 @@
                         </table>
                     </div>
 
-                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-plus-circle me-2 text-success"></i>Gem Orders (Top up)</h5>
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-plus-circle me-2 text-primary"></i>Gem Orders (Top up)</h5>
                     <div class="table-responsive border rounded-3">
                         <table class="table table-hover table-custom align-middle mb-0">
                             <thead>
@@ -384,7 +435,7 @@
                                     <td class="fw-medium"><i class="bi bi-gem-fill text-warning me-1"></i>{{ order.gem_amount|intcomma }} Gems</td>
                                     <td class="fw-bold text-dark">{{ order.price|intcomma }} MMK</td>
                                     <td>
-                                        <span class="badge rounded-pill px-2 py-1 {% if order.status == 'approved' %}bg-success-subtle text-success border border-success-subtle{% elif order.status == 'pending' %}bg-warning-subtle text-warning-emphasis border border-warning-subtle{% else %}bg-danger-subtle text-danger border border-danger-subtle{% endif %}">
+                                        <span class="badge rounded-pill px-2 py-1 {% if order.status == 'approved' %}bg-primary-subtle text-primary border border-primary-subtle{% elif order.status == 'pending' %}bg-warning-subtle text-warning-emphasis border border-warning-subtle{% else %}bg-danger-subtle text-danger border border-danger-subtle{% endif %}">
                                             {{ order.status|capfirst }}
                                         </span>
                                     </td>

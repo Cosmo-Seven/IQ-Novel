@@ -9,13 +9,26 @@
 
 <style>
     :root {
-        /* --accent-pink: #ff33b5; */
         --dark-pink: #c9184a;
         --premium-gold: #ffb703;
-        --card-bg: #ffffff;
     }
 
-    /* Hero Section Style */
+    /* --- Eye Care Layout & Typography Utilities --- */
+    .theme-card {
+        background-color: var(--card-bg, #ffffff) !important;
+        border-color: var(--border-color, #e9ecef) !important;
+        transition: background-color 0.4s ease, border-color 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+    }
+    .theme-text-main {
+        color: var(--main-text, #212529) !important;
+        transition: color 0.4s ease;
+    }
+    .theme-text-muted {
+        color: var(--text-muted-dark, #6c757d) !important;
+        transition: color 0.4s ease;
+    }
+
+    /* Hero Section Style with Softened Radial Blur */
     .shop-header-wrapper {
         background: radial-gradient(circle at 50% -20%, rgba(201, 24, 74, 0.05) 0%, rgba(255, 255, 255, 0) 70%);
         padding: 4rem 0 2rem 0;
@@ -23,10 +36,7 @@
 
     /* Gem Card Base Style */
     .gem-card {
-        background-color: var(--card-bg);
-        border: 1px solid #e9ecef;
         border-radius: 24px;
-        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         position: relative;
         overflow: hidden;
         display: flex;
@@ -37,14 +47,14 @@
     .gem-card:hover {
         transform: translateY(-8px);
         box-shadow: 0 20px 40px rgba(201, 24, 74, 0.12);
-        border-color: rgba(201, 24, 74, 0.3);
+        border-color: rgba(201, 24, 74, 0.3) !important;
     }
 
-    /* Popular Card Special Styling */
+    /* Popular Card Special Styling (Adapts to background theme seamlessly) */
     .gem-card.popular-card {
-        border: 2px solid var(--dark-pink);
+        border: 2px solid var(--dark-pink) !important;
         box-shadow: 0 10px 30px rgba(201, 24, 74, 0.08);
-        background: linear-gradient(180deg, #ffffff 0%, rgba(201, 24, 74, 0.01) 100%);
+        background: linear-gradient(180deg, var(--card-bg, #ffffff) 0%, rgba(201, 24, 74, 0.01) 100%) !important;
     }
     
     .gem-card.popular-card:hover {
@@ -70,14 +80,13 @@
     .gem-icon-box {
         position: relative;
         font-size: 3.5rem;
-        color: var(--accent-pink);
+        color: var(--dark-pink);
         margin: 2.5rem 0 1.5rem 0;
         display: inline-block;
         animation: float 4s ease-in-out infinite;
     }
     
     .popular-card .gem-icon-box {
-        color: var(--dark-pink);
         filter: drop-shadow(0 0 12px rgba(201, 24, 74, 0.3));
     }
 
@@ -90,19 +99,19 @@
     .gem-amount {
         font-size: 1.6rem;
         font-weight: 800;
-        color: #212529;
         letter-spacing: -0.5px;
     }
 
     .gem-price {
         font-size: 1.3rem;
         font-weight: 700;
-        color: #495057;
-        background-color: #f8f9fa;
+        color: var(--main-text, #495057);
+        background-color: var(--border-color, #f8f9fa);
         padding: 6px 16px;
         border-radius: 12px;
         display: inline-block;
         margin: 1rem 0 1.5rem 0;
+        transition: background-color 0.4s ease, color 0.4s ease;
     }
     
     .popular-card .gem-price {
@@ -132,7 +141,7 @@
         background: linear-gradient(45deg, var(--dark-pink), #ff4d6d);
         color: white;
         border: none;
-        padding: 12px 24px; /* Popular card ကို ပိုထင်သာအောင် ခလုပ်အနိမ့်အမြင့် ချိန်ညှိထားပါတယ် */
+        padding: 12px 24px;
     }
 
     .popular-card .btn-buy-gem:hover {
@@ -144,10 +153,10 @@
 
 <div class="shop-header-wrapper">
     <div class="container text-center mb-5">
-        <h1 class="fw-bold display-5 mb-3">
+        <h1 class="fw-bold display-5 mb-3 theme-text-main">
             <i class="bi bi-gem-fill text-danger me-2 animate-pulse"></i>Gem Shop
         </h1>
-        <p class="text-muted mx-auto" style="max-width: 600px; font-size: 1.05rem; line-height: 1.6;">
+        <p class="theme-text-muted mx-auto" style="max-width: 600px; font-size: 1.05rem; line-height: 1.6;">
             ဝတ္ထုကောင်းများကို အဆက်မပြတ်ဖတ်ရှုနိုင်ရန် မိမိကြိုက်နှစ်သက်ရာ Gem Package ကို ဝယ်ယူလိုက်ပါ
         </p>
     </div>
@@ -158,7 +167,7 @@
 
         {% for gem in gems %}
         <div class="col">
-            <div class="card h-100 gem-card text-center p-4 {% if gem.is_popular %}popular-card{% endif %}">
+            <div class="card h-100 gem-card text-center p-4 theme-card border {% if gem.is_popular %}popular-card{% endif %}">
                 
                 {% if gem.is_popular %}
                 <span class="popular-badge">
@@ -168,14 +177,13 @@
 
                 <div class="gem-body-content">
                     <div class="gem-icon-box">
-                        <!-- Gem အနည်းအများအလိုက် icon ပုံစံ ဆွဲဆောင်မှုရှိအောင် ပြောင်းလဲနိုင်ပါတယ် -->
                         {% if gem.gem_amount >= 500 %}
                             <i class="fa-solid fa-gem"></i>
                         {% else %}
                             <i class="fa-regular fa-gem"></i>
                         {% endif %}
                     </div>
-                    <div class="gem-amount">{{ gem.gem_amount|intcomma }} Gems</div>
+                    <div class="gem-amount theme-text-main">{{ gem.gem_amount|intcomma }} Gems</div>
                     <div class="gem-price">{{ gem.price|intcomma }} MMK</div>
                 </div>
 

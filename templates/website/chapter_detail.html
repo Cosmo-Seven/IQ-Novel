@@ -7,26 +7,26 @@
   <div class="row justify-content-center">
     <div class="col-12 col-lg-9 col-xl-8">
 
-      <div
-        class="chapter-nav-box bg-white p-2 rounded-pill shadow-sm border mb-4 d-flex justify-content-between align-items-center">
+      <div class="chapter-nav-box theme-card p-2 rounded-pill shadow-sm border mb-4 d-flex justify-content-between align-items-center">
         {% include 'website/components/chapter_nav.html' %}
       </div>
 
-      <div class="reader-card bg-white p-4 p-md-5 rounded-3 shadow-sm border border-light">
-        <div class="text-center mb-4 border-bottom pb-4">
-          <h1 class="chapter-main-title h2 fw-bold text-dark mb-2">{{ chapter.chapter_title }}</h1>
-          <a href="{% url 'novel_detail' chapter.novel.id %}?tab=chapters" class="text-muted text-decoration-none small fw-medium">
+      <div class="reader-card theme-card p-4 p-md-5 rounded-3 shadow-sm border">
+        
+        <div class="text-center mb-4 border-bottom theme-border pb-4">
+          <h1 class="chapter-main-title h2 fw-bold theme-text-main mb-2">{{ chapter.chapter_title }}</h1>
+          <a href="{% url 'novel_detail' chapter.novel.id %}?tab=chapters" class="theme-text-muted text-decoration-none small fw-medium">
             <i class="bi bi-book me-1"></i>{{ chapter.novel.title }}
           </a>
         </div>
 
-        <div class="chapter-reading-content text-secondary" style="white-space: pre-wrap;">
+        <div class="chapter-reading-content theme-text-reading" style="white-space: pre-wrap;">
           {{ chapter.content|safe|linebreaks }}
         </div>
+        
       </div>
 
-      <div
-        class="chapter-nav-box bg-white p-2 rounded-pill shadow-sm border mt-4 d-flex justify-content-between align-items-center">
+      <div class="chapter-nav-box theme-card p-2 rounded-pill shadow-sm border mt-4 d-flex justify-content-between align-items-center">
         {% include 'website/components/chapter_nav.html' %}
       </div>
 
@@ -34,4 +34,41 @@
   </div>
 </div>
 
+<style>
+  /* --- Eye Care Layout Adaptations --- */
+  .theme-card {
+    background-color: var(--card-bg, #ffffff) !important;
+    border-color: var(--border-color, #dee2e6) !important;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+  
+  .theme-text-main {
+    color: var(--main-text, #212529) !important;
+    transition: color 0.3s ease;
+  }
+  
+  .theme-text-muted {
+    color: var(--text-muted-dark, #6c757d) !important;
+    transition: color 0.3s ease;
+  }
+  
+  .theme-border {
+    border-color: var(--border-color, #dee2e6) !important;
+    transition: border-color 0.3s ease;
+  }
+
+  /* Optimized typography for seamless, long-form reading comfort */
+  .theme-text-reading {
+    color: var(--reading-text, #4b5563) !important; /* Slightly softer contrast than primary headings */
+    font-size: 1.15rem;
+    line-height: 1.85;
+    letter-spacing: 0.2px;
+    transition: color 0.3s ease;
+  }
+  
+  /* Optional: Standardizes paragraph spacing for raw text views */
+  .chapter-reading-content p {
+    margin-bottom: 1.5rem;
+  }
+</style>
 {% endblock %}
