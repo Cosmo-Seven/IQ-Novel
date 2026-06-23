@@ -88,3 +88,48 @@ self.addEventListener("fetch", (event) => {
     }),
   );
 });
+
+
+// pwa/serviceworker.js — အောက်ဆုံးမှာ ဒါတွေ ထပ်ထည့်
+
+// // Push Notification ------------------------------------------------------
+self.addEventListener("push", (event) => {
+  if (!event.data) return;
+
+  const data = event.data.json();
+
+  const title   = data.title || "Novel Update";
+  const options = {
+    body:  data.body  || "",
+    icon:  "/static/dashboard/images/logo.png",  // သင့် logo path ပြောင်းပါ
+    badge: "/static/dashboard/images/logo.png",
+    data:  { url: data.url || "/" },
+    vibrate: [200, 100, 200],
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+  );
+});
+
+// // Notification Click ------------------------------------------------------
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+
+  const url = event.notification.data?.url || "/";
+
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
+      // အရင် tab ထဲမှာ ဖွင့်ထားပြီးသားရှိရင် focus ပဲပေး
+      for (const client of clientList) {
+        if (client.url === url && "focus" in client) {
+          return client.focus();
+        }
+      }
+      // မရှိရင် tab အသစ် ဖွင့်
+      if (clients.openWindow) {
+        return clients.openWindow(url);
+      }
+    })
+  );
+});

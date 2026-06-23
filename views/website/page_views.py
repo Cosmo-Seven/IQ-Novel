@@ -4,6 +4,11 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.urls import reverse
+import json
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.conf import settings
+from helpers.chapter_access import adjacent_chapters, chapter_has_access, novel_chapters_ordered
 from django.db.models import F, Q, Count
 from decorators.login_decorator import login_required
 from django.contrib.auth import login, logout, authenticate
@@ -30,8 +35,9 @@ from core.models import (
     AuthorFollowModel,
     CommentModel,
     NovelViewModel,
+    NovelPushSubscriptionModel
 )
-from helpers.chapter_access import adjacent_chapters, chapter_has_access, novel_chapters_ordered
+
 
 # ========================
 # Index
@@ -633,3 +639,78 @@ def cancel_account_deletion_request(request):
 
 def privacy_policy(request):
     return render(request, "website/privacy_policy.html")
+
+
+
+
+@login_required("dashboard_login")
+def vapid_public_key(request):
+    return JsonResponse({"publicKey": settings.VAPID_PUBLIC_KEY})
+
+
+@login_required("dashboard_login")
+@require_POST
+def novel_subscribe(request, novel_id):
+    novel = get_object_or_404(NovelModel, id=novel_id)
+
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, KeyError):
+        return JsonResponse({"error": "Invalid data"}, status=400)
+
+    endpoint   = data.get("endpoint")
+    p256dh_key = data.get("keys", {}).get("p256dh")
+    auth_key   = data.get("keys", {}).get("auth")
+
+    if not all([endpoint, p256dh_key, auth_key]):
+        return JsonResponse({"error": "Missing subscription fields"}, status=400)
+
+    obj, created = NovelPushSubscriptionModel.objects.update_or_create(
+        user=request.user,
+        novel=novel,
+        endpoint=endpoint,
+        defaults={
+            "p256dh_key": p256dh_key,
+            "auth_key": auth_key,
+        },
+    )
+
+    return JsonResponse({
+        "subscribed": True,
+        "created": created,
+        "message": "Subscribed successfully",
+    })
+
+
+@login_required("dashboard_login")
+@require_POST
+def novel_unsubscribe(request, novel_id):
+    novel = get_object_or_404(NovelModel, id=novel_id)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid data"}, status=400)
+
+    endpoint = data.get("endpoint")
+
+    deleted, _ = NovelPushSubscriptionModel.objects.filter(
+        user=request.user,
+        novel=novel,
+        endpoint=endpoint,
+    ).delete()
+
+    return JsonResponse({
+        "unsubscribed": True,
+        "deleted": deleted > 0,
+    })
+
+
+@login_required("dashboard_login")
+def subscription_status(request, novel_id):
+    novel = get_object_or_404(NovelModel, id=novel_id)
+    is_subscribed = NovelPushSubscriptionModel.objects.filter(
+        user=request.user,
+        novel=novel,
+    ).exists()
+    return JsonResponse({"subscribed": is_subscribed})

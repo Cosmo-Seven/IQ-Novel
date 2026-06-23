@@ -30,6 +30,8 @@
 
           <h1 class="novel-main-title h3 mb-3 fw-bold theme-text-main">{{novel.title}}</h1>
 
+          <button id="subscribe-btn" class="btn btn-sm btn-primary mb-3 rounded-pill" data-novel-id="{{ novel.id }}">Subscribe</button>
+
           <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
             <span class="theme-text-muted small"><i class="bi bi-person me-1"></i>{% translate 'author' request.session.language %}:</span>
             {% if novel.author %}
@@ -526,4 +528,90 @@
     });
   });
 </script>
+
+<script>
+  const NOVEL_ID       = "{{ novel.id }}";
+  const SUBSCRIBE_URL  = "{% url 'novel_subscribe'   novel.id %}";
+  const UNSUBSCRIBE_URL= "{% url 'novel_unsubscribe' novel.id %}";
+  const STATUS_URL     = "{% url 'subscription_status' novel.id %}";
+  const VAPID_KEY_URL  = "{% url 'vapid_public_key' %}";
+  const CSRF_TOKEN     = "{{ csrf_token }}";
+  
+  // Base64 → Uint8Array (VAPID public key convert)
+  function urlBase64ToUint8Array(base64String) {
+    const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+    const base64  = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+    const raw     = atob(base64);
+    return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
+  }
+  
+  async function getOrCreateSubscription(vapidPublicKey) {
+    const reg = await navigator.serviceWorker.ready;
+  
+    // existing subscription ရှိရင် ထပ် create မလုပ်
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+      });
+    }
+    return sub;
+  }
+  
+  async function init() {
+    const btn = document.getElementById("subscribe-btn");
+    if (!btn) return;
+  
+    // Browser support check
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+      btn.disabled = true;
+      btn.textContent = "🔕 Not Supported";
+      return;
+    }
+  
+    // Service Worker register
+    // await navigator.serviceWorker.register("/sw.js");
+
+    const reg = await navigator.serviceWorker.ready;
+  
+    // Current status check
+    const statusRes  = await fetch(STATUS_URL);
+    const statusData = await statusRes.json();
+    btn.textContent  = statusData.subscribed ? "🔕 Unsubscribe" : "🔔 Subscribe";
+    btn.dataset.subscribed = statusData.subscribed ? "1" : "0";
+  
+    btn.addEventListener("click", async () => {
+      const isSubscribed = btn.dataset.subscribed === "1";
+  
+      try {
+        // VAPID public key ယူ
+        const keyRes  = await fetch(VAPID_KEY_URL);
+        const keyData = await keyRes.json();
+        const sub     = await getOrCreateSubscription(keyData.publicKey);
+        const subJson = sub.toJSON();
+  
+        const url    = isSubscribed ? UNSUBSCRIBE_URL : SUBSCRIBE_URL;
+        const res    = await fetch(url, {
+          method:  "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken":  CSRF_TOKEN,
+          },
+          body: JSON.stringify(subJson),
+        });
+  
+        if (res.ok) {
+          const newState         = !isSubscribed;
+          btn.dataset.subscribed = newState ? "1" : "0";
+          btn.textContent        = newState ? "🔕 Unsubscribe" : "🔔 Subscribe";
+        }
+      } catch (err) {
+        console.error("Subscription error:", err);
+      }
+    });
+  }
+  
+  init();
+  </script>
 {% endblock %}

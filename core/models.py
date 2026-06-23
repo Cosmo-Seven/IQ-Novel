@@ -20,3 +20,4 @@ from models.author_models import AuthorModel, AuthorSalaryModel, AuthorFollowMod
 from models.comment_models import CommentModel
 from models.novel_view_models import NovelViewModel
 from models.reward_models import RewardModel, DailyRewardModel
+from models.subscribe_models import NovelPushSubscriptionModel

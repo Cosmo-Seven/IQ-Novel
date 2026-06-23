@@ -165,6 +165,12 @@ urlpatterns = (
         path("cancel/account/delete/", website_page_views.cancel_account_deletion_request, name="cancel_account_deletion_request"),
         path("privacy-policy/", website_page_views.privacy_policy, name="privacy_policy"),
 
+        path("api/vapid-key/", website_page_views.vapid_public_key, name="vapid_public_key"),
+        path("api/novels/<uuid:novel_id>/subscribe/", website_page_views.novel_subscribe, name="novel_subscribe"),
+        path("api/novels/<uuid:novel_id>/unsubscribe/",website_page_views.novel_unsubscribe, name="novel_unsubscribe"),
+        path("api/novels/<uuid:novel_id>/sub-status/", website_page_views.subscription_status, name="subscription_status"),
+
+
 
 # // Page Not Found -----------------------------------------------------------
         re_path(r"^.*/$", website_page_views.page404),
