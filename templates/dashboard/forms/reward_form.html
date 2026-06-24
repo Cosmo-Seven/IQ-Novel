@@ -1,0 +1,67 @@
+<!-- dashboard/forms/reward_form.html -->
+
+<!-- Reward Type -->
+<div class="col-lg-12">
+    <div class="mb-3">
+        <label class="form-label">Reward Type <span class="text-danger">*</span></label>
+        <select name="reward_type" class="form-select" id="rewardTypeSelect" required>
+            <option value="gem_gift"
+                {% if reward and reward.reward_type == "gem_gift" %}selected{% endif %}>
+                💎 Gem Gift (Login Reward)
+            </option>
+            <option value="free_read"
+                {% if reward and reward.reward_type == "free_read" %}selected{% endif %}>
+                📖 Free Read (All Chapters Free)
+            </option>
+            <option value="discount_read"
+                {% if reward and reward.reward_type == "discount_read" %}selected{% endif %}>
+                🏷️ Discount Read (All Chapters 1 Gem)
+            </option>
+        </select>
+    </div>
+</div>
+
+<div class="col-lg-12" id="amountField">
+    <div class="mb-3">
+        <label class="form-label">Gem Amount <span class="text-danger">*</span></label>
+        <input type="number" name="amount" class="form-control" min="1"
+            value="{{ reward.amount|default:'' }}"
+            placeholder="gem အရေအတွက် ထည့်ပါ">
+        <small class="text-muted">Gem Gift reward အတွက်သာ သုံးသည်</small>
+    </div>
+</div>
+
+<!-- User (specific user သို့မဟုတ် all users) -->
+<div class="col-lg-12">
+    <div class="mb-3">
+        <label class="form-label">Apply To User
+            <small class="text-muted">(ချန်ထားရင် user အားလုံးအတွက်)</small>
+        </label>
+        <select name="user" class="form-select">
+            <option value="">— All Users —</option>
+            {% for u in users %}
+            <option value="{{ u.id }}"
+                {% if reward and reward.user_id == u.id %}selected{% endif %}>
+                {{ u.username }} ({{ u.email }})
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const select      = document.getElementById("rewardTypeSelect");
+        const amountField = document.getElementById("amountField");
+        const amountInput = amountField.querySelector("input");
+
+        function toggleAmount() {
+            const isGemGift = select.value === "gem_gift";
+            amountField.style.display = isGemGift ? "block" : "none";
+            amountInput.required      = isGemGift;
+        }
+
+        select.addEventListener("change", toggleAmount);
+        toggleAmount(); // page load မှာ run
+    })();
+</script>

@@ -108,7 +108,7 @@
     <!-- Update Modals -->
     {% for reward in rewards %}
     <div class="modal fade" id="updateModal_{{reward.id}}" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-dialog modal-md" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">{% translate 'update_reward' request.session.language %}</h5>
@@ -117,13 +117,32 @@
                 <form action="{% url 'reward_update' reward.id %}" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="modal-body">
-                        {% include 'dashboard/forms/reward_form.html' %}
+                        <div class="row">
+                            <div class="col-lg-12">
+                            {% include 'dashboard/forms/reward_form.html' %}
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{% translate 'start_date' request.session.language %} <span
+                                        class="text-danger">*</span></label>
+                                <input type="datetime-local" name="start_date" required class="form-control"
+                                    value="{% if reward %}{{ reward.start_date|date:'Y-m-dTH:i' }}{% endif %}">
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{% translate 'end_date' request.session.language %} <span
+                                        class="text-danger">*</span></label>
+                                <input type="datetime-local" name="end_date" required class="form-control"
+                                    value="{% if reward %}{{ reward.end_date|date:'Y-m-dTH:i' }}{% endif %}">
+                            </div>
+                        </div>
+                        </div>
+                        
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate 'close'
-                            request.session.language %}</button>
-                        <button type="submit" class="btn btn-primary">{% translate 'update' request.session.language
-                            %}</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate 'close' request.session.language %}</button>
+                        <button type="submit" class="btn btn-primary">{% translate 'update' request.session.language %}</button>
                     </div>
                 </form>
             </div>
@@ -148,8 +167,7 @@
                 <div class="modal-footer">
                     <form method="POST" action="{% url 'reward_delete' reward.id %}" enctype="multipart/form-data">
                         {% csrf_token %}
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate 'cancel'
-                            request.session.language %}</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate 'cancel' request.session.language %}</button>
                         <button type="submit" class="btn btn-danger">{% translate 'delete' request.session.language %}</button>
                     </form>
                 </div>
@@ -162,26 +180,17 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">{% translate 'delete_reward' request.session.language %}</h5>
+                    <h5 class="modal-title">{% translate 'add_reward' request.session.language %}</h5>
                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">×</span>
                         </button>
                 </div>
-                <form action="{{reward_create_url}}" method="post">
+                <form action="{% url 'reward_create' %}" method="post">
                     {% csrf_token %}
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-lg-12">
-                            <div class="mb-3">
-                                <label class="form-label">{% translate 'user' request.session.language %}</label>
-                                <select class="form-control select" name="user">
-                                    <option value="">{% translate 'global_reward' request.session.language %}</option>
-                                    {% for user in users %}
-                                    <option value="{{user.id}}" {% if reward.user.id == user.id %}selected{% endif %}>
-                                        {{user.username}} ({{user.email}})</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
+                            {% include 'dashboard/forms/reward_form.html' %}
                         </div>
                         <div class="col-lg-6 col-md-6">
                             <div class="mb-3">
@@ -197,14 +206,6 @@
                                         class="text-danger">*</span></label>
                                 <input type="datetime-local" name="end_date" required class="form-control"
                                     value="{% if reward %}{{ reward.end_date|date:'Y-m-dTH:i' }}{% endif %}">
-                            </div>
-                        </div>
-                        <div class="col-lg-12">
-                            <div class="mb-3">
-                                <label class="form-label">{% translate 'amount' request.session.language %} (Gems) <span
-                                        class="text-danger">*</span></label>
-                                <input type="number" name="amount" min="1" required class="form-control"
-                                    placeholder="Enter gem amount" value="{% if reward %}{{reward.amount}}{% endif %}">
                             </div>
                         </div>
                     </div>

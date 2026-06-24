@@ -39,37 +39,43 @@ def reward_create(request):
         users = UserModel.objects.all().order_by("username")
         return render(
             request,
-            "dashboard/forms/reward_form.html",
+            "dashboard/reward_list.html",
             {"users": users, "reward": None},
         )
 
     if request.method == "POST":
-        start_date = request.POST.get("start_date")
-        end_date = request.POST.get("end_date")
-        amount = request.POST.get("amount")
-        user_id = request.POST.get("user")
+        start_date  = request.POST.get("start_date")
+        end_date    = request.POST.get("end_date")
+        user_id     = request.POST.get("user")
+        reward_type = request.POST.get("reward_type", "gem_gift")
 
-        if not all([start_date, end_date, amount]):
-            messages.error(request, "All fields are required")
+        # date validation အရင်
+        if not all([start_date, end_date]):
+            messages.error(request, "Start date and end date are required")
             return redirect("reward_create")
 
-        try:
-            amount = int(amount)
-            if amount <= 0:
-                messages.error(request, "Amount must be greater than 0")
+        # amount က reward_type ပေါ် မူတည်
+        if reward_type == "gem_gift":
+            try:
+                amount = int(request.POST.get("amount") or 0)
+                if amount <= 0:
+                    messages.error(request, "Amount must be greater than 0")
+                    return redirect("reward_create")
+            except ValueError:
+                messages.error(request, "Invalid amount")
                 return redirect("reward_create")
-        except ValueError:
-            messages.error(request, "Invalid amount")
-            return redirect("reward_create")
+        else:
+            amount = 0  # free_read / discount_read မှာ amount မလို
 
         user = None
         if user_id:
             user = get_object_or_404(UserModel, id=user_id)
 
-        reward = RewardModel.objects.create(
+        RewardModel.objects.create(
             start_date=start_date,
             end_date=end_date,
             amount=amount,
+            reward_type=reward_type,
             user=user,
         )
         messages.success(request, CREATE)
@@ -95,6 +101,19 @@ def reward_update(request, pk):
         end_date = request.POST.get("end_date")
         amount = request.POST.get("amount")
         user_id = request.POST.get("user")
+        reward_type = request.POST.get("reward_type", "gem_gift")
+
+        if reward_type == "gem_gift":
+            try:
+                amount = int(request.POST.get("amount") or 0)
+                if amount <= 0:
+                    messages.error(request, "Amount must be greater than 0")
+                    return redirect("reward_update", pk)
+            except ValueError:
+                messages.error(request, "Invalid amount")
+                return redirect("reward_update", pk)
+        else:
+            amount = 0
 
         if not all([start_date, end_date, amount]):
             messages.error(request, "All fields are required")
@@ -111,6 +130,7 @@ def reward_update(request, pk):
 
         reward.start_date = start_date
         reward.end_date = end_date
+        reward.reward_type = reward_type
         reward.amount = amount
 
         if user_id:
