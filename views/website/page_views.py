@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from helpers.reward_helper import get_active_chapter_reward, get_effective_price
-from helpers.reward_helper import get_effective_price
+from helpers.gem_helper import calculate_gem_usage, deduct_gems
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.urls import reverse
 import json
+from django.db import transaction
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.conf import settings
@@ -462,35 +463,31 @@ def buy_chapter(request, id):
     chapter = get_object_or_404(ChapterModel, id=id)
 
     if not request.user.is_authenticated:
-        messages.warning(request, "Please login to buy chapters.")
         return redirect("website_login")
 
     if ChapterPurchaseModel.objects.filter(user=request.user, chapter=chapter).exists():
         messages.info(request, "You already own this chapter.")
         return redirect("novel_detail", id=chapter.novel.id)
 
-    # ← reward check ထည့် (is_free နဲ့ gem_price ကို override)
     effective_price, reward_type = get_effective_price(chapter, request.user)
 
+    # free chapter
     if effective_price == 0:
-        # free (is_free or free_read reward)
-        if not ChapterPurchaseModel.objects.filter(user=request.user, chapter=chapter).exists():
-            ChapterPurchaseModel.objects.create(
-                user=request.user,
-                chapter=chapter,
-                gems_paid=0,
-                sale_price_mmk=0,
-                author_share_mmk=0,
-                gem_unit_price_mmk=0,
-                revenue_share_percent=0,
-            )
-        if reward_type:
-            messages.info(request, "🎉 Reward အရ ဒီ chapter ကို အခမဲ့ ဖတ်ခွင့်ရသည်။")
-        else:
-            messages.info(request, "This chapter is free.")
+        ChapterPurchaseModel.objects.get_or_create(
+            user=request.user,
+            chapter=chapter,
+            defaults={
+                "gems_paid": 0, "free_gems_used": 0, "paid_gems_used": 0,
+                "sale_price_mmk": 0, "author_share_mmk": 0,
+                "gem_unit_price_mmk": 0, "revenue_share_percent": 0,
+            },
+        )
+        messages.info(request, "🎉 အခမဲ့ ဖတ်ခွင့်ရသည်။")
         return redirect("chapter_detail", id=chapter.id)
 
-    if request.user.gem < effective_price:
+    gem_usage = calculate_gem_usage(request.user, effective_price)
+
+    if not gem_usage["can_afford"]:
         messages.error(request, "Insufficient gems. Please top up your gems.")
         return redirect("novel_detail", id=chapter.novel.id)
 
@@ -499,27 +496,25 @@ def buy_chapter(request, id):
 
         author = chapter.novel.author
         revenue_share_percent = author.revenue_share_percent if author else 0
-        unit_price     = gem_unit_price_mmk()
-        sale_price_mmk = gems_to_mmk(effective_price)  # ← effective_price သုံး
+        unit_price       = gem_unit_price_mmk()
+        sale_price_mmk   = gems_to_mmk(effective_price)
         author_share_mmk = author.calculate_share(sale_price_mmk) if author else 0
 
-        request.user.gem = max(0, request.user.gem - effective_price)
-        request.user.save()
+        with transaction.atomic():
+            deduct_gems(request.user, gem_usage["free_gems_used"], gem_usage["paid_gems_used"])
+            ChapterPurchaseModel.objects.create(
+                user=request.user,
+                chapter=chapter,
+                gems_paid=effective_price,
+                free_gems_used=gem_usage["free_gems_used"],
+                paid_gems_used=gem_usage["paid_gems_used"],
+                sale_price_mmk=sale_price_mmk,
+                author_share_mmk=author_share_mmk,
+                gem_unit_price_mmk=unit_price,
+                revenue_share_percent=revenue_share_percent,
+            )
 
-        ChapterPurchaseModel.objects.create(
-            user=request.user,
-            chapter=chapter,
-            gems_paid=effective_price,           # ← effective_price သုံး
-            sale_price_mmk=sale_price_mmk,
-            author_share_mmk=author_share_mmk,
-            gem_unit_price_mmk=unit_price,
-            revenue_share_percent=revenue_share_percent,
-        )
-
-        if reward_type:
-            messages.success(request, "🎉 Reward အရ 1 gem နဲ့ chapter ဝယ်ယူပြီးပါပြီ။")
-        else:
-            messages.success(request, "Chapter purchased successfully. Gems deducted.")
+        messages.success(request, "Chapter purchased successfully.")
 
     return redirect("chapter_detail", id=chapter.id)
 
@@ -529,6 +524,7 @@ def buy_ten_chapters(request, id):
     purchased_chapter_ids = set(
         request.user.chapter_purchases.values_list("chapter_id", flat=True)
     )
+
     chapters_to_buy = []
     for chapter in novel_chapters_ordered(novel):
         if len(chapters_to_buy) >= 10:
@@ -541,17 +537,18 @@ def buy_ten_chapters(request, id):
         messages.info(request, "No chapters available to purchase.")
         return redirect("novel_detail", id=novel.id)
 
-    # ← reward စစ်ပြီး total တွက်
     active_reward = get_active_chapter_reward(request.user)
 
     if active_reward and active_reward.reward_type == "free_read":
         total_price = 0
     elif active_reward and active_reward.reward_type == "discount_read":
-        total_price = len(chapters_to_buy)  # 1 gem each
+        total_price = len(chapters_to_buy)
     else:
-        total_price = sum(int(chapter.gem_price or 0) for chapter in chapters_to_buy)
+        total_price = sum(int(c.gem_price or 0) for c in chapters_to_buy)
 
-    if request.user.gem < total_price:
+    gem_usage = calculate_gem_usage(request.user, total_price)
+
+    if not gem_usage["can_afford"]:
         messages.error(request, "Insufficient gems. Please top up your gems.")
         return redirect("novel_detail", id=novel.id)
 
@@ -561,32 +558,36 @@ def buy_ten_chapters(request, id):
         unit_price = gem_unit_price_mmk()
 
         with transaction.atomic():
+            deduct_gems(request.user, gem_usage["free_gems_used"], gem_usage["paid_gems_used"])
+
             for chapter in chapters_to_buy:
-                # ← chapter တစ်ခုချင်း effective price သုံး
                 effective_price, _ = get_effective_price(chapter, request.user)
+
+                if gem_usage["free_gems_used"] > 0:
+                    ch_free = effective_price
+                    ch_paid = 0
+                else:
+                    ch_free = 0
+                    ch_paid = effective_price
+
                 sale_price_mmk   = gems_to_mmk(effective_price)
                 author_share_mmk = author.calculate_share(sale_price_mmk) if author else 0
 
                 ChapterPurchaseModel.objects.create(
                     user=request.user,
                     chapter=chapter,
-                    gems_paid=effective_price,        # ← ပြင်
+                    gems_paid=effective_price,
+                    free_gems_used=ch_free,
+                    paid_gems_used=ch_paid,
                     sale_price_mmk=sale_price_mmk,
                     author_share_mmk=author_share_mmk,
                     gem_unit_price_mmk=unit_price,
                     revenue_share_percent=revenue_share_percent,
                 )
 
-            request.user.gem = max(0, request.user.gem - total_price)
-            request.user.save(update_fields=["gem"])
-
-        messages.success(
-            request,
-            f"{len(chapters_to_buy)} chapters purchased successfully. Gems deducted.",
-        )
+        messages.success(request, f"{len(chapters_to_buy)} chapters purchased successfully.")
 
     return redirect("novel_detail", id=novel.id)
-
 
 def chapter_detail(request, id):
     chapter = get_object_or_404(ChapterModel.objects.select_related("novel"), id=id)
@@ -641,13 +642,9 @@ def page404(request):
 # ========================
 @login_required("website_login")
 def request_account_deletion(request):
-    """Handle user request for account deletion"""
-    
-    
     if request.method == "POST":
         reason = request.POST.get("reason", "").strip()
         
-        # Check if there's already a pending request
         existing_request = AccountDeletionRequestModel.objects.filter(
             user=request.user,
             status=AccountDeletionRequestModel.StatusChoices.PENDING
@@ -657,7 +654,6 @@ def request_account_deletion(request):
             messages.info(request, "You already have a pending account deletion request.")
             return redirect("website_profile")
         
-        # Create new deletion request
         AccountDeletionRequestModel.objects.create(
             user=request.user,
             reason=reason,

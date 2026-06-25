@@ -111,6 +111,8 @@ urlpatterns = (
         path("dashboard/novel-chapter/create/<uuid:novel_id>/",novel_views.novel_chapter_create,name="novel_chapter_create",),
         path("dashboard/novel-chapter/update/<uuid:pk>/",novel_views.novel_chapter_update,name="novel_chapter_update",),
         path("dashboard/novel-chapter/delete/<uuid:pk>/",novel_views.novel_chapter_delete,name="novel_chapter_delete",),
+        
+        path("dashboard/chapter/purchases/", novel_views.chapter_purchase_list, name="chapter_purchase_list"),
 
 
 # // PaymentMethodModel -----------------------------------------------------------------------------------------------------

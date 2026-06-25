@@ -50,3 +50,7 @@ def get_effective_price(chapter, user=None):
         return 1, reward.reward_type
 
     return chapter.gem_price, None
+
+def claim_gem_reward(user, reward):
+    user.free_gem += reward.amount
+    user.save(update_fields=["free_gem"])

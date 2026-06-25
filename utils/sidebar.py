@@ -87,6 +87,12 @@ def sidebar(request):
                         "icon": "ti ti-chart-bar",
                         "permission": "view_novelviewmodel",
                     },
+                    {
+                        "label": "chapter_purchases",
+                        "url_name": "chapter_purchase_list",
+                        "icon": "ti ti-shopping-cart",
+                        "permission": "view_chapterpurchasemodel",
+                    },
                 ]
             },
             {

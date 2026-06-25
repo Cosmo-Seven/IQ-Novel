@@ -17,6 +17,7 @@ class UserModel(AbstractBaseUser, PermissionsMixin, BaseModel):
     phone = models.CharField(max_length=50, null=True, blank=True)
     profile = models.ImageField(upload_to="profile", null=True, blank=True)
     gem = models.PositiveIntegerField(default=0)
+    free_gem = models.PositiveIntegerField(default=0)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)

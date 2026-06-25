@@ -53,12 +53,12 @@ class ChapterPurchaseModel(BaseModel):
         related_name="purchased_by",
     )
     gems_paid = models.PositiveIntegerField(default=0)
+    free_gems_used = models.PositiveIntegerField(default=0)
+    paid_gems_used = models.PositiveIntegerField(default=0)
+
     sale_price_mmk = models.PositiveIntegerField(default=0)
     author_share_mmk = models.PositiveIntegerField(default=0)
-    gem_unit_price_mmk = models.PositiveIntegerField(
-        default=0,
-        help_text="MMK per gem at time of purchase (for historical records).",
-    )
+    gem_unit_price_mmk = models.PositiveIntegerField(default=0, help_text="MMK per gem at time of purchase (for historical records).",)
     revenue_share_percent = models.PositiveSmallIntegerField(default=0)
 
     class Meta:

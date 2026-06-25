@@ -313,3 +313,49 @@ def novel_chapter_delete(request, pk):
 
     messages.success(request, "Chapter deleted successfully")
     return redirect("novel_update", novel.id)
+
+@login_required("dashboard_login")
+@role_permission_required("view_chapterpurchasemodel")
+def chapter_purchase_list(request):
+    purchases = (
+        ChapterPurchaseModel.objects
+        .select_related("user", "chapter", "chapter__novel")
+        .order_by("-created_at")
+    )
+
+    novel_id = request.GET.get("novel")
+    if novel_id:
+        purchases = purchases.filter(chapter__novel__id=novel_id)
+
+    gem_type = request.GET.get("gem_type")
+    if gem_type == "free":
+        purchases = purchases.filter(free_gems_used__gt=0)
+    elif gem_type == "paid":
+        purchases = purchases.filter(paid_gems_used__gt=0)
+
+    filters = filter_querysets(
+        request,
+        purchases,
+        search_fields=["user__username", "user__email", "chapter__chapter_title", "chapter__novel__title"],
+        date_field="created_at",
+        order="-created_at",
+    )
+
+    totals = purchases.aggregate(
+        total_purchases  = Count("id"),
+        total_gems       = Coalesce(Sum("gems_paid"), 0),
+        total_free_gems  = Coalesce(Sum("free_gems_used"), 0),
+        total_paid_gems  = Coalesce(Sum("paid_gems_used"), 0),
+        total_mmk        = Coalesce(Sum("sale_price_mmk"), 0),
+    )
+
+    novels = NovelModel.objects.all().order_by("title")
+
+    return render(request, "dashboard/chapter_purchase_list.html", {
+        "purchases"  : filters["page_obj"],
+        "totals"     : totals,
+        "novels"     : novels,
+        "selected_novel"    : novel_id,
+        "selected_gem_type" : gem_type,
+        **filters,
+    })
