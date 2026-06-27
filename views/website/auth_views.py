@@ -74,11 +74,11 @@ def register_view(request):
 
         if existing_user:
             messages.error(request, "Email already registered!")
-            return redirect("register")
+            return redirect("website_register")
 
         if password != confirm_password:
             messages.warning(request, "Password does not match!")
-            return redirect("register")
+            return redirect("website_register")
 
         user = UserModel.objects.create_user(
             username=username,
