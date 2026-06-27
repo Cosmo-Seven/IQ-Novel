@@ -65,6 +65,23 @@ def register_view(request):
         password = request.POST.get("password")
         confirm_password = request.POST.get("confirm_password")
 
+        # Validate required fields
+        if not username or not email or not password or not confirm_password:
+            messages.error(request, "All fields are required!")
+            return redirect("website_register")
+
+        # Validate email is not empty or just whitespace
+        email = email.strip()
+        if not email:
+            messages.error(request, "Email is required!")
+            return redirect("website_register")
+
+        # Validate username is not empty
+        username = username.strip()
+        if not username:
+            messages.error(request, "Username is required!")
+            return redirect("website_register")
+
         existing_user = UserModel.objects.filter(email=email).first()
 
         if existing_user and not existing_user.is_active:

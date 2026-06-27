@@ -253,16 +253,16 @@
                     <div class="mb-4">
                         <label class="form-label">Password</label>
                         <div class="input-group-anime">
-                            <input type="password" class="form-control" name="password" placeholder="Enter your password" required>
-                            <i class="fa-regular fa-eye-slash input-addon-icon"></i>
+                            <input type="password" class="form-control" name="password" id="password" placeholder="Enter your password" required>
+                            <i class="fa-regular fa-eye-slash input-addon-icon password-toggle" data-target="password"></i>
                         </div>
                     </div>
 
                     <div class="mb-4">
                         <label class="form-label">Comfirm password</label>
                         <div class="input-group-anime">
-                            <input type="password" class="form-control" name="comfirm_password" placeholder="Enter your password" required>
-                            <i class="fa-regular fa-eye-slash input-addon-icon"></i>
+                            <input type="password" class="form-control" name="confirm_password" id="confirm_password" placeholder="Enter your password" required>
+                            <i class="fa-regular fa-eye-slash input-addon-icon password-toggle" data-target="confirm_password"></i>
                         </div>
                     </div>
 
@@ -280,5 +280,30 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const passwordToggles = document.querySelectorAll('.password-toggle');
+        
+        passwordToggles.forEach(function(toggle) {
+            toggle.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const passwordInput = document.getElementById(targetId);
+                
+                if (passwordInput) {
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        this.classList.remove('fa-eye-slash');
+                        this.classList.add('fa-eye');
+                    } else {
+                        passwordInput.type = 'password';
+                        this.classList.remove('fa-eye');
+                        this.classList.add('fa-eye-slash');
+                    }
+                }
+            });
+        });
+    });
+</script>
 
 {% endblock %}

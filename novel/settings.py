@@ -173,7 +173,7 @@ CKEDITOR_CONFIGS = {
             ['RemoveFormat']
         ],
         'removePlugins': 'elementspath,resize',
-        'extraPlugins': 'justify', # <--- ဒီလိုင်းကို မဖြစ်မနေ ထည့်ပေးပါ
+        'extraPlugins': 'justify',
         'allowedContent': True,
         'extraAllowedContent': 'p;span;ul;li;ol;a;strong;em;u;s;div{text-align};*[align]',
         'basicEntities': False,
@@ -183,4 +183,4 @@ CKEDITOR_CONFIGS = {
 
 VAPID_PRIVATE_KEY = "jO2MllsWdvza5_wsx1FtLUFLSI7u1P_uy-gvIe7jQYs"
 VAPID_PUBLIC_KEY  = "BG8PMB1Bcc1WF5rwYzga--TpVNijZylmfsA1f0lqpC2FgV4ju4I_Cp2QD6WR7oMedT-kI2zrIc4YJ-Nn2P_Duwk"
-VAPID_ADMIN_EMAIL = "mailto:admin@digilex.com"
+VAPID_ADMIN_EMAIL = "mailto:admin@novelphilia.com"
