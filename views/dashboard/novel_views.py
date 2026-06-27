@@ -151,7 +151,6 @@ def novel_form(request, pk=None):
         genres = request.POST.getlist("genre")
         cover_image = request.FILES.get("cover_image")
         is_completed = request.POST.get("is_completed") == "on"
-        is_popular = request.POST.get("is_popular") == "on"
 
         novel_type = request.POST.get("novel_type")
 
@@ -164,7 +163,6 @@ def novel_form(request, pk=None):
             novel.title = title
             novel.summary = summary
             novel.is_completed = is_completed
-            novel.is_popular = is_popular
             novel.novel_type = novel_type
             if cover_image:
                 novel.cover_image = cover_image
@@ -185,7 +183,6 @@ def novel_form(request, pk=None):
                 summary=summary,
                 cover_image=cover_image,
                 is_completed=is_completed,
-                is_popular=is_popular,
                 novel_type = novel_type,
                 author=author,
             )

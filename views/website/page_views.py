@@ -49,7 +49,7 @@ def index(request):
     sliders = SliderModel.objects.all().order_by("-created_at")
     novels = NovelModel.objects.select_related("author").order_by("-created_at")
     completed_novels = NovelModel.objects.select_related("author").filter(is_completed=True)
-    popular_novels = NovelModel.objects.select_related("author").filter(is_popular=True)
+    popular_novels = NovelModel.objects.all().order_by("-views")[:10]
     fanfic_novels = NovelModel.objects.select_related("author").filter(novel_type='fanfic')
     free_novels = NovelModel.objects.select_related("author").filter(chapters__is_free=True).distinct()
     genres = GenreModel.objects.all()

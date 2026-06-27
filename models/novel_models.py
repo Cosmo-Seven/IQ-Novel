@@ -39,7 +39,6 @@ class NovelModel(BaseModel):
     views = models.PositiveIntegerField(default=0)
 
     is_completed = models.BooleanField(default=False)
-    is_popular = models.BooleanField(default=False)
     
 
     def __str__(self):

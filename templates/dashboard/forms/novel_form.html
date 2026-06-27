@@ -109,13 +109,7 @@
                                             <label for="is_completed" class="checktoggle"></label>
                                         </div>
                                     </div>
-                                    <div class="mb-3">
-                                        <div class="gap-2 status-toggle modal-status d-flex justify-content-start align-items-center">
-                                            <span class="status-label">{% translate 'is_popular' request.session.language %}</span>
-                                            <input type="checkbox" id="is_popular" name="is_popular" {% if novel.is_popular %}checked{% endif %} class="check">
-                                            <label for="is_popular" class="checktoggle"></label>
-                                        </div>
-                                    </div>
+                                    
                                     
                                 </div>
                             </div>
@@ -511,6 +505,59 @@
                 {% endfor %}
             {% endif %}
         }
+
+        // Free toggle functionality for create modal
+        const isFreeCreate = document.getElementById('is_free_create');
+        const gemPriceWrapperCreate = document.getElementById('gemPriceWrapper_create');
+        
+        if (isFreeCreate && gemPriceWrapperCreate) {
+            isFreeCreate.addEventListener('change', function() {
+                if (this.checked) {
+                    gemPriceWrapperCreate.style.opacity = '0';
+                    gemPriceWrapperCreate.style.transform = 'scale(0.8)';
+                    setTimeout(() => {
+                        gemPriceWrapperCreate.style.display = 'none';
+                    }, 200);
+                } else {
+                    gemPriceWrapperCreate.style.display = 'block';
+                    setTimeout(() => {
+                        gemPriceWrapperCreate.style.opacity = '1';
+                        gemPriceWrapperCreate.style.transform = 'scale(1)';
+                    }, 10);
+                }
+            });
+        }
+
+        // Free toggle functionality for update modals
+        {% for item in novel_chapters %}
+            (function() {
+                const isFreeUpdate = document.getElementById('is_free_{{ item.id }}');
+                const gemPriceWrapperUpdate = document.getElementById('gemPriceWrapper_{{ item.id }}');
+                
+                if (isFreeUpdate && gemPriceWrapperUpdate) {
+                    // Initialize state based on checkbox
+                    if (isFreeUpdate.checked) {
+                        gemPriceWrapperUpdate.style.display = 'none';
+                    }
+                    
+                    isFreeUpdate.addEventListener('change', function() {
+                        if (this.checked) {
+                            gemPriceWrapperUpdate.style.opacity = '0';
+                            gemPriceWrapperUpdate.style.transform = 'scale(0.8)';
+                            setTimeout(() => {
+                                gemPriceWrapperUpdate.style.display = 'none';
+                            }, 200);
+                        } else {
+                            gemPriceWrapperUpdate.style.display = 'block';
+                            setTimeout(() => {
+                                gemPriceWrapperUpdate.style.opacity = '1';
+                                gemPriceWrapperUpdate.style.transform = 'scale(1)';
+                            }, 10);
+                        }
+                    });
+                }
+            })();
+        {% endfor %}
     });
 </script>
 
