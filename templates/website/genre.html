@@ -111,7 +111,7 @@
                     <!-- Image Container -->
                     <div class="genre-img-container">
                         {% if genre.image %}
-                            <img src="{{ genre.image.url }}" class="genre-card-img" alt="{{ genre.name }}">
+                            <img src="{{ genre.image.url }}" class="genre-card-img" alt="{{ genre.name }}" loading="lazy">
                         {% else %}
                             <!-- Solid color fallback icon placeholder -->
                             <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light text-muted">

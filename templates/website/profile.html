@@ -1,4 +1,5 @@
 {% extends 'website/components/base.html' %}
+{% load translate %}
 {% load static %}
 {% load humanize %}
 {% block title %} Profile Dashboard {% endblock %}
@@ -200,15 +201,34 @@
         <div class="col-lg-4 col-xl-3">
             <div class="card modern-card p-4 text-center">
                 <div class="position-relative d-inline-block mx-auto mb-3">
-                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"
+                    <img src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static 'dashboard/images/no-profile.png' %}{% endif %}"
                         alt="Avatar" class="main-avatar">
                 </div>
                 <h4 class="fw-bold mb-1 text-dark">{{ request.user.username }}</h4>
                 <p class="text-muted small mb-3">{{ request.user.email }}</p>
 
-                <div class="gem-balance-card d-flex align-items-center justify-content-center gap-2 mb-3 shadow-sm">
-                    <i class="bi bi-gem-fill text-warning fs-5"></i>
-                    <span>{{ request.user.gem|intcomma }} Gems Available</span>
+                <div class="d-flex align-items-center justify-content-center gap-3 mb-3">
+
+                    <!-- Paid Gem -->
+                    <div class="gem-balance-card d-flex align-items-center gap-2 shadow-sm">
+                        <i class="bi bi-gem-fill text-warning fs-5"></i>
+                        <div>
+                            <div style="font-size:0.7rem;" class="text-muted">{% translate 'paid_gems' request.session.language %}</div>
+                            <div class="fw-bold">{{ request.user.gem|intcomma }}</div>
+                        </div>
+                    </div>
+                
+                    <div class="vr"></div>
+                
+                    <!-- Free Gem -->
+                    <div class="gem-balance-card d-flex align-items-center gap-2 shadow-sm">
+                        <i class="bi bi-gem-fill text-success fs-5"></i>
+                        <div>
+                            <div style="font-size:0.7rem;" class="text-muted">{% translate 'free_gems' request.session.language %}</div>
+                            <div class="fw-bold">{{ request.user.free_gem|intcomma }}</div>
+                        </div>
+                    </div>
+                
                 </div>
 
                 {% if author_profile %}
@@ -584,6 +604,28 @@
                                 </div>
                             </form>
                         </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-5">
+                        <button class="btn btn-danger" onclick="clearCache()">Clear Cache</button>
+
+                        <script>
+                            async function clearCache() {
+                                const cacheNames = await caches.keys();
+                            
+                                await Promise.all(
+                                    cacheNames.map(name => caches.delete(name))
+                                );
+                            
+                                const registrations = await navigator.serviceWorker.getRegistrations();
+                            
+                                for (const registration of registrations) {
+                                    await registration.unregister();
+                                }
+                            
+                                window.location.reload();
+                            }
+                        </script>
                     </div>
                 </div>
 

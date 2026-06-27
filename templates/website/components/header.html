@@ -15,7 +15,7 @@
 
             <a class="navbar-brand m-0 d-inline-block" href="{% url 'home' %}">
                 <div class="brand-logo-wrapper">
-                    <img src="{% static 'website/images/logo.png' %}" alt="IQ Logo" class="img-fluid">
+                    <img src="{% static 'website/images/logo.png' %}" alt="IQ Logo" class="img-fluid" loading="lazy">
                 </div>
             </a>
         </div>
@@ -84,17 +84,17 @@
             </button>
 
             <!-- Notification Bell -->
-            <button class="btn btn-link text-dark p-1 navbar-action-icon position-relative mx-1" type="button">
+            <!-- <button class="btn btn-link text-dark p-1 navbar-action-icon position-relative mx-1" type="button">
                 <i class="fa-regular fa-bell fs-5"></i>
                 <span
                     class="position-absolute top-1 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-            </button>
+            </button> -->
 
             <!-- User Auth Profile / Login Trigger -->
             {% if user.is_authenticated %}
             <div class="dropdown profile-dropdown">
                 <div data-bs-toggle="dropdown" aria-expanded="false" class="avatar-trigger">
-                    <img src="{% static 'dashboard/images/no-profile.png' %}" alt="Profile" class="avatar-img">
+                    <img src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static 'dashboard/images/no-profile.png' %}{% endif %}" alt="Profile" class="avatar-img" loading="lazy">
                 </div>
                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3 p-2 dynamic-dropdown">
                     <li><a class="dropdown-item rounded py-2" href="{{website_profile_url}}">
