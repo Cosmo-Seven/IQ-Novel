@@ -36,6 +36,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link custom-nav-item {% if request.resolver_match.url_name == 'genre' %}active{% endif %}"
+                        href="{% url 'genre' %}">
+                        Genre <span class="butterfly-icon">🦋</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link custom-nav-item {% if request.resolver_match.url_name == 'gem' %}active{% endif %}"
                         href="{% url 'gem' %}">
                         Gem <span class="butterfly-icon">🦋</span>
@@ -77,9 +83,9 @@
                 </button>
             </div>
 
-            <!-- Eye Care Mode Trigger Button (NEW) -->
+            <!-- Theme Toggle Button (Eye Care / Dark Mode) -->
             <button class="btn btn-link p-1 navbar-action-icon mx-1" id="eyeCareToggle" type="button"
-                title="Toggle Eye Care Mode">
+                title="Toggle Theme">
                 <i class="fa-regular fa-moon fs-5 eye-care-icon"></i>
             </button>
 
@@ -149,6 +155,22 @@
         /* Slightly softer tone for accessibility */
         --brand-maroon-hover: #581825;
         --text-muted-dark: #665544;
+    }
+
+    /* Dark Mode Palette */
+    [data-theme="dark"] {
+        --site-bg: #1a1a2e;
+        /* Dark blue-gray background */
+        --card-bg: #16213e;
+        /* Slightly lighter card background */
+        --border-color: #2a2a4a;
+        /* Dark border */
+        --main-text: #e0e0e0;
+        /* Light text for contrast */
+        --brand-maroon: #e94560;
+        /* Bright accent color for dark mode */
+        --brand-maroon-hover: #ff6b6b;
+        --text-muted-dark: #a0a0a0;
     }
 
     /* Apply transitions globally for smoother theme shifting */
@@ -284,6 +306,17 @@
         border-color: var(--brand-maroon);
     }
 
+    /* Placeholder styling for dark mode */
+    [data-theme="dark"] .aesthetic-search-box .form-control::placeholder {
+        color: #ffffff;
+        opacity: 0.5;
+    }
+
+    [data-theme="eye-care"] .aesthetic-search-box .form-control::placeholder {
+        color: #433422;
+        opacity: 0.6;
+    }
+
     .btn-maroon-search {
         background-color: var(--brand-maroon);
         color: #ffffff;
@@ -359,32 +392,50 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const eyeCareToggle = document.getElementById('eyeCareToggle');
-        const eyeCareIcon = eyeCareToggle.querySelector('.eye-care-icon');
+        const themeToggle = document.getElementById('eyeCareToggle');
+        const themeIcon = themeToggle.querySelector('.eye-care-icon');
 
         const savedTheme = localStorage.getItem('siteTheme');
+        
+        // Apply saved theme on load
         if (savedTheme === 'eye-care') {
             document.documentElement.setAttribute('data-theme', 'eye-care');
-            eyeCareIcon.classList.replace('fa-moon', 'fa-sun');
-            eyeCareIcon.classList.replace('fa-regular', 'fa-solid');
-            eyeCareToggle.classList.add('text-warning');
+            themeIcon.classList.replace('fa-moon', 'fa-sun');
+            themeIcon.classList.replace('fa-regular', 'fa-solid');
+            themeToggle.classList.add('text-warning');
+        } else if (savedTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeIcon.classList.replace('fa-moon', 'fa-moon');
+            themeIcon.classList.replace('fa-regular', 'fa-solid');
+            themeToggle.classList.add('text-secondary');
         }
 
-        eyeCareToggle.addEventListener('click', () => {
-            const isEyeCare = document.documentElement.getAttribute('data-theme') === 'eye-care';
-
-            if (!isEyeCare) {
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            
+            // Cycle through: bright → eye-care → dark → bright
+            if (!currentTheme) {
+                // Switch to eye-care mode
                 document.documentElement.setAttribute('data-theme', 'eye-care');
                 localStorage.setItem('siteTheme', 'eye-care');
-                eyeCareIcon.classList.replace('fa-moon', 'fa-sun');
-                eyeCareIcon.classList.replace('fa-regular', 'fa-solid');
-                eyeCareToggle.classList.add('text-warning');
+                themeIcon.classList.replace('fa-moon', 'fa-sun');
+                themeIcon.classList.replace('fa-regular', 'fa-solid');
+                themeToggle.classList.remove('text-secondary');
+                themeToggle.classList.add('text-warning');
+            } else if (currentTheme === 'eye-care') {
+                // Switch to dark mode
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('siteTheme', 'dark');
+                themeIcon.classList.replace('fa-sun', 'fa-moon');
+                themeToggle.classList.remove('text-warning');
+                themeToggle.classList.add('text-secondary');
             } else {
+                // Switch back to bright mode
                 document.documentElement.removeAttribute('data-theme');
                 localStorage.setItem('siteTheme', 'bright');
-                eyeCareIcon.classList.replace('fa-sun', 'fa-moon');
-                eyeCareIcon.classList.replace('fa-solid', 'fa-regular');
-                eyeCareToggle.classList.remove('text-warning');
+                themeIcon.classList.replace('fa-moon', 'fa-moon');
+                themeIcon.classList.replace('fa-solid', 'fa-regular');
+                themeToggle.classList.remove('text-secondary', 'text-warning');
             }
         });
     });

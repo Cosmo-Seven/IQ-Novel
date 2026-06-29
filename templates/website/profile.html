@@ -40,6 +40,19 @@
         background-color: var(--card-bg, #fff) !important;
         color: var(--main-text, #212529) !important;
     }
+
+    /* Placeholder styling for dark mode */
+    [data-theme="dark"] .form-control::placeholder,
+    [data-theme="dark"] .form-control-sm::placeholder {
+        color: #ffffff;
+        opacity: 0.5;
+    }
+
+    [data-theme="eye-care"] .form-control::placeholder,
+    [data-theme="eye-care"] .form-control-sm::placeholder {
+        color: #433422;
+        opacity: 0.6;
+    }
     .modal-content {
         background-color: var(--card-bg, #fff) !important;
         transition: background-color 0.4s ease;

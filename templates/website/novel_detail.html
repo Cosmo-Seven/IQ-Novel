@@ -172,7 +172,7 @@
 
       <!-- Tab 1: Description -->
       <div class="tab-pane fade show active" id="description-content" role="tabpanel" aria-labelledby="description-tab">
-        <div class="theme-text-muted lh-lg mb-5" style="white-space: pre-wrap; font-size: 0.95rem;">
+        <div class="theme-text-muted lh-lg mb-5 theme-text-description" style="white-space: pre-wrap; font-size: 0.95rem;">
           {{ novel.summary|safe }}
         </div>
 
@@ -458,6 +458,15 @@
   .theme-textarea::placeholder {
     color: var(--text-muted-dark, #6c757d);
     opacity: 0.7;
+  }
+
+  [data-theme="dark"] .theme-textarea::placeholder {
+    color: #ffffff;
+    opacity: 0.5;
+  }
+
+  [data-theme="dark"] .theme-text-description {
+    color: #ffffff;
   }
   .theme-textarea-edit {
     background-color: var(--card-bg, #ffffff) !important;
