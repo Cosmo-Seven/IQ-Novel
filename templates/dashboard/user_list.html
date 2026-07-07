@@ -57,6 +57,10 @@
                                 <th>{% translate 'name' request.session.language %}</th>
                                 <th>{% translate 'phone' request.session.language %}</th>
                                 <th>{% translate 'email' request.session.language %}</th>
+                                <th>{% translate 'gem_fill' request.session.language %}</th>
+                                <th>{% translate 'date_of_join' request.session.language %}</th>
+                                <th>{% translate 'paid_gem' request.session.language %}</th>
+                                <th>{% translate 'free_gem' request.session.language %}</th>
                                 <th>{% translate 'role' request.session.language %}</th>
                                 <th>{% translate 'active' request.session.language %}</th>
                                 <th>{% translate 'staff' request.session.language %}</th>
@@ -85,6 +89,10 @@
                                     {% endif %}
                                 </td>
                                 <td><a href="mailto:{{user.email}}">{{user.email}}</a></td>
+                                <td><button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#gemfillModal_{{user.id}}">Fill</button></td>
+                                <td>{{user.created_at}}</td>
+                                <td>{{user.gem}}</td>
+                                <td>{{user.free_gem}}</td>
                                 <td><span class="text-capitalize">{{user.role.name}}</span></td>
                                 <td>
                                     <span
@@ -212,6 +220,37 @@
             </div>
         </div>
     </div>
+</div>
+{% endfor %}
+
+<!-- Gem Fill -->
+{% for n_user in users %}
+<div class="modal fade" id="gemfillModal_{{n_user.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="page-title">
+            <h4>{% translate 'gem_fill' request.session.language %}</h4>
+        </div>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <form action="{% url 'gem_fill' n_user.id %}" method="POST">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div>
+            <label class="form-label" for="gem_fill">gem_amount</label>
+            <input class="form-control" type="number" name="gem">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 {% endfor %}
 {% endblock %}

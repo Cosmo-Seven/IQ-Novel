@@ -43,6 +43,7 @@ urlpatterns = (
         path("dashboard/user/export/excel/",user_views.user_export_excel,name="user_export_excel",),
         path("dashboard/user/export/pdf/",user_views.user_export_pdf,name="user_export_pdf",),
 
+        path("dashboard/user/gem_fill/<uuid:pk>/", gem_views.gem_fill_view, name="gem_fill"),
 
 # // RoleModel ----------------------------------------------------------------------------------------------------
         path("dashboard/role/list/", role_views.role_list, name="role_list"),

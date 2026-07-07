@@ -35,7 +35,7 @@
         <ul class="nav user-menu">
 
             <!-- Search -->
-            <li class="nav-item nav-searchinputs">
+            <!-- <li class="nav-item nav-searchinputs">
                 <div class="top-nav-search">
                     <a href="javascript:void(0);" class="responsive-search">
                         <i class="fa fa-search"></i>
@@ -85,7 +85,7 @@
                         </div>
                     </form>
                 </div>
-            </li>
+            </li> -->
             <!-- /Search -->
 
 
@@ -197,7 +197,7 @@
             </li> -->
 
             <!-- Flag -->
-            <li class="nav-item dropdown has-arrow flag-nav nav-item-box">
+            <li class="nav-item dropdown has-arrow flag-nav nav-item-box ms-auto">
                 <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="javascript:void(0);" role="button">
                     {% if current_language %}
                     <img src="{{ current_language.flag.url }}" alt="{{ current_language.name }}" class="img-fluid">
@@ -225,11 +225,11 @@
             </li>
             <!-- Notifications -->
             <li class="nav-item dropdown nav-item-box">
-                <a href="javascript:void(0);" class="dropdown-toggle nav-link" data-bs-toggle="dropdown">
+                <a href="{{ gem_order_list_url }}" class="nav-link">
                     <i class="ti ti-bell"></i>
-                    <span class="badge rounded-pill">1</span>
+                    <span class="badge rounded-pill">{{ pending_gem_order_count|default:0 }}</span>
                 </a>
-                <div class="dropdown-menu notifications">
+                <!-- <div class="dropdown-menu notifications">
                     <div class="topnav-dropdown-header">
                         <h5 class="notification-title">Notifications</h5>
                         <a href="javascript:void(0)" class="clear-noti">Mark all as read</a>
@@ -298,7 +298,7 @@
                         <a href="#" class="btn btn-secondary btn-md w-100">Cancel</a>
                         <a href="activities.html" class="btn btn-primary btn-md w-100">View all</a>
                     </div>
-                </div>
+                </div> -->
             </li>
             <!-- /Notifications -->
 

@@ -1,7 +1,10 @@
 from django.urls import reverse_lazy
+from core.models import GemOrderModel
 
 
 def routes(request):
+    pending_gem_order_count = GemOrderModel.objects.filter(status=GemOrderModel.STATUS_PENDING).count()
+
     return {
         # ======================================== Auth ========================================
         "dashboard_login_url": reverse_lazy("dashboard_login"),
@@ -41,6 +44,7 @@ def routes(request):
         "gem_list_url": reverse_lazy("gem_list"),
         "gem_create_url": reverse_lazy("gem_create"),
         "gem_order_list_url": reverse_lazy("gem_order_list"),
+        "pending_gem_order_count": pending_gem_order_count,
         # ======================================== AuthorModel ========================================
         "author_list_url": reverse_lazy("author_list"),
         "author_create_url": reverse_lazy("author_create"),

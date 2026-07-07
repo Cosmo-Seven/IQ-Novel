@@ -112,7 +112,9 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">{% translate 'update_reward' request.session.language %}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
                 </div>
                 <form action="{% url 'reward_update' reward.id %}" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}

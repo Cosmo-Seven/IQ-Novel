@@ -129,7 +129,9 @@
           <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content border-0 shadow-lg rounded-3 theme-modal">
               <div class="modal-header border-0 pb-0">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
               </div>
               <form action="{% url 'buy_ten_chapters' novel.id %}" method="POST">
                 {% csrf_token %}
@@ -297,7 +299,9 @@
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content border-0 shadow-lg rounded-3 theme-modal">
                 <div class="modal-header border-0 pb-0">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
                 </div>
                 <form action="{% url 'buy_chapter' chapter.id %}" method="POST">
                     {% csrf_token %}
@@ -329,7 +333,9 @@
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content border-0 shadow-lg rounded-3 theme-modal">
                 <div class="modal-header border-0 pb-0">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
                 </div>
                 <form action="{% url 'buy_chapter' chapter.id %}" method="POST">
                     {% csrf_token %}

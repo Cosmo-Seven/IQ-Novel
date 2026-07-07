@@ -1,4 +1,4 @@
-from core.models import GemModel, GemOrderModel
+from core.models import GemModel, GemOrderModel, UserModel
 from helpers.filters import filter_querysets
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
@@ -108,3 +108,13 @@ def gem_delete(request, pk):
     gem.delete()
     messages.success(request, DELETE)
     return redirect("gem_list")
+
+@login_required("dashboard_login")
+def gem_fill_view(request, pk):
+    user = get_object_or_404(UserModel, id=pk)
+    user.gem = request.POST.get("gem")
+    user.save()
+    messages.success(request, "Gem fill successfully")
+    return redirect("user_list")
+
+
