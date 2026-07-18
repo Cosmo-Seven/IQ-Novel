@@ -13,6 +13,7 @@ from decorators.login_decorator import login_required
 from django.db import transaction
 from django.db.models import Count, Sum
 from django.db.models.functions import Coalesce
+from django.utils.timezone import now
 from constants.message import CREATE, UPDATE, DELETE
 
 
@@ -24,7 +25,7 @@ def _author_for_user(user):
 @login_required("dashboard_login")
 @role_permission_required("view_novelmodel")
 def novel_list(request):
-    novels = NovelModel.objects.select_related("author").order_by("-created_at")
+    novels = NovelModel.objects.select_related("author").filter(is_deleted=False).order_by("-created_at")
     author = _author_for_user(request.user)
     if author and not request.user.is_staff:
         novels = novels.filter(author=author)
@@ -51,7 +52,7 @@ def novel_list(request):
 @role_permission_required("view_novelmodel")
 def novel_sales_list(request):
     novels = (
-        NovelModel.objects.select_related("author")
+        NovelModel.objects.select_related("author").filter(is_deleted=False)
         .annotate(
             sales_count=Count("chapters__purchased_by", distinct=True),
             gems_sold=Coalesce(Sum("chapters__purchased_by__gems_paid"), 0),
@@ -99,8 +100,8 @@ def novel_form(request, pk=None):
     novel_chapters = ChapterModel.objects.none()
 
     if pk:
-        novel = get_object_or_404(NovelModel, id=pk)
-        novel_chapters = novel.chapters.all().order_by("-created_at")
+        novel = get_object_or_404(NovelModel, id=pk, is_deleted=False)
+        novel_chapters = novel.chapters.filter(is_deleted=False).order_by("-created_at")
         author = _author_for_user(request.user)
         if author and not request.user.is_staff and novel.author_id != author.id:
             messages.error(request, "You can only edit your own novels.")
@@ -192,16 +193,131 @@ def novel_form(request, pk=None):
         return redirect("novel_update", novel.id)
 
 
+# // Pending Deletion Requests ------------------------------------------------------
+@login_required("dashboard_login")
+@role_permission_required("delete_novelmodel")
+def pending_deletion_requests(request):
+    if not (request.user.is_staff or request.user.is_superuser):
+        messages.error(request, "Only admins can review pending deletions.")
+        return redirect("novel_list")
+
+    pending_novels = (
+        NovelModel.objects.filter(delete_pending_approval=True, is_deleted=True)
+        .select_related("delete_requested_by", "author")
+        .order_by("-delete_requested_at", "-created_at")
+    )
+    pending_chapters = (
+        ChapterModel.objects.filter(delete_pending_approval=True, is_deleted=True)
+        .select_related("delete_requested_by", "novel")
+        .order_by("-delete_requested_at", "-created_at")
+    )
+
+    pending_items = []
+    for novel in pending_novels:
+        pending_items.append(
+            {
+                "type": "Novel",
+                "object": novel,
+                "title": novel.title,
+                "requested_by": novel.delete_requested_by,
+                "requested_at": novel.delete_requested_at,
+                "url_name": "pending_deletion_approve",
+                "pk": novel.id,
+                "kind": "novel",
+            }
+        )
+
+    for chapter in pending_chapters:
+        pending_items.append(
+            {
+                "type": "Chapter",
+                "object": chapter,
+                "title": chapter.chapter_title,
+                "requested_by": chapter.delete_requested_by,
+                "requested_at": chapter.delete_requested_at,
+                "url_name": "pending_deletion_approve",
+                "pk": chapter.id,
+                "kind": "chapter",
+            }
+        )
+
+    pending_items.sort(key=lambda item: item["requested_at"] or item["object"].created_at, reverse=True)
+
+    return render(
+        request,
+        "dashboard/pending_deletion_requests.html",
+        {"pending_items": pending_items},
+    )
+
+
+@login_required("dashboard_login")
+@role_permission_required("delete_novelmodel")
+def pending_deletion_approve(request, kind, pk):
+    if request.method != "POST":
+        return redirect("pending_deletion_requests")
+
+    if not (request.user.is_staff or request.user.is_superuser):
+        messages.error(request, "Only admins can manage pending deletions.")
+        return redirect("pending_deletion_requests")
+
+    action = request.POST.get("action", "approve")
+
+    if kind == "novel":
+        obj = get_object_or_404(NovelModel, id=pk)
+        if action == "reject":
+            obj.is_deleted = False
+            obj.deleted_at = None
+            obj.deleted_by = None
+            obj.delete_pending_approval = False
+            obj.delete_approved_by = request.user
+            obj.delete_approved_at = now()
+            obj.save(update_fields=["is_deleted", "deleted_at", "deleted_by", "delete_pending_approval", "delete_approved_by", "delete_approved_at"])
+            messages.success(request, "Novel deletion request rejected.")
+        elif obj.approve_delete(request.user):
+            messages.success(request, "Novel deletion approved and removed.")
+        else:
+            messages.info(request, "This novel is not pending deletion.")
+    elif kind == "chapter":
+        obj = get_object_or_404(ChapterModel, id=pk)
+        if action == "reject":
+            obj.is_deleted = False
+            obj.deleted_at = None
+            obj.deleted_by = None
+            obj.delete_pending_approval = False
+            obj.delete_approved_by = request.user
+            obj.delete_approved_at = now()
+            obj.save(update_fields=["is_deleted", "deleted_at", "deleted_by", "delete_pending_approval", "delete_approved_by", "delete_approved_at"])
+            messages.success(request, "Chapter deletion request rejected.")
+        elif obj.approve_delete(request.user):
+            messages.success(request, "Chapter deletion approved and removed.")
+        else:
+            messages.info(request, "This chapter is not pending deletion.")
+    else:
+        messages.error(request, "Invalid deletion request type.")
+
+    return redirect("pending_deletion_requests")
+
+
 # // Novel Delete ------------------------------------------------------
 @login_required("dashboard_login")
 @role_permission_required("delete_novelmodel")
 def novel_delete(request, pk):
     novel = get_object_or_404(NovelModel, id=pk)
     if request.method == "POST":
-        if novel.cover_image:
-            novel.cover_image.delete(save=False)
-        novel.delete()
-        messages.success(request, DELETE)
+        if novel.delete_pending_approval:
+            if request.user.is_staff or request.user.is_superuser:
+                novel.approve_delete(request.user)
+                messages.success(request, "Novel deletion approved and removed.")
+            else:
+                messages.info(request, "Deletion request is already pending admin approval.")
+        elif request.user.is_staff or request.user.is_superuser:
+            if novel.cover_image:
+                novel.cover_image.delete(save=False)
+            novel.delete()
+            messages.success(request, DELETE)
+        else:
+            novel.request_delete(request.user)
+            messages.success(request, "Deletion request submitted. Admin approval is required before the novel is removed.")
         return redirect("novel_list")
 
 
@@ -305,10 +421,19 @@ def novel_chapter_delete(request, pk):
     if request.method != "POST":
         return redirect("novel_update", novel.id)
 
-    with transaction.atomic():
-        chapter.delete()
-
-    messages.success(request, "Chapter deleted successfully")
+    if chapter.delete_pending_approval:
+        if request.user.is_staff or request.user.is_superuser:
+            chapter.approve_delete(request.user)
+            messages.success(request, "Chapter deletion approved and removed.")
+        else:
+            messages.info(request, "Deletion request is already pending admin approval.")
+    elif request.user.is_staff or request.user.is_superuser:
+        with transaction.atomic():
+            chapter.delete()
+        messages.success(request, "Chapter deleted successfully")
+    else:
+        chapter.request_delete(request.user)
+        messages.success(request, "Deletion request submitted. Admin approval is required before the chapter is removed.")
     return redirect("novel_update", novel.id)
 
 @login_required("dashboard_login")

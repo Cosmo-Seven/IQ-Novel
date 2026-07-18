@@ -1,0 +1,57 @@
+{% extends 'dashboard/components/base.html' %}
+{% load translate %}
+{% block title %}Pending Deletion Requests{% endblock %}
+{% block body %}
+<div class="page-wrapper">
+    <div class="content">
+        <div class="page-header">
+            <div class="page-title">
+                <h4 class="fw-bold">Pending Deletion Requests</h4>
+                <h6>Approve requested novel and chapter deletions</h6>
+            </div>
+            <div class="page-btn">
+                <a href="{% url 'novel_list' %}" class="btn btn-secondary">Back to novels</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Type</th>
+                                <th>Name</th>
+                                <th>Requested By</th>
+                                <th>Requested At</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in pending_items %}
+                            <tr>
+                                <td>{{ item.type }}</td>
+                                <td>{{ item.title }}</td>
+                                <td>{{ item.requested_by|default:'Unknown' }}</td>
+                                <td>{{ item.requested_at|date:'d M Y H:i' }}</td>
+                                <td class="text-center">
+                                    <form method="POST" action="{% url 'pending_deletion_approve' item.kind item.pk %}" class="d-flex justify-content-center gap-2">
+                                        {% csrf_token %}
+                                        <button type="submit" name="action" value="approve" class="btn btn-danger btn-sm">Approve Delete</button>
+                                        <button type="submit" name="action" value="reject" class="btn btn-secondary btn-sm">Reject</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4">No pending deletion requests.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

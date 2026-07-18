@@ -27,6 +27,11 @@
             </ul>
             <div class="page-btn d-flex gap-2">
                 <!-- <a href="{{ novel_sales_list_url }}" class="btn btn-outline-primary"><i class="ti ti-chart-bar me-1"></i>ရောင်းအား</a> -->
+                {% if request.user.is_staff or request.user.is_superuser %}
+                <a href="{% url 'pending_deletion_requests' %}" class="btn btn-outline-danger">
+                    <i class="ti ti-trash me-1"></i>Pending deletions
+                </a>
+                {% endif %}
                 <a href="{{novel_create_url}}" class="btn btn-primary"><i
                         class="ti ti-circle-plus me-1"></i>{% translate 'add_new_novel' request.session.language %}</a>
             </div>
@@ -73,7 +78,12 @@
                                         </a>
                                     </div>
                                 </td>
-                                <td>{{ novel.title }}</td>
+                                <td>
+                                    {{ novel.title }}
+                                    {% if novel.delete_pending_approval %}
+                                        <span class="badge bg-warning text-dark ms-2">Pending approval</span>
+                                    {% endif %}
+                                </td>
                                 <td>{{ novel.author }}</td>
                                 <td>
                                     {% for genre in novel.genres.all %}

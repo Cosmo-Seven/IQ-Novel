@@ -163,7 +163,12 @@
                                                 {% for item in novel_chapters %}
                                                 <tr>
                                                     <td class="text-center"><input class="form-check-input chapter-select" type="checkbox" name="selected_chapters" value="{{ item.id }}"></td>
-                                                    <td class="text-center">{{ item.chapter_title }}</td>
+                                                    <td class="text-center">
+                                                        {{ item.chapter_title }}
+                                                        {% if item.delete_pending_approval %}
+                                                            <span class="badge bg-warning text-dark ms-2">Pending approval</span>
+                                                        {% endif %}
+                                                    </td>
                                                     <td class="text-center">{% if item.is_free %}Free{% else %}Paid{% endif %}</td>
                                                     <td class="text-center">{{ item.gem_price }}</td>
                                                     <td class="action-table-data">
