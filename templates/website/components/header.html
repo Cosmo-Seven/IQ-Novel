@@ -89,6 +89,10 @@
                 <i class="fa-regular fa-moon fs-5 eye-care-icon"></i>
             </button>
 
+            <button type="button" class="btn btn-sm rounded-pill manual-help-btn-header" data-bs-toggle="modal" data-bs-target="#userManualModal">
+                <i class="bi bi-question-circle me-1"></i> User Guide
+            </button>
+
             <!-- Notification Bell -->
             <!-- <button class="btn btn-link text-dark p-1 navbar-action-icon position-relative mx-1" type="button">
                 <i class="fa-regular fa-bell fs-5"></i>
@@ -103,6 +107,9 @@
                     <img src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static 'dashboard/images/no-profile.png' %}{% endif %}" alt="Profile" class="avatar-img" loading="lazy">
                 </div>
                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3 p-2 dynamic-dropdown">
+                    <li><a class="dropdown-item rounded py-2" href="{{website_profile_url}}">
+                            <i class="bi bi-person-circle me-2"></i></i>Profile</a>
+                    </li>
                     <li><a class="dropdown-item rounded py-2" href="{{website_profile_url}}">
                             <i class="bi bi-gem text-warning me-2"></i>My Gems</a>
                     </li>
@@ -375,6 +382,38 @@
         color: var(--brand-maroon) !important;
     }
 
+    .manual-help-btn-header {
+        background: linear-gradient(135deg, #c9184a 0%, #a11d47 100%);
+        color: #fff;
+        border: none;
+        font-weight: 600;
+        padding: 0.5rem 0.9rem;
+        box-shadow: 0 12px 22px rgba(201, 24, 74, 0.18);
+    }
+
+    .manual-help-btn-header:hover {
+        color: #fff;
+        background: linear-gradient(135deg, #a11d47 0%, #871a3d 100%);
+    }
+
+    .btn-maroon {
+        background: linear-gradient(135deg, #c9184a 0%, #a11d47 100%);
+        border: none;
+        color: #fff;
+        font-weight: 600;
+    }
+
+    .btn-maroon:hover {
+        background: linear-gradient(135deg, #a11d47 0%, #871a3d 100%);
+        color: #fff;
+    }
+
+    .contact-card {
+        border: 1px solid #f1d5dc;
+        border-radius: 16px;
+        background: linear-gradient(135deg, rgba(201, 24, 74, 0.06), rgba(255, 255, 255, 0.9));
+    }
+
     /* --- Sign In Button --- */
     .action-login-btn {
         background-color: var(--brand-maroon);
@@ -389,6 +428,100 @@
         color: #ffffff;
     }
 </style>
+
+<div class="modal fade manual-modal" id="userManualModal" tabindex="-1" aria-labelledby="userManualModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header px-4 py-3">
+                <div>
+                    <p class="mb-1 text-uppercase small fw-bold text-muted">Quick Guide / အမြန်လမ်းညွှန်</p>
+                    <h5 class="modal-title fw-bold text-dark mb-0" id="userManualModalLabel">How to use your library / သင့် library ကို ဘယ်လိုအသုံးပြုမလဲ</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="manual-step h-100 border rounded-4 p-3 bg-light-subtle">
+                            <div class="step-number">1</div>
+                            <h6 class="fw-bold text-dark">Buy Gems / Gems ဝယ်ရန်</h6>
+                            <p class="small text-muted mb-0">Open the Gem page, choose a package, and click Buy Now. Upload your payment screenshot and wait for admin approval.<br><br>Gem page ကိုဖွင့်ပြီး package တစ်ခုရွေးပါ။ Buy Now ကိုနှိပ်ပြီးငွေချေမှု screenshot တင်ပါ။ admin approval ရရန်စောင့်ပါ။</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="manual-step h-100 border rounded-4 p-3 bg-light-subtle">
+                            <div class="step-number">2</div>
+                            <h6 class="fw-bold text-dark">Use Gems / Gems အသုံးပြုရန်</h6>
+                            <p class="small text-muted mb-0">Users can read paid chapters only when enough gems are available in their account.<br><br>အခ charged chapter များကို သင့် account ထဲရှိ gem အရေအတွက် များသလောက်သာ ဖတ်နိုင်ပါသည်။</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="manual-step h-100 border rounded-4 p-3 bg-light-subtle">
+                            <div class="step-number">3</div>
+                            <h6 class="fw-bold text-dark">Bookmarks & Reading List / Bookmark နှင့် Reading List</h6>
+                            <p class="small text-muted mb-0">Go to Profile → My Library → Bookmarks or Reading List to view saved novels and your reading progress.<br><br>Profile → My Library → Bookmarks သို့မဟုတ် Reading List သို့သွားပြီး သိမ်းထားသော novel များနှင့် ဖတ်နေမှုကို ကြည့်နိုင်ပါသည်။</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border rounded-4 p-3 bg-light-subtle mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-bookmark-star text-primary me-2 fs-5"></i>
+                        <h6 class="fw-bold text-dark mb-0">Bookmark & Reading List / Bookmark နှင့် Reading List</h6>
+                    </div>
+                    <ol class="mb-0 ps-3 small text-muted">
+                        <li>Open your profile. / သင့် profile ကို ဖွင့်ပါ။</li>
+                        <li>Click My Library. / My Library ကိုနှိပ်ပါ။</li>
+                        <li>To check bookmarks, open the Bookmarks tab. / Bookmark ကြည့်မယ်ဆို Bookmarks tab ကိုဖွင့်ပါ။</li>
+                        <li>To view reading progress, open the Reading List tab. / Reading List ကြည့်မယ်ဆို Reading List tab ကိုဖွင့်ပါ။</li>
+                        <li>Tap a novel card to open it again and continue reading. / novel ကိုနှိပ်ပြီး ဆက်ဖတ်ပါ။</li>
+                    </ol>
+                </div>
+
+                <div class="border rounded-4 p-3 bg-light-subtle mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-gem text-warning me-2 fs-5"></i>
+                        <h6 class="fw-bold text-dark mb-0">How to read paid chapters / Paid chapter ဖတ်ပုံ</h6>
+                    </div>
+                    <ol class="mb-0 ps-3 small text-muted">
+                        <li>You need gems to unlock a paid chapter. / Paid chapter ဖတ်ဖို့ gem လိုအပ်သည်။</li>
+                        <li>Open your account and check your current gem balance. / Account ကိုဖွင့်ပြီး gem balance ကိုစစ်ပါ။</li>
+                        <li>If your balance is not enough, go to Gem page and buy more gems. / မလုံလောက်ရင် Gem page သို့သွားပြီး gem ဝယ်ပါ။</li>
+                        <li>When buying a paid chapter, free gems are used first, then paid gems are used. / Paid chapter ဝယ်တဲ့အခါ free gems ကိုအရင်သုံးပြီးမှ paid gems သုံးပါမည်။</li>
+                    </ol>
+                </div>
+
+                <div class="border rounded-4 p-3 bg-light-subtle mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-clock-history text-secondary me-2 fs-5"></i>
+                        <h6 class="fw-bold text-dark mb-0">Gem order process / Gem order တင်ပုံ</h6>
+                    </div>
+                    <ol class="mb-0 ps-3 small text-muted">
+                        <li>Go to the Gem page and place your order. / Gem page သို့သွားပြီး order တင်ပါ။</li>
+                        <li>Your order will appear in Profile → Order History → Gem Orders with Pending status. / သင့် order သည် Profile → Order History → Gem Orders တွင် pending အဆင့်ဖြင့် မြင်ရပါမည်။</li>
+                        <li>Admin checks the payment and verifies it. / Admin က payment ကိုစစ်ဆေးပြီး verify လုပ်ပါမည်။</li>
+                        <li>Once approved, gems are added to your account automatically. / approve ဖြစ်သွားရင် gems က သင့် account ထဲဝင်သွားပါမည်။</li>
+                    </ol>
+                </div>
+
+                <div class="contact-card p-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-headset text-danger me-2 fs-5"></i>
+                        <h6 class="fw-bold text-dark mb-0">Contact Admin / Admin ကိုဆက်သွယ်ရန်</h6>
+                    </div>
+                    <ul class="mb-0 ps-3 small text-muted">
+                        <li>Website Contact Page: Add your website contact link here. / Website Contact Page: ယာယီအချက်အလက်ထည့်ပါ။</li>
+                        <li>Facebook / Messenger: Add your official social page link here. / Facebook / Messenger: တရားဝင် social media link ထည့်ပါ။</li>
+                        <li>Telegram / Viber / Instagram: Add your preferred contact channel here. / Telegram / Viber / Instagram: ရရှိသည့် contact channel ကိုထည့်ပါ။</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer border-0 px-4 pb-4 pt-0">
+                <button type="button" class="btn btn-maroon px-4 rounded-pill" data-bs-dismiss="modal">Got it / နားလည်ပါပြီ</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {

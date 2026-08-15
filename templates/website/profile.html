@@ -194,6 +194,55 @@
         color: #fff;
         box-shadow: 0 4px 12px rgba(67, 56, 202, 0.2);
     }
+
+    .manual-help-btn {
+        background: linear-gradient(135deg, #c9184a 0%, #a11d47 100%);
+        color: #fff;
+        border: none;
+        border-radius: 999px;
+        padding: 10px 16px;
+        font-weight: 600;
+        box-shadow: 0 10px 25px rgba(201, 24, 74, 0.22);
+        transition: var(--transition-smooth);
+    }
+
+    .manual-help-btn:hover {
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 14px 28px rgba(201, 24, 74, 0.28);
+    }
+
+    .manual-modal .modal-content {
+        border: 0;
+        border-radius: 24px;
+        overflow: hidden;
+    }
+
+    .manual-modal .modal-header {
+        background: linear-gradient(135deg, rgba(201, 24, 74, 0.12), rgba(255, 201, 61, 0.18));
+        border-bottom: 1px solid rgba(201, 24, 74, 0.08);
+    }
+
+    .manual-step {
+        border: 1px solid var(--border-color, #e2e8f0);
+        border-radius: 16px;
+        padding: 1rem;
+        background: rgba(255,255,255,0.4);
+        height: 100%;
+    }
+
+    .manual-step .step-number {
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #c9184a, #f43f5e);
+        color: #fff;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+    }
     
     /* Account Deletion Card */
     .card.border-danger .card-header {
@@ -280,6 +329,10 @@
                         <i class="bi bi-box-arrow-right me-2"></i> Logout
                     </button>
                 </div>
+
+                <button type="button" class="btn manual-help-btn w-100 mt-3" data-bs-toggle="modal" data-bs-target="#userManualModal">
+                    <i class="bi bi-question-circle me-2"></i> User Manual / အသုံးပြုနည်း
+                </button>
             </div>
         </div>
 
