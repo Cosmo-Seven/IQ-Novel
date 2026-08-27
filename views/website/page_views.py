@@ -94,7 +94,7 @@ def novel(request):
         novels = novels.filter(genres__id=active_genre_id)
 
     if sort_filter == 'popular':
-        novels = novels.filter(is_popular=True)
+        novels = novels.order_by("-views")
     elif sort_filter == 'completed':
         novels = novels.filter(is_completed=True)
     elif sort_filter == 'new':

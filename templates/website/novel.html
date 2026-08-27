@@ -39,7 +39,7 @@
 
                     {% if novel.is_completed %}
                     <span class="badge badge-status bg-success rounded-0">Completed</span>
-                    {% elif novel.is_popular %}
+                    {% elif sort_filter == 'popular' %}
                     <span class="badge badge-status bg-danger animate-pulse rounded-0">Popular</span>
                     {% elif novel.is_fanfic %}
                     <span class="badge badge-status bg-primary animate-pulse rounded-0">Popular</span>
