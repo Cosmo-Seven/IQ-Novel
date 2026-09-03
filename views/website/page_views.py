@@ -49,6 +49,7 @@ def index(request):
     sliders = SliderModel.objects.all().order_by("-created_at")
     novels = NovelModel.objects.select_related("author").order_by("-created_at")
     completed_novels = NovelModel.objects.select_related("author").filter(is_completed=True)
+    translation_novels = NovelModel.objects.select_related("author").filter(novel_type='translate')
     popular_novels = NovelModel.objects.all().order_by("-views")[:10]
     fanfic_novels = NovelModel.objects.select_related("author").filter(novel_type='fanfic')
     free_novels = NovelModel.objects.select_related("author").filter(chapters__is_free=True).exclude(chapters__is_free=False).distinct()
@@ -58,6 +59,7 @@ def index(request):
         "sliders":sliders,
         "novels": novels,
         "completed_novels": completed_novels,
+        "translation_novels": translation_novels,
         "popular_novels": popular_novels,
         "fanfic_novels": fanfic_novels,
         "free_novels": free_novels,
@@ -129,6 +131,9 @@ def novel_detail(request, id):
     novel = get_object_or_404(NovelModel.objects.select_related("author"), id=id)
 
     if request.method == "POST":
+        if not request.user.is_authenticated:
+            return redirect("website_register")
+
         comment_text = request.POST.get("comment_text", "").strip()
         if comment_text:
             CommentModel.objects.create(
