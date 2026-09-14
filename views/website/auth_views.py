@@ -7,6 +7,8 @@ from django.urls import reverse
 from django.contrib.auth.hashers import check_password
 from decorators.login_decorator import login_required
 from django.contrib.auth import login, logout, authenticate
+from django.conf import settings
+import requests
 from helpers.mail import send_verification_email, send_reset_email
 from helpers.daily_reward import process_daily_reward
 from core.models import (
@@ -97,6 +99,25 @@ def register_view(request):
             messages.warning(request, "Password does not match!")
             return redirect("website_register")
 
+        recaptcha_token = request.POST.get("g-recaptcha-response", "")
+        try:
+            recaptcha_response = requests.post(
+                "https://www.google.com/recaptcha/api/siteverify",
+                data={
+                    "secret": settings.RECAPTCHA_SECRET_KEY,
+                    "response": recaptcha_token,
+                    "remoteip": request.META.get("REMOTE_ADDR"),
+                },
+                timeout=10,
+            )
+            recaptcha_valid = recaptcha_response.json().get("success", False)
+        except (requests.RequestException, ValueError):
+            recaptcha_valid = False
+
+        if not recaptcha_valid:
+            messages.error(request, "Please complete the reCAPTCHA challenge.")
+            return redirect("website_register")
+
         user = UserModel.objects.create_user(
             username=username,
             email=email,
@@ -109,7 +130,11 @@ def register_view(request):
         messages.success(request, "Check your email to verify your account.")
         return redirect("/")
 
-    return render(request, "website/register.html")
+    return render(
+        request,
+        "website/register.html",
+        {"recaptcha_site_key": settings.RECAPTCHA_SITE_KEY},
+    )
 
 
 def verify_email(request, uidb64, token):

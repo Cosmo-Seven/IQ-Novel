@@ -1,0 +1,98 @@
+{% extends 'website/components/base.html' %}
+{% block title %} Review Contests {% endblock %}
+
+{% block body %}
+{% load static %}
+
+<style>
+    .campaign-header-section {
+        background: radial-gradient(circle at 50% 0%, rgba(255, 193, 7, 0.08) 0%, transparent 60%);
+        padding: 3rem 0 2rem 0;
+    }
+
+    .campaign-card {
+        border: 1px solid #eef0f3;
+        border-radius: 20px;
+        overflow: hidden;
+        background-color: #ffffff;
+        transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease;
+        height: 100%;
+    }
+
+    .campaign-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
+        border-color: #ffc107;
+    }
+
+    .campaign-card-body {
+        padding: 1.5rem;
+    }
+
+    .campaign-title {
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: #2d3748;
+        margin-bottom: 8px;
+    }
+
+    .campaign-desc {
+        font-size: 0.9rem;
+        color: #718096;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.5;
+        margin-bottom: 12px;
+    }
+</style>
+
+<div class="campaign-header-section">
+    <div class="container text-center mb-4">
+        <h1 class="fw-bold display-6 mb-2">Review Contests</h1>
+        <p class="text-muted">Write a review with a photo for your favorite novel and win diamonds!</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+
+        {% for campaign in campaigns %}
+        <div class="col">
+            <a href="{% url 'campaign_detail' campaign.id %}" class="text-decoration-none">
+                <div class="card campaign-card">
+                    <div class="campaign-card-body">
+                        {% if campaign.is_awarded %}
+                        <span class="badge bg-secondary mb-2"><i class="bi bi-flag-fill me-1"></i>Ended - Winner Announced</span>
+                        {% elif campaign.start_date <= now and campaign.end_date >= now %}
+                        <span class="badge bg-success mb-2"><i class="bi bi-broadcast me-1"></i>Active Now</span>
+                        {% elif campaign.start_date > now %}
+                        <span class="badge bg-info text-dark mb-2"><i class="bi bi-clock me-1"></i>Upcoming</span>
+                        {% else %}
+                        <span class="badge bg-secondary mb-2">Ended</span>
+                        {% endif %}
+
+                        <h5 class="campaign-title">{{ campaign.title }}</h5>
+                        {% if campaign.description %}
+                        <p class="campaign-desc">{{ campaign.description }}</p>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-between align-items-center small text-muted">
+                            <span><i class="bi bi-calendar-range me-1"></i>{{ campaign.start_date|date:"M d" }} - {{ campaign.end_date|date:"M d, Y" }}</span>
+                            <span class="fw-semibold text-warning"><i class="bi bi-gem me-1"></i>{{ campaign.reward_amount }} Diamonds</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <p class="text-muted">No review contests have been announced yet. Check back soon!</p>
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+{% endblock %}

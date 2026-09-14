@@ -1,9 +1,32 @@
+import logging
+import threading
+
 from django.core.mail import EmailMultiAlternatives
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.urls import reverse
 from django.conf import settings
+
+logger = logging.getLogger(__name__)
+
+
+# =========================
+# ASYNC + SAFE SEND
+# =========================
+# HTTP request thread ပေါ်မှာ SMTP ကို တိုက်ရိုက်ခေါ်ရင် Gmail ဖြေးတာ/
+# server ကနေ port 587 ထွက်လမ်း block ဖြစ်တာစတာတွေအတွက် request တစ်ခုလုံး
+# ပိတ်မိပြီး gateway (nginx/hosting) ဘက်က 504/506 Timeout ပြန်ပေးတတ်ပါတယ်.
+# ဒါကြောင့် mail ကို background thread ထဲမှာပဲ ပို့ပြီး၊ ပျက်ရင်လည်း
+# request/registration flow ကို မထိခိုက်အောင် log ထဲပဲ ချန်ထားပါတယ်.
+def _send_in_background(msg: EmailMultiAlternatives):
+    def _send():
+        try:
+            msg.send()
+        except Exception:
+            logger.exception("Failed to send email to %s", msg.to)
+
+    threading.Thread(target=_send, daemon=True).start()
 
 
 # =========================
@@ -78,7 +101,7 @@ def send_verification_email(request, user):
         [user.email],
     )
     msg.attach_alternative(html, "text/html")
-    msg.send()
+    _send_in_background(msg)
 
 
 # =========================
@@ -124,4 +147,4 @@ def send_reset_email(user_email, reset_url):
         [user_email],
     )
     msg.attach_alternative(html, "text/html")
-    msg.send()
+    _send_in_background(msg)

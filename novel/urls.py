@@ -15,9 +15,11 @@ from views.dashboard import (
     payment_method_views,
     reward_views,
     slider_views,
+    campaign_views as dashboard_campaign_views,
 )
 from views.website import page_views as website_page_views
 from views.website import auth_views as website_auth_views
+from views.website import campaign_views as website_campaign_views
 from views.dashboard import page_views as dashboard_page_views
 
 handler500 = dashboard_page_views.internal_server_error
@@ -94,6 +96,15 @@ urlpatterns = (
         path("dashboard/reward/delete/<uuid:pk>/", reward_views.reward_delete, name="reward_delete"),
 
 
+# // ReviewCampaignModel -----------------------------------------------------------------------------------------------------
+        path("dashboard/campaign/list/", dashboard_campaign_views.campaign_list, name="campaign_list"),
+        path("dashboard/campaign/create/", dashboard_campaign_views.campaign_create, name="campaign_create"),
+        path("dashboard/campaign/update/<uuid:pk>/", dashboard_campaign_views.campaign_update, name="campaign_update"),
+        path("dashboard/campaign/delete/<uuid:pk>/", dashboard_campaign_views.campaign_delete, name="campaign_delete"),
+        path("dashboard/campaign/<uuid:pk>/reviews/", dashboard_campaign_views.campaign_review_list, name="campaign_review_list"),
+        path("dashboard/campaign/<uuid:pk>/reviews/<uuid:review_pk>/award/", dashboard_campaign_views.campaign_award, name="campaign_award"),
+
+
 # // AuthorModel ------------------------------------------------------------------------------------------------------------
         path("dashboard/author/list/", author_views.author_list, name="author_list"),
         path("dashboard/author/create/", author_views.author_create, name="author_create"),
@@ -159,6 +170,11 @@ urlpatterns = (
         path("gem", website_page_views.gem, name="gem"),
         path('contact/', website_page_views.contact_page, name='contact'),
         path("website/profile/", website_page_views.profile, name="website_profile"),
+
+        path("campaign/", website_campaign_views.campaign_list, name="campaign_list_website"),
+        path("campaign/<uuid:id>/", website_campaign_views.campaign_detail, name="campaign_detail"),
+        path("campaign/review/<uuid:id>/like/", website_campaign_views.like_campaign_review, name="like_campaign_review"),
+
         path("login/", website_auth_views.login_view, name="website_login"),
         path("logout/", website_auth_views.logout_view, name="website_logout"),
         path("register/", website_auth_views.register_view, name="website_register"),

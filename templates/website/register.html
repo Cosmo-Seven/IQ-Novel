@@ -345,6 +345,10 @@
                         </div>
                     </div>
 
+                    <div class="mb-4 d-flex justify-content-center">
+                        <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
+                    </div>
+
                     <!-- CTA Submit Button -->
                     <button type="submit" class="btn btn-anime-submit w-100 mt-2">Register</button>
                 </form>
@@ -359,6 +363,8 @@
         </div>
     </div>
 </div>
+
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

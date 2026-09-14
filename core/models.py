@@ -21,3 +21,8 @@ from models.comment_models import CommentModel
 from models.novel_view_models import NovelViewModel
 from models.reward_models import RewardModel, DailyRewardModel
 from models.subscribe_models import NovelPushSubscriptionModel
+from models.review_campaign_models import (
+    ReviewCampaignModel,
+    CampaignReviewModel,
+    CampaignReviewLikeModel,
+)

@@ -16,6 +16,12 @@ def sidebar(request):
                         "icon": "ti ti-calendar-event",
                         "permission": "view_rewardmodel",
                     },
+                    {
+                        "label": "review_campaigns",
+                        "url_name": "campaign_list",
+                        "icon": "ti ti-trophy",
+                        "permission": "view_reviewcampaignmodel",
+                    },
                 ],
             },
             {

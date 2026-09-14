@@ -39,6 +39,9 @@ INSTALLED_APPS = [
     "django.contrib.sites",
 ]
 
+RECAPTCHA_SITE_KEY = env("RECAPTCHA_SITE_KEY", default="")
+RECAPTCHA_SECRET_KEY = env("RECAPTCHA_SECRET_KEY", default="")
+
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
 )
@@ -135,6 +138,10 @@ EMAIL_PORT = env.int("EMAIL_PORT", default=587)
 EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+# SMTP socket ကို timeout မသတ်မှတ်ထားရင် Gmail/network ဖြေးရင် Django request
+# thread က အကန့်အသတ်မရှိ ဆက်စောင့်နေပြီး gateway (nginx/hosting) ဘက်က
+# 504/506 Gateway Timeout ဖြစ်စေနိုင်ပါတယ်။ ဒီ timeout က hard cap သတ်မှတ်ပေးတာပါ။
+EMAIL_TIMEOUT = env.int("EMAIL_TIMEOUT", default=10)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
