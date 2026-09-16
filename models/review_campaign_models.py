@@ -11,23 +11,7 @@ class ReviewCampaignModel(BaseModel):
     end_date = models.DateTimeField()
     reward_amount = models.PositiveIntegerField(
         default=0,
-        help_text="Winner ကို ပေးမယ့် diamond (gem) အရေအတွက်",
-    )
-    winner_review = models.OneToOneField(
-        "core.CampaignReviewModel",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="won_campaign",
-    )
-    is_awarded = models.BooleanField(default=False)
-    awarded_at = models.DateTimeField(null=True, blank=True)
-    awarded_by = models.ForeignKey(
-        "core.UserModel",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="+",
+        help_text="Winner တစ်ယောက်စီကို ပေးမယ့် diamond (gem) အရေအတွက်",
     )
 
     class Meta:
@@ -45,6 +29,14 @@ class ReviewCampaignModel(BaseModel):
 
     def has_ended(self):
         return timezone.now() > self.end_date
+
+    @property
+    def winner_reviews(self):
+        return self.reviews.filter(is_deleted=False, is_winner=True)
+
+    @property
+    def winner_count(self):
+        return self.winner_reviews.count()
 
 
 # ---------- Campaign Review (Reader submission: novel + image + text) ---------- #
@@ -67,6 +59,8 @@ class CampaignReviewModel(BaseModel):
     image = models.ImageField(upload_to="campaign_reviews")
     content = models.TextField()
     is_approved = models.BooleanField(default=True)
+    is_winner = models.BooleanField(default=False)
+    awarded_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         app_label = "core"

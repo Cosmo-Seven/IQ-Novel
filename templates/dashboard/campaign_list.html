@@ -41,8 +41,8 @@
                                 <td>{{ campaign.end_date|date:"Y-m-d H:i" }}</td>
                                 <td><span class="text-primary">{{ campaign.reward_amount }} Diamonds</span></td>
                                 <td>
-                                    {% if campaign.is_awarded %}
-                                    <span class="badge bg-secondary">Awarded</span>
+                                    {% if campaign.winner_count %}
+                                    <span class="badge bg-primary">{{ campaign.winner_count }} Winner{{ campaign.winner_count|pluralize }} Picked</span>
                                     {% elif campaign.is_active_now %}
                                     <span class="badge bg-success">Active</span>
                                     {% else %}
@@ -54,12 +54,10 @@
                                         <a class="me-2 p-2 mb-0" href="{% url 'campaign_review_list' campaign.id %}" title="View submissions">
                                             <i data-feather="eye" class="feather-eye"></i>
                                         </a>
-                                        {% if not campaign.is_awarded %}
                                         <a class="me-2 p-2 mb-0" data-bs-toggle="modal" href="javascript:void(0);"
                                             data-bs-target="#updateModal_{{campaign.id}}">
                                             <i data-feather="edit" class="feather-edit"></i>
                                         </a>
-                                        {% endif %}
                                         <a data-bs-toggle="modal" data-bs-target="#deleteModal_{{campaign.id}}"
                                             class="p-2 mb-0" href="javascript:void(0);">
                                             <i data-feather="trash-2" class="feather-trash-2"></i>

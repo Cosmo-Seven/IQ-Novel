@@ -5,7 +5,7 @@ from core.models import ReviewCampaignModel, CampaignReviewModel
 from decorators.role_decorator import role_permission_required
 from decorators.login_decorator import login_required
 from helpers.filters import filter_querysets
-from helpers.campaign_helper import award_winner
+from helpers.campaign_helper import award_review, unaward_review
 from constants.message import CREATE, UPDATE, DELETE
 
 
@@ -69,10 +69,6 @@ def campaign_update(request, pk):
     campaign = get_object_or_404(ReviewCampaignModel, id=pk)
 
     if request.method == "POST":
-        if campaign.is_awarded:
-            messages.error(request, "This campaign has already been awarded and can no longer be edited.")
-            return redirect("campaign_list")
-
         title = request.POST.get("title", "").strip()
         description = request.POST.get("description", "").strip()
         start_date = request.POST.get("start_date")
@@ -133,15 +129,32 @@ def campaign_review_list(request, pk):
     return render(request, "dashboard/campaign_review_list.html", context)
 
 
-# // Award Winner ------------------------------------------------------
+# // Award Winner (per-review, any number of winners) ------------------------------------------------------
 @login_required("dashboard_login")
-@role_permission_required("change_reviewcampaignmodel")
+@role_permission_required("change_campaignreviewmodel")
 def campaign_award(request, pk, review_pk):
     campaign = get_object_or_404(ReviewCampaignModel, id=pk)
-    review = get_object_or_404(CampaignReviewModel, id=review_pk)
+    review = get_object_or_404(CampaignReviewModel, id=review_pk, campaign=campaign)
 
     if request.method == "POST":
-        success, message = award_winner(campaign, review, request.user)
+        success, message = award_review(review, request.user)
+        if success:
+            messages.success(request, message)
+        else:
+            messages.error(request, message)
+
+    return redirect("campaign_review_list", pk=campaign.id)
+
+
+# // Undo Award (mistaken winner selection) ------------------------------------------------------
+@login_required("dashboard_login")
+@role_permission_required("change_campaignreviewmodel")
+def campaign_unaward(request, pk, review_pk):
+    campaign = get_object_or_404(ReviewCampaignModel, id=pk)
+    review = get_object_or_404(CampaignReviewModel, id=review_pk, campaign=campaign)
+
+    if request.method == "POST":
+        success, message = unaward_review(review)
         if success:
             messages.success(request, message)
         else:

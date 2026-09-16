@@ -103,6 +103,7 @@ urlpatterns = (
         path("dashboard/campaign/delete/<uuid:pk>/", dashboard_campaign_views.campaign_delete, name="campaign_delete"),
         path("dashboard/campaign/<uuid:pk>/reviews/", dashboard_campaign_views.campaign_review_list, name="campaign_review_list"),
         path("dashboard/campaign/<uuid:pk>/reviews/<uuid:review_pk>/award/", dashboard_campaign_views.campaign_award, name="campaign_award"),
+        path("dashboard/campaign/<uuid:pk>/reviews/<uuid:review_pk>/unaward/", dashboard_campaign_views.campaign_unaward, name="campaign_unaward"),
 
 
 # // AuthorModel ------------------------------------------------------------------------------------------------------------

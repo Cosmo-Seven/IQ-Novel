@@ -33,29 +33,45 @@ def toggle_like(review, user):
     return True, review.likes.count()
 
 
-def award_winner(campaign, review, admin_user):
+def award_review(review, admin_user):
     """
-    Admin က campaign တစ်ခုအတွက် winner review ရွေးပြီး reward (diamond) ပေးခြင်း
-    - review ဟာ campaign ရဲ့ own review ဖြစ်ရမယ်
-    - campaign တစ်ခုကို တစ်ကြိမ်ပဲ award လုပ်ခွင့်ရှိတယ် (double reward မဖြစ်အောင်)
+    Admin က review တစ်ခုချင်းစီကို winner အဖြစ်ရွေးပြီး reward (diamond) ပေးခြင်း
+    - Winner အရေအတွက် ကန့်သတ်မထား - admin ကြိုက်သလောက် review ကို winner လုပ်နိုင်
+    - Review တစ်ခုကို ထပ်ခါထပ်ခါ award လုပ်လို့ရရင် diamond နှစ်ဆင့်ပေါင်း ဝင်မှာဖြစ်လို့
+      is_winner flag နဲ့ double-reward မဖြစ်အောင် lock ထားတယ်
     """
-    if campaign.is_awarded:
-        return False, "This campaign has already been awarded."
+    if review.is_winner:
+        return False, "This review has already been awarded."
 
-    if review.campaign_id != campaign.id:
-        return False, "This review does not belong to the selected campaign."
+    campaign = review.campaign
 
-    campaign.winner_review = review
-    campaign.is_awarded = True
-    campaign.awarded_at = timezone.now()
-    campaign.awarded_by = admin_user
-    campaign.save(update_fields=[
-        "winner_review", "is_awarded", "awarded_at", "awarded_by",
-    ])
+    review.is_winner = True
+    review.awarded_at = timezone.now()
+    review.save(update_fields=["is_winner", "awarded_at"])
 
     winner = review.user
     # Contest reward ဖြစ်တဲ့အတွက် (ဝယ်ထားတဲ့ paid gem မဟုတ်ဘဲ) promotion/free gem အနေနဲ့ ထည့်ပေး
     winner.free_gem = (winner.free_gem or 0) + campaign.reward_amount
     winner.save(update_fields=["free_gem"])
 
-    return True, "Winner has been awarded successfully."
+    return True, f"{winner.username} has been awarded {campaign.reward_amount} diamonds."
+
+
+def unaward_review(review):
+    """
+    Admin မှားရွေးမိတဲ့ winner ကို ပြန်ဖျက်ခြင်း - ပေးထားတဲ့ diamond ကို ပြန်နှုတ် (0 အောက်မကျအောင်)
+    """
+    if not review.is_winner:
+        return False, "This review is not currently a winner."
+
+    campaign = review.campaign
+    winner = review.user
+
+    winner.free_gem = max(0, (winner.free_gem or 0) - campaign.reward_amount)
+    winner.save(update_fields=["free_gem"])
+
+    review.is_winner = False
+    review.awarded_at = None
+    review.save(update_fields=["is_winner", "awarded_at"])
+
+    return True, "Winner status removed and diamonds reverted."

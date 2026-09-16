@@ -11,10 +11,8 @@
                     <h4 class="fw-bold">{{ campaign.title }}</h4>
                     <h6>
                         {{ reviews|length }} submission{{ reviews|length|pluralize }} ·
-                        Reward: <span class="text-primary">{{ campaign.reward_amount }} Diamonds</span>
-                        {% if campaign.is_awarded %}
-                        · <span class="badge bg-secondary">Winner already awarded</span>
-                        {% endif %}
+                        Reward per winner: <span class="text-primary">{{ campaign.reward_amount }} Diamonds</span>
+                        · <span class="badge bg-primary">{{ campaign.winner_count }} Winner{{ campaign.winner_count|pluralize }} so far</span>
                     </h6>
                 </div>
             </div>
@@ -28,10 +26,10 @@
         <div class="row g-3">
             {% for review in reviews %}
             <div class="col-md-6 col-lg-4">
-                <div class="card h-100 {% if campaign.winner_review_id == review.id %}border-warning{% endif %}">
+                <div class="card h-100 {% if review.is_winner %}border-warning{% endif %}">
                     <img src="{{ review.image.url }}" class="card-img-top" style="height:220px;object-fit:cover;" alt="Review image">
                     <div class="card-body">
-                        {% if campaign.winner_review_id == review.id %}
+                        {% if review.is_winner %}
                         <span class="badge bg-warning text-dark mb-2"><i class="ti ti-trophy me-1"></i>Winner</span>
                         {% endif %}
                         <div class="d-flex justify-content-between align-items-center mb-1">
@@ -46,7 +44,15 @@
                             <i class="ti ti-heart"></i> {{ review.like_count }} Likes
                         </div>
 
-                        {% if not campaign.is_awarded %}
+                        {% if review.is_winner %}
+                        <form method="POST" action="{% url 'campaign_unaward' campaign.id review.id %}"
+                            onsubmit="return confirm('Remove winner status from {{ review.user.username }} and revert the diamonds?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                <i class="ti ti-x me-1"></i> Remove Winner
+                            </button>
+                        </form>
+                        {% else %}
                         <form method="POST" action="{% url 'campaign_award' campaign.id review.id %}"
                             onsubmit="return confirm('Award {{ campaign.reward_amount }} diamonds to {{ review.user.username }} for this review?');">
                             {% csrf_token %}
@@ -54,10 +60,6 @@
                                 <i class="ti ti-trophy me-1"></i> Select as Winner
                             </button>
                         </form>
-                        {% elif campaign.winner_review_id == review.id %}
-                        <button class="btn btn-sm btn-warning w-100" disabled>
-                            <i class="ti ti-trophy me-1"></i> Winner
-                        </button>
                         {% endif %}
                     </div>
                 </div>

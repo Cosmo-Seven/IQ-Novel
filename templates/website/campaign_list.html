@@ -64,8 +64,8 @@
             <a href="{% url 'campaign_detail' campaign.id %}" class="text-decoration-none">
                 <div class="card campaign-card">
                     <div class="campaign-card-body">
-                        {% if campaign.is_awarded %}
-                        <span class="badge bg-secondary mb-2"><i class="bi bi-flag-fill me-1"></i>Ended - Winner Announced</span>
+                        {% if campaign.winner_count %}
+                        <span class="badge bg-secondary mb-2"><i class="bi bi-flag-fill me-1"></i>{{ campaign.winner_count }} Winner{{ campaign.winner_count|pluralize }} Announced</span>
                         {% elif campaign.start_date <= now and campaign.end_date >= now %}
                         <span class="badge bg-success mb-2"><i class="bi bi-broadcast me-1"></i>Active Now</span>
                         {% elif campaign.start_date > now %}
