@@ -42,10 +42,10 @@ def login_view(request):
                 return redirect("/")
             else:
                 messages.error(request, "Email or Password is incorrect!")
-                return redirect("website_login")
+                return render(request, "website/login.html", {"email": email})
         except UserModel.DoesNotExist:
             messages.error(request, "Email or Password is incorrect!")
-            return redirect("website_login")
+            return render(request, "website/login.html", {"email": email})
 
     return render(request, "website/login.html")
 
@@ -70,19 +70,31 @@ def register_view(request):
         # Validate required fields
         if not username or not email or not password or not confirm_password:
             messages.error(request, "All fields are required!")
-            return redirect("website_register")
+            return render(
+                request,
+                "website/register.html",
+                {"username": username, "email": email},
+            )
 
         # Validate email is not empty or just whitespace
         email = email.strip()
         if not email:
             messages.error(request, "Email is required!")
-            return redirect("website_register")
+            return render(
+                request,
+                "website/register.html",
+                {"username": username, "email": email},
+            )
 
         # Validate username is not empty
         username = username.strip()
         if not username:
             messages.error(request, "Username is required!")
-            return redirect("website_register")
+            return render(
+                request,
+                "website/register.html",
+                {"username": username, "email": email},
+            )
 
         existing_user = UserModel.objects.filter(email=email).first()
 
@@ -93,11 +105,19 @@ def register_view(request):
 
         if existing_user:
             messages.error(request, "Email already registered!")
-            return redirect("website_register")
+            return render(
+                request,
+                "website/register.html",
+                {"username": username, "email": email},
+            )
 
         if password != confirm_password:
             messages.warning(request, "Password does not match!")
-            return redirect("website_register")
+            return render(
+                request,
+                "website/register.html",
+                {"username": username, "email": email},
+            )
 
         recaptcha_token = request.POST.get("g-recaptcha-response", "")
         try:
