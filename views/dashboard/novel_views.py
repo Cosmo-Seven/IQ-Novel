@@ -102,10 +102,10 @@ def novel_form(request, pk=None):
     if pk:
         novel = get_object_or_404(NovelModel, id=pk, is_deleted=False)
         novel_chapters = novel.chapters.filter(is_deleted=False).order_by("-created_at")
-        author = _author_for_user(request.user)
-        if author and not request.user.is_staff and novel.author_id != author.id:
-            messages.error(request, "You can only edit your own novels.")
-            return redirect("novel_list")
+        # author = _author_for_user(request.user)
+        # if author and not request.user.is_staff and novel.author_id != author.id:
+        #     messages.error(request, "You can only edit your own novels.")
+        #     return redirect("novel_list")
 
     if request.method == "GET":
         return render(
@@ -116,6 +116,8 @@ def novel_form(request, pk=None):
                 "novel": novel,
                 "selected_genres": list(novel.genres.values_list("id", flat=True)) if novel else [],
                 "novel_chapters": novel_chapters,
+                'authors':AuthorModel.objects.all() if request.user.is_superuser else [],
+                'current_author':_author_for_user(request.user)
             },
         )
 
@@ -154,15 +156,24 @@ def novel_form(request, pk=None):
         is_completed = request.POST.get("is_completed") == "on"
 
         novel_type = request.POST.get("novel_type")
-
-        if novel:
+        # Admin ဆိုရင် dropdown ကရွေးတဲ့ author၊ တခြားသူဆိုရင် ကိုယ့် author
+        if request.user.is_superuser:
+            author_id = request.POST.get('author')
+            author = AuthorModel.objects.filter(id=author_id).first()
+        else:
             author = _author_for_user(request.user)
-            if author and not request.user.is_staff and novel.author_id != author.id:
-                messages.error(request, "You can only edit your own novels.")
-                return redirect("novel_list")
+        if not author:
+            messages.error(request,"Author not found")
+            return redirect('novel_list')
+        if novel:
+            # author = _author_for_user(request.user)
+            # if author and not request.user.is_staff and novel.author_id != author.id:
+            #     messages.error(request, "You can only edit your own novels.")
+            #     return redirect("novel_list")
 
             novel.title = title
             novel.summary = summary
+            novel.author = author
             novel.is_completed = is_completed
             novel.novel_type = novel_type
             if cover_image:
@@ -182,10 +193,10 @@ def novel_form(request, pk=None):
             novel = NovelModel.objects.create(
                 title=title,
                 summary=summary,
+                author = author,
                 cover_image=cover_image,
                 is_completed=is_completed,
                 novel_type = novel_type,
-                author=author,
             )
             novel.genres.set(genres)
             messages.success(request, CREATE)
