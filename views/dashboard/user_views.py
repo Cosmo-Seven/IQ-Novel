@@ -17,6 +17,7 @@ from constants.message import CREATE, UPDATE, DELETE
 @login_required("dashboard_login")
 @role_permission_required("view_usermodel")
 def user_list(request):
+    selected_role = request.GET.get("role", "")
     if request.user.role.name == settings.HYPER:
         users = UserModel.objects.all().order_by("-created_at")
         roles = RoleModel.objects.all().order_by("-created_at")
@@ -24,6 +25,9 @@ def user_list(request):
         roles = RoleModel.objects.exclude(name=settings.HYPER).order_by("-created_at")
         role = RoleModel.objects.get(name=settings.HYPER)
         users = UserModel.objects.exclude(role=role).order_by("-created_at")
+
+    if selected_role:
+        users = users.filter(role_id=selected_role)
 
     filters = filter_querysets(
         request,
@@ -36,6 +40,7 @@ def user_list(request):
     context = {
         "users": filters["page_obj"],
         "roles": roles,
+        "selected_role": selected_role,
         **filters,
     }
     return render(request, "dashboard/user_list.html", context)
