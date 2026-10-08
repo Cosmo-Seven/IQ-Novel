@@ -3,6 +3,8 @@ db.sqlite3
 __pycache__/
 *.pyc
 
+dumps/
+
 staticfiles/
 
 .vscode/
@@ -14,4 +16,4 @@ media/
 gunicorn.conf.py
 
 google.json
-__MACOSX
+__MACOSXdumps/chapters.json
