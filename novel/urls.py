@@ -123,10 +123,13 @@ urlpatterns = (
         path("dashboard/novel/pending-deletions/", novel_views.pending_deletion_requests, name="pending_deletion_requests"),
         path("dashboard/novel/pending-deletions/<str:kind>/<uuid:pk>/approve/", novel_views.pending_deletion_approve, name="pending_deletion_approve"),
         path("dashboard/novel/sales/", novel_views.novel_sales_list, name="novel_sales_list"),
-        path("dashboard/novel-chapter/create/<uuid:novel_id>/",novel_views.novel_chapter_create,name="novel_chapter_create",),
-        path("dashboard/novel-chapter/update/<uuid:pk>/",novel_views.novel_chapter_update,name="novel_chapter_update",),
-        path("dashboard/novel-chapter/delete/<uuid:pk>/",novel_views.novel_chapter_delete,name="novel_chapter_delete",),
-        
+        path("dashboard/novel-chapter/create/<uuid:novel_id>/",novel_views.novel_chapter_create,name="novel_chapter_create"),
+        path("dashboard/novel-chapter/update/<uuid:pk>/",novel_views.novel_chapter_update,name="novel_chapter_update"),
+        path("dashboard/novel-chapter/delete/<uuid:pk>/",novel_views.novel_chapter_delete,name="novel_chapter_delete"),
+        #//-----Approval admin---------------
+        path('dashboard/chapter/approval/list/',novel_views.chapter_approval_list,name='chapter_approval_list'),
+        path('dashboard/chapter/approve/<uuid:pk>/',novel_views.chapter_approve,name='chapter_approve'),
+        path("dashboard/chapter/approval/reject/<uuid:pk>/", novel_views.chapter_reject,name="chapter_approval_reject"),
         path("dashboard/chapter/purchases/", novel_views.chapter_purchase_list, name="chapter_purchase_list"),
 
 

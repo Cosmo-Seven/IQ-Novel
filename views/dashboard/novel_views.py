@@ -181,14 +181,7 @@ def novel_form(request, pk=None):
             novel.save()
             novel.genres.set(genres)
             messages.success(request, UPDATE)
-        else:
-            author = _author_for_user(request.user)
-            if not author:
-                messages.error(
-                    request,
-                    "Author profile not found. Please contact admin to set up your author account.",
-                )
-                return redirect("novel_list")
+        else:      
 
             novel = NovelModel.objects.create(
                 title=title,
@@ -331,8 +324,10 @@ def novel_delete(request, pk):
             messages.success(request, "Deletion request submitted. Admin approval is required before the novel is removed.")
         return redirect("novel_list")
 
+#//---------------------------------------------------------------------------------------------------------
+# //---------------------------- Novel Chapter Create ------------------------------------------------------
+#//---------------------------------------------------------------------------------------------------------
 
-# // Novel Chapter Create ------------------------------------------------------
 @login_required("dashboard_login")
 @role_permission_required("add_novelmodel")
 def novel_chapter_create(request, novel_id):
@@ -344,6 +339,7 @@ def novel_chapter_create(request, novel_id):
     content = request.POST.get("content")
     is_free = request.POST.get("is_free") == "on"
     gem_price = request.POST.get("gem_price", 0)
+    is_admin = request.user.is_superuser 
 
     # validation
     if not chapter_title:
@@ -364,16 +360,27 @@ def novel_chapter_create(request, novel_id):
         messages.error(request, "Paid chapter must have gem price")
         return redirect("novel_update", novel.id)
 
+    
+
     with transaction.atomic():
         ChapterModel.objects.create(
             novel=novel,
             chapter_title=chapter_title,
             content=content,
             is_free=is_free,
+            is_active=is_admin,
             gem_price=0 if is_free else gem_price,
+            approval_status=(
+                ChapterModel.ApprovalStatus.APPROVED
+                if is_admin
+                else ChapterModel.ApprovalStatus.PENDING
+            ),
         )
-
-    messages.success(request, "Chapter created successfully")
+    if is_admin:
+        messages.success(request,'Chapter create successfully')
+    else:
+        messages.success(request,'Chapter submitted.Waiting for admin approval.')
+    
     return redirect("novel_update", novel.id)
 
 # // Novel Chapter Update ------------------------------------------------------
@@ -389,7 +396,7 @@ def novel_chapter_update(request, pk):
     chapter_title = request.POST.get("chapters_title", "").strip()
     content = request.POST.get("content", "").strip()
     is_free = request.POST.get("is_free") == "on"
-
+    
     # safe parse
     try:
         gem_price = int(request.POST.get("gem_price") or 0)
@@ -417,8 +424,7 @@ def novel_chapter_update(request, pk):
         chapter.gem_price = 0 if is_free else gem_price
 
         chapter.save()
-
-    messages.success(request, "Chapter updated successfully")
+        messages.success(request,'Update is successfully.')
     return redirect("novel_update", novel.id)
 
 
@@ -492,3 +498,86 @@ def chapter_purchase_list(request):
         "selected_gem_type" : gem_type,
         **filters,
     })
+
+#// Chapter Approval list
+@login_required('dashboard_login')
+@role_permission_required('change_novelmodel')
+def chapter_approval_list(request):
+    chapters = ChapterModel.objects.filter(is_active = False, approval_status = ChapterModel.ApprovalStatus.PENDING,).select_related('novel').order_by('-created_at')
+    filters = filter_querysets(
+            request,
+            chapters,
+            search_fields=["chapter_title",'novel__title'],
+            date_field="created_at",
+            order="-created_at",
+        )
+    return render(request,'dashboard/chapter_approval_list.html',{'chapters':filters['page_obj'], **filters})
+
+#//Chapter Approve
+@login_required('dashboard_login')
+@role_permission_required('change_novelmode')
+def chapter_approve(request, pk):
+    chapter = get_object_or_404(ChapterModel, id=pk)
+    if request.method != 'POST':
+        return redirect('chapter_approval_list')
+
+    if not request.user.is_superuser:
+        messages.error(request,'Only admin can approve chapters')
+        return redirect('chapter_approval_list')
+    chapter.is_active = True
+    chapter.save()
+
+    messages.success(request,'Chapter approved successfully.')
+    return redirect('chapter_approval_list')
+
+@login_required("dashboard_login")
+@role_permission_required("delete_novelmodel")
+def chapter_approval_cancel(request, pk):
+    chapter = get_object_or_404(
+        ChapterModel,
+        id=pk,
+        is_active=False,
+        is_deleted=False,
+    )
+    if request.method != "POST":
+        return redirect("chapter_approval_list")
+
+    # Admin can also cancel/delete pending chapter
+    if request.user.is_superuser :
+        chapter.delete()
+        messages.success( request, "Pending chapter cancelled successfully." )
+        return redirect("chapter_approval_list")
+
+    # Normal user
+    author = _author_for_user(request.user)
+    if chapter.novel.author != author:
+        messages.error( request, "You can only cancel your own chapter." )
+        return redirect("chapter_approval_list")
+
+    chapter.delete()
+    messages.success( request, "Chapter submission cancelled successfully." )
+    return redirect("chapter_approval_list")
+
+@login_required("dashboard_login")
+@role_permission_required("change_novelmodel")
+def chapter_reject(request, pk):
+    chapter = get_object_or_404(
+        ChapterModel,
+        id=pk,
+        is_deleted=False,
+        approval_status="pending",
+    )
+
+    if request.method != "POST":
+        return redirect("chapter_approval_list")
+
+    if not request.user.is_superuser:
+        messages.error(request, "Only admin can reject chapters.")
+        return redirect("chapter_approval_list")
+
+    chapter.is_active = False
+    chapter.approval_status = ChapterModel.ApprovalStatus.REJECTED
+    chapter.save(update_fields=["is_active", "approval_status"])
+
+    messages.success(request, "Chapter rejected successfully.")
+    return redirect("chapter_approval_list")

@@ -1,0 +1,826 @@
+{% extends 'dashboard/components/base.html' %}
+{% load translate %}
+{% block title %}Chapter Approval{% endblock %}
+{% load static %}
+{% block body %}
+
+<div class="page-wrapper">
+    <div class="content">
+
+        <!-- =====================================================
+             Page Header
+        ====================================================== -->
+        <div class="page-header">
+            <div class="add-item d-flex align-items-center">
+                <div class="page-title">
+                    <h4 class="fw-bold mb-1">Chapter Approval</h4>
+                    <h6 class="text-muted mb-0">
+                        Review chapters submitted by authors before publishing.
+                    </h6>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- =====================================================
+             Approval Card
+        ====================================================== -->
+        <div class="card">
+
+            <div class="card-body">
+
+                <!-- =================================================
+                     Card Header
+                ================================================== -->
+                <div class="d-flex align-items-center justify-content-between mb-4">
+
+                    <div>
+                        <h5 class="fw-semibold mb-1">
+                            Pending Chapters
+                        </h5>
+
+                        <p class="text-muted mb-0">
+                            Chapters waiting for admin approval.
+                        </p>
+                    </div>
+
+                    <div>
+                        <span class="badge bg-warning text-dark px-3 py-2">
+                            {{ chapters.paginator.count }} Pending
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     Table
+                ================================================== -->
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle border">
+
+                        <thead class="table-light">
+
+                            <tr>
+
+                                <th>
+                                    Novel
+                                </th>
+
+                                <th>
+                                    Chapter
+                                </th>
+
+                                <th>
+                                    Price
+                                </th>
+
+                                <th>
+                                    Uploaded
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th class="text-end">
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for chapter in chapters %}
+
+                            <tr>
+
+                                <!-- =====================================
+                                     Novel
+                                ====================================== -->
+                                <td>
+
+                                    <div class="fw-semibold">
+                                        {{ chapter.novel.title }}
+                                    </div>
+
+                                </td>
+
+
+                                <!-- =====================================
+                                     Chapter
+                                ====================================== -->
+                                <td>
+
+                                    <div class="fw-medium">
+                                        {{ chapter.chapter_title }}
+                                    </div>
+
+                                </td>
+
+
+                                <!-- =====================================
+                                     Price
+                                ====================================== -->
+                                <td>
+
+                                    {% if chapter.is_free %}
+
+                                        <span class="badge bg-success">
+                                            Free
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="text-primary fw-semibold">
+                                            {{ chapter.gem_price }} Gems
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- =====================================
+                                     Uploaded
+                                ====================================== -->
+                                <td>
+
+                                    <span class="text-muted">
+                                        {{ chapter.created_at|date:"Y-m-d H:i" }}
+                                    </span>
+
+                                </td>
+
+
+                                <!-- =====================================
+                                     Status
+                                ====================================== -->
+                                <td>
+
+                                    <span class="badge bg-warning text-dark">
+                                        Pending
+                                    </span>
+
+                                </td>
+
+
+                                <!-- =====================================
+                                     Actions
+                                ====================================== -->
+                                <td class="text-end">
+
+                                    <div class="d-flex justify-content-end align-items-center gap-1">
+
+
+                                        <!-- =============================
+                                             View
+                                        ============================== -->
+                                        <a
+                                            href="javascript:void(0);"
+                                            class="btn btn-sm btn-light"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#viewModal_{{ chapter.id }}"
+                                            title="View Chapter"
+                                        >
+
+                                            <i
+                                                data-feather="eye"
+                                                style="width:16px;height:16px;"
+                                            ></i>
+
+                                        </a>
+
+
+                                        <!-- =============================
+                                             Approve
+                                        ============================== -->
+                                        <a
+                                            href="javascript:void(0);"
+                                            class="btn btn-sm btn-success"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#approveModal_{{ chapter.id }}"
+                                            title="Approve Chapter"
+                                        >
+
+                                            <i
+                                                data-feather="check-circle"
+                                                style="width:16px;height:16px;"
+                                            ></i>
+
+                                        </a>
+
+
+                                        <!-- =============================
+                                             Delete / Cancel Submission
+                                        ============================== -->
+                                       <a
+                                            href="javascript:void(0);"
+                                            class="btn btn-sm"
+                                            style="background:#f4dede; color:#874747;"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#rejectModal_{{ chapter.id }}"
+                                            title="Reject Chapter"
+                                        >
+                                            <i data-feather="x-circle" style="width:16px;height:16px;"></i>
+                                        </a>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                            {% empty %}
+
+                            <!-- =========================================
+                                 Empty State
+                            ========================================== -->
+                            <tr>
+
+                                <td
+                                    colspan="6"
+                                    class="text-center py-5"
+                                >
+
+                                    <div class="text-muted">
+
+                                        <i
+                                            data-feather="check-circle"
+                                            style="width:48px;height:48px;"
+                                            class="mb-3"
+                                        ></i>
+
+                                        <h5 class="mb-2">
+                                            No Pending Chapters
+                                        </h5>
+
+                                        <p class="mb-0">
+                                            There are no chapters waiting for approval.
+                                        </p>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <!-- =================================================
+                     Pagination
+                ================================================== -->
+                {% if chapters.has_other_pages %}
+
+                <div class="d-flex align-items-center justify-content-between mt-4">
+
+                    <!-- Pagination Info -->
+                    <div class="text-muted small">
+
+                        Showing
+                        <strong>
+                            {{ chapters.start_index }}
+                        </strong>
+
+                        to
+
+                        <strong>
+                            {{ chapters.end_index }}
+                        </strong>
+
+                        of
+
+                        <strong>
+                            {{ chapters.paginator.count }}
+                        </strong>
+
+                        entries
+
+                    </div>
+
+
+                    <!-- Pagination -->
+                    <nav aria-label="Chapter pagination">
+
+                        <ul class="pagination mb-0">
+
+
+                            <!-- First -->
+                            {% if chapters.has_previous %}
+
+                            <li class="page-item">
+
+                                <a
+                                    class="page-link"
+                                    href="?page=1"
+                                    aria-label="First"
+                                >
+                                    <i
+                                        data-feather="chevrons-left"
+                                        style="width:15px;height:15px;"
+                                    ></i>
+                                </a>
+
+                            </li>
+
+                            {% else %}
+
+                            <li class="page-item disabled">
+
+                                <span class="page-link">
+                                    <i
+                                        data-feather="chevrons-left"
+                                        style="width:15px;height:15px;"
+                                    ></i>
+                                </span>
+
+                            </li>
+
+                            {% endif %}
+
+
+                            <!-- Previous -->
+                            {% if chapters.has_previous %}
+
+                            <li class="page-item">
+
+                                <a
+                                    class="page-link"
+                                    href="?page={{ chapters.previous_page_number }}"
+                                    aria-label="Previous"
+                                >
+
+                                    <i
+                                        data-feather="chevron-left"
+                                        style="width:15px;height:15px;"
+                                    ></i>
+
+                                </a>
+
+                            </li>
+
+                            {% else %}
+
+                            <li class="page-item disabled">
+
+                                <span class="page-link">
+
+                                    <i
+                                        data-feather="chevron-left"
+                                        style="width:15px;height:15px;"
+                                    ></i>
+
+                                </span>
+
+                            </li>
+
+                            {% endif %}
+
+
+                            <!-- Current Page -->
+                            <li class="page-item active">
+
+                                <span class="page-link">
+
+                                    {{ chapters.number }}
+
+                                </span>
+
+                            </li>
+
+
+                            <!-- Next -->
+                            {% if chapters.has_next %}
+
+                            <li class="page-item">
+
+                                <a
+                                    class="page-link"
+                                    href="?page={{ chapters.next_page_number }}"
+                                    aria-label="Next"
+                                >
+
+                                    <i
+                                        data-feather="chevron-right"
+                                        style="width:15px;height:15px;"
+                                    ></i>
+
+                                </a>
+
+                            </li>
+
+                            {% else %}
+
+                            <li class="page-item disabled">
+
+                                <span class="page-link">
+
+                                    <i
+                                        data-feather="chevron-right"
+                                        style="width:15px;height:15px;"
+                                    ></i>
+
+                                </span>
+
+                            </li>
+
+                            {% endif %}
+
+
+                            <!-- Last -->
+                            {% if chapters.has_next %}
+
+                            <li class="page-item">
+
+                                <a
+                                    class="page-link"
+                                    href="?page={{ chapters.paginator.num_pages }}"
+                                    aria-label="Last"
+                                >
+
+                                    <i
+                                        data-feather="chevrons-right"
+                                        style="width:15px;height:15px;"
+                                    ></i>
+
+                                </a>
+
+                            </li>
+
+                            {% else %}
+
+                            <li class="page-item disabled">
+
+                                <span class="page-link">
+
+                                    <i
+                                        data-feather="chevrons-right"
+                                        style="width:15px;height:15px;"
+                                    ></i>
+
+                                </span>
+
+                            </li>
+
+                            {% endif %}
+
+
+                        </ul>
+
+                    </nav>
+
+                </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         VIEW MODALS
+    ========================================================== -->
+
+    {% for chapter in chapters %}
+
+    <div
+        class="modal fade"
+        id="viewModal_{{ chapter.id }}"
+        tabindex="-1"
+        aria-labelledby="viewModalLabel_{{ chapter.id }}"
+        aria-hidden="true"
+    >
+
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+
+            <div class="modal-content">
+
+
+                <!-- Header -->
+                <div class="modal-header">
+
+                    <div>
+
+                        <h5
+                            class="modal-title fw-semibold"
+                            id="viewModalLabel_{{ chapter.id }}"
+                        >
+                            {{ chapter.chapter_title }}
+                        </h5>
+
+                        <small class="text-muted">
+                            {{ chapter.novel.title }}
+                        </small>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="modal-x-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                    >&times;</button>
+
+                </div>
+
+
+                <!-- Body -->
+                <div class="modal-body">
+
+
+                    <!-- Chapter Info -->
+                    <div class="row g-3 mb-4">
+
+                        <div class="col-md-4">
+
+                            <div class="border rounded p-3">
+
+                                <small class="text-muted d-block">
+                                    Novel
+                                </small>
+
+                                <strong>
+                                    {{ chapter.novel.title }}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <div class="border rounded p-3">
+
+                                <small class="text-muted d-block">
+                                    Price
+                                </small>
+
+                                <strong>
+
+                                    {% if chapter.is_free %}
+                                        Free
+                                    {% else %}
+                                        {{ chapter.gem_price }} Gems
+                                    {% endif %}
+
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <div class="border rounded p-3">
+
+                                <small class="text-muted d-block">
+                                    Status
+                                </small>
+
+                                <span class="badge bg-warning text-dark">
+                                    Pending
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Content -->
+                    <div>
+
+                        <h6 class="fw-semibold mb-3">
+                            Chapter Content
+                        </h6>
+
+                        <div class="border rounded p-4 bg-light">
+
+                            {{ chapter.content|safe }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Footer -->
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                    >
+                        Close
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+
+
+    <!-- =========================================================
+         APPROVE MODALS
+    ========================================================== -->
+
+    {% for chapter in chapters %}
+
+    <div
+        class="modal fade"
+        id="approveModal_{{ chapter.id }}"
+        tabindex="-1"
+        aria-labelledby="approveModalLabel_{{ chapter.id }}"
+        aria-hidden="true"
+    >
+
+        <div class="modal-dialog modal-dialog-centered">
+
+            <div class="modal-content">
+
+
+                <!-- Header -->
+                <div class="modal-header">
+
+                    <h5
+                        class="modal-title fw-semibold"
+                        id="approveModalLabel_{{ chapter.id }}"
+                    >
+                        Approve Chapter
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="modal-x-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                    >&times;</button>
+
+                </div>
+
+
+                <!-- Body -->
+                <div class="modal-body text-center py-4">
+
+                    <div class="mb-3">
+
+                        <i
+                            data-feather="check-circle"
+                            style="width:52px;height:52px;"
+                            class="text-success"
+                        ></i>
+
+                    </div>
+
+                    <h5 class="fw-semibold">
+                        Approve this chapter?
+                    </h5>
+
+                    <p class="text-muted mb-1">
+                        "{{ chapter.chapter_title }}"
+                    </p>
+
+                    <p class="text-muted small mb-0">
+                        After approval, readers will be able to see this chapter.
+                    </p>
+
+                </div>
+
+
+                <!-- Footer -->
+                <div class="modal-footer justify-content-center">
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal"
+                    >
+                        Cancel
+                    </button>
+
+
+                    <form
+                        method="POST"
+                        action="{% url 'chapter_approve' chapter.id %}"
+                    >
+
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="btn btn-success"
+                        >
+                            <i
+                                data-feather="check"
+                                style="width:15px;height:15px;"
+                            ></i>
+
+                            Approve Chapter
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+
+
+    <!-- =========================================================
+         DELETE / CANCEL SUBMISSION MODALS
+    ========================================================== -->
+{% for chapter in chapters %}
+<div class="modal fade" id="rejectModal_{{ chapter.id }}" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-semibold">Reject Chapter</h5>
+               <!-- <button type="button" class="modal-x-close" data-bs-dismiss="modal" aria-label="Close">&times;</button> -->
+            </div>
+
+            <div class="modal-body text-center py-4">
+                <i data-feather="x-circle"
+                   class="mb-3"
+                   style="width:52px;height:52px;color:#874747;"></i>
+
+                <h3 class="fw-semibold">Reject this chapter?</h3>
+                <p class="text-muted mb-0">
+                  <span class="text-danger fw-bold">“{{ chapter.chapter_title }}” </span> will no longer appear in the Pending list after being rejected
+                </p>
+            </div>
+
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                    Cancel
+                </button>
+
+                <form method="POST" action="{% url 'chapter_approval_reject' chapter.id %}">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="btn btn-primary"
+                            >
+                        <i data-feather="x"></i> Reject Chapter
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+
+
+</div>
+
+<style>
+    .modal-x-close {
+        width: 22px;
+        height: 22px;
+        padding: 0;
+        border: 0;
+        border-radius: 35px;
+        background: red !important;
+        color:white;
+        font-size: 15px;
+        font-weight: 400;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+    .modal-x-close:hover {
+        color: #874747;
+    }
+</style>
+
+{% endblock %}

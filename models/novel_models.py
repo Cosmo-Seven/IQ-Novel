@@ -14,7 +14,7 @@ class NovelModel(BaseModel):
         OWN_CREATION = 'own_creation', 'Own Creation'
 
     title = models.CharField(max_length=255)
-
+    
     cover_image = models.ImageField(upload_to='novels/')
     summary = models.TextField()
 

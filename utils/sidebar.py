@@ -61,6 +61,8 @@ def sidebar(request):
                     "view_novelmodel",
                     "view_authormodel",
                     "view_authorsalarymodel",
+                    'view_chaptermodel',
+                    'is_superuser',
                 ],
                 "items": [
                     {
@@ -87,6 +89,14 @@ def sidebar(request):
                         "icon": "ti ti-book",
                         "permission": "view_novelmodel",
                     },
+                    
+                    {
+                        "label": "chapter_approve_list",
+                        "url_name": "chapter_approval_list",
+                        "icon": "ti ti-library",
+                        "permission": "view_novelviewmodel",
+                    },
+                   
                     {
                         "label": "novel_sales",
                         "url_name": "novel_sales_list",

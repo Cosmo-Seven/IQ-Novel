@@ -13,9 +13,13 @@ class ChapterModel(BaseModel):
         on_delete=models.CASCADE,
         related_name="chapters"
     )
-
+    class ApprovalStatus(models.TextChoices):
+        PENDING ='pending','Pending'
+        APPROVED = 'approved','Approved'
+        REJECTED = 'rejected','Rejected'
+    approval_status = models.CharField(max_length=20,choices=ApprovalStatus.choices,default=ApprovalStatus.PENDING,)
     chapter_title = models.CharField(max_length=255)
-
+    is_active = models.BooleanField(default=True,blank=True,null=True)
     content = RichTextField(config_name='default')
     is_free = models.BooleanField(default=False)
 

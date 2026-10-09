@@ -24,7 +24,6 @@ def _author_for_user(user):
 # Dashboard
 # ========================
 @login_required("dashboard_login")
-@role_permission_required("view_novelmodel")
 def dashboard(request):
     
     genres = GenreModel.objects.all()

@@ -47,6 +47,32 @@
     .novel-cover-input {
         font-size: 0.85rem;
     }
+
+    .chapter-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .chapter-status--pending {
+        background: #f3ebd5;
+        color: #80672c;
+    }
+
+    .chapter-status--approved {
+        background: #dcefe2;
+        color: #356344;
+    }
+
+    .chapter-status--rejected {
+        background: #f4dede;
+        color: #874747;
+    }
+
 </style>
 <div class="page-wrapper">
     <div class="content">
@@ -119,7 +145,7 @@
                                                     <span class="text-danger ms-1">*</span>
                                                 </label>
                                                 {% if request.user.is_superuser%}
-                                                <select class="select" name="author" required multiple>
+                                                <select class="select" name="author" required >
                                                     {% for author in authors %}
                                                     <option value="{{ author.id }}" {% if author.id in selected_authors%}selected{% endif %}>
                                                         {% translate author.translation_key request.session.language %}
@@ -252,6 +278,7 @@
                                                     <th class="text-center"></th>
                                                     <th class="text-center">{% translate 'novel_chapters' request.session.language %}</th>
                                                     <th class="text-center">{% translate 'status' request.session.language %}</th>
+                                                    <th class="text-center">{% translate 'admin_approve_status' request.session.language %}</th>
                                                     <th class="text-center">{% translate 'gem' request.session.language %}</th>
                                                     <th class="text-center">{% translate 'action' request.session.language %}</th>
                                                 </tr>
@@ -270,6 +297,21 @@
                                                         {% endif %}
                                                     </td>
                                                     <td class="text-center">{% if item.is_free %}Free{% else %}Paid{% endif %}</td>
+                                                    <td class="text-center">
+                                                            {% if item.approval_status == "approved" %}
+                                                                <span class="chapter-status chapter-status--approved">
+                                                                    <i class="ti ti-circle-check"></i> Approved
+                                                                </span>
+                                                            {% elif item.approval_status == "rejected" %}
+                                                                <span class="chapter-status chapter-status--rejected">
+                                                                    <i class="ti ti-circle-x"></i> Rejected
+                                                                </span>
+                                                            {% else %}
+                                                                <span class="chapter-status chapter-status--pending">
+                                                                    <i class="ti ti-clock-hour-4"></i> Pending
+                                                                </span>
+                                                            {% endif %}
+                                                    </td>
                                                     <td class="text-center">{{ item.gem_price }}</td>
                                                     <td class="action-table-data">
                                                         <div class="edit-delete-action">
@@ -601,8 +643,7 @@
                         {% csrf_token %}
                         <button type="button" class="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none"
                             data-bs-dismiss="modal">{% translate 'no' request.session.language %}</button>
-                        <button type="submit" class="btn btn-primary fs-13 fw-medium p-2 px-3">{% translate 'yes'
-                            request.session.language %}</button>
+                        <button type="submit" class="btn btn-primary fs-13 fw-medium p-2 px-3">{% translate 'yes' request.session.language %}</button>
                     </form>
                 </div>
             </div>
