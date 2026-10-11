@@ -15,7 +15,7 @@
 
             <a class="navbar-brand m-0 d-inline-block" href="{% url 'home' %}">
                 <div class="brand-logo-wrapper">
-                    <img src="{% static 'website/images/logo.png' %}" alt="IQ Logo" class="img-fluid" loading="lazy">
+                    <img src="{% if site.logo %}{{site.logo.url}}{% else %}{% static 'website/images/logo.png' %}{%endif%}" alt="IQ Logo" class="img-fluid" loading="lazy">
                 </div>
             </a>
         </div>

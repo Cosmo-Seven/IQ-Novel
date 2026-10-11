@@ -27,7 +27,7 @@ def _author_for_user(user):
 def novel_list(request):
     novels = NovelModel.objects.select_related("author").filter(is_deleted=False,).order_by("-created_at")
     author = _author_for_user(request.user)
-    if author and not request.user.is_staff:
+    if not request.user.is_superuser:
         novels = novels.filter(author__user=request.user)
 
     filters = filter_querysets(
@@ -52,7 +52,7 @@ def novel_list(request):
 @role_permission_required("view_novelmodel")
 def novel_sales_list(request):
     novels = (
-        NovelModel.objects.select_related("author").filter(is_deleted=False)
+        NovelModel.objects.select_related("author").filter(is_deleted=False,)
         .annotate(
             sales_count=Count("chapters__purchased_by", distinct=True),
             gems_sold=Coalesce(Sum("chapters__purchased_by__gems_paid"), 0),
@@ -60,9 +60,9 @@ def novel_sales_list(request):
         )
         .order_by("-revenue_mmk", "-created_at")
     )
-    author = _author_for_user(request.user)
-    if author and not request.user.is_staff:
-        novels = novels.filter(author=author)
+    
+    if  not request.user.is_superuser:
+        novels = novels.filter(author__user=request.user)
 
     filters = filter_querysets(
         request,
