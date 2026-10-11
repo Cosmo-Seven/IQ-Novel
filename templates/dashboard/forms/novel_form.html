@@ -148,7 +148,7 @@
                                                 <select class="select" name="author" required >
                                                     {% for author in authors %}
                                                     <option value="{{ author.id }}" {% if author.id in selected_authors%}selected{% endif %}>
-                                                        {% translate author.translation_key request.session.language %}
+                                                        {{author}}
                                                     </option>
                                                     {% endfor %}
                                                 </select>

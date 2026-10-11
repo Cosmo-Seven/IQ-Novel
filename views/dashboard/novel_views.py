@@ -25,10 +25,10 @@ def _author_for_user(user):
 @login_required("dashboard_login")
 @role_permission_required("view_novelmodel")
 def novel_list(request):
-    novels = NovelModel.objects.select_related("author").filter(is_deleted=False).order_by("-created_at")
+    novels = NovelModel.objects.select_related("author").filter(is_deleted=False,).order_by("-created_at")
     author = _author_for_user(request.user)
     if author and not request.user.is_staff:
-        novels = novels.filter(author=author)
+        novels = novels.filter(author__user=request.user)
 
     filters = filter_querysets(
         request,
