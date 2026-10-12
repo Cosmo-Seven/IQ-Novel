@@ -12,14 +12,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.conf import settings
 from helpers.chapter_access import adjacent_chapters, chapter_has_access, novel_chapters_ordered
-from django.db.models import F, Q, Count
+from django.db.models import F, Q, Count, Max, Prefetch
 from decorators.login_decorator import login_required
 from django.contrib.auth import login, logout, authenticate
 from django.core.paginator import Paginator
-from core.models import DownloadModel
 from django.http import JsonResponse
-from core.models import DownloadModel
-from django.db.models import Max
 from helpers.gem_pricing import gem_unit_price_mmk, gems_to_mmk
 from models.account_deletion_models import AccountDeletionRequestModel
 from helpers.mail import send_verification_email, send_reset_email
@@ -38,8 +35,47 @@ from core.models import (
     AuthorFollowModel,
     CommentModel,
     NovelViewModel,
-    NovelPushSubscriptionModel
+    NovelPushSubscriptionModel,
+    DownloadModel,
 )
+
+
+# ========================
+# Helpers (approved only)
+# ========================
+def public_chapters_qs():
+    """User တွေကို ပြလို့ရတဲ့ chapter (approved + active + not deleted)"""
+    return ChapterModel.objects.filter(
+        is_deleted=False,
+        is_active=True,
+        approval_status=ChapterModel.ApprovalStatus.APPROVED,
+    )
+
+
+def approved_novels_qs():
+    """Approved chapter အနည်းဆုံး တစ်ခုပါတဲ့ novel များ"""
+    return (
+        NovelModel.objects
+        .select_related("author")
+        .filter(
+            is_deleted=False,
+            chapters__is_deleted=False,
+            chapters__is_active=True,
+            chapters__approval_status=ChapterModel.ApprovalStatus.APPROVED,
+        )
+        .prefetch_related(
+            Prefetch("chapters", queryset=public_chapters_qs(), to_attr="public_chapters")
+        )
+        .distinct()
+    )
+
+
+def chapter_is_public(chapter):
+    return (
+        not chapter.is_deleted
+        and chapter.is_active
+        and chapter.approval_status == ChapterModel.ApprovalStatus.APPROVED
+    )
 
 
 # ========================
@@ -47,42 +83,70 @@ from core.models import (
 # ========================
 def index(request):
     sliders = SliderModel.objects.all().order_by("-created_at")
-    novels = NovelModel.objects.select_related("author").order_by("-created_at")
-    completed_novels = NovelModel.objects.select_related("author").filter(is_completed=True)
-    translation_novels = NovelModel.objects.select_related("author").filter(novel_type='translate')
-    popular_novels = NovelModel.objects.all().order_by("-views")[:10]
-    fanfic_novels = NovelModel.objects.select_related("author").filter(novel_type='fanfic')
-    free_novels = NovelModel.objects.select_related("author").filter(chapters__is_free=True).exclude(chapters__is_free=False).distinct()
+
+    approved_novels = approved_novels_qs()
+
+    novels = approved_novels.order_by("-created_at")
+
+    completed_novels = approved_novels.filter(is_completed=True).order_by("-created_at")
+
+    translation_novels = approved_novels.filter(novel_type="translate").order_by("-created_at")
+
+    fanfic_novels = approved_novels.filter(novel_type="fanfic").order_by("-created_at")
+
+    popular_novels = approved_novels.order_by("-views")[:10]
+
+    # Approved ဖြစ်ပြီး free ဖြစ်တဲ့ chapter ပါတဲ့ novel
+    # filter တစ်ခုတည်းထဲမှာ ပေါင်းရေးမှ chapter တစ်ခုတည်းကို စစ်မှာဖြစ်တယ်
+    free_novels = (
+        NovelModel.objects
+        .select_related("author")
+        .filter(
+            is_deleted=False,
+            chapters__is_deleted=False,
+            chapters__is_active=True,
+            chapters__approval_status=ChapterModel.ApprovalStatus.APPROVED,
+            chapters__is_free=True,
+        )
+        .prefetch_related(
+            Prefetch("chapters", queryset=public_chapters_qs(), to_attr="public_chapters")
+        )
+        .distinct()
+        .order_by("-created_at")
+    )
+
     genres = GenreModel.objects.all()
 
     context = {
-        "sliders":sliders,
+        "sliders": sliders,
         "novels": novels,
         "completed_novels": completed_novels,
         "translation_novels": translation_novels,
         "popular_novels": popular_novels,
         "fanfic_novels": fanfic_novels,
         "free_novels": free_novels,
-        "genres":genres
+        "genres": genres,
     }
+
     return render(request, "website/index.html", context)
 
 
 def gem(request):
-    gems=GemModel.objects.all()
-    context={
-        "gems":gems
+    gems = GemModel.objects.all()
+    context = {
+        "gems": gems
     }
     return render(request, "website/gem.html", context)
 
+
 def novel(request):
-    novels = NovelModel.objects.all().order_by("-created_at")
-    genres = GenreModel.objects.annotate(novel_count=Count('novels')) 
-    
+    novels = approved_novels_qs().order_by("-created_at")
+    genres = GenreModel.objects.annotate(novel_count=Count('novels'))
+
     search_query = request.GET.get('search', '')
     genre_filter = request.GET.get('genre', '')
     sort_filter = request.GET.get('sort', '')
-    
+
     # UUID-based genre id — no int() cast
     active_genre_id = genre_filter if genre_filter else None
 
@@ -91,7 +155,7 @@ def novel(request):
             Q(title__icontains=search_query) |
             Q(genres__name__icontains=search_query)
         )
-        
+
     if active_genre_id:
         novels = novels.filter(genres__id=active_genre_id)
 
@@ -101,13 +165,19 @@ def novel(request):
         novels = novels.filter(is_completed=True)
     elif sort_filter == 'new':
         novels = novels.order_by("-created_at")
-        
     elif sort_filter == 'fanfic':
         novels = novels.filter(novel_type='fanfic')
     elif sort_filter == 'translation':
         novels = novels.filter(novel_type='translate')
     elif sort_filter == 'own_creation':
         novels = novels.filter(novel_type='own_creation')
+    elif sort_filter == 'free':
+        novels = novels.filter(
+            chapters__is_free=True,
+            chapters__is_deleted=False,
+            chapters__is_active=True,
+            chapters__approval_status=ChapterModel.ApprovalStatus.APPROVED,
+        )
 
     novels = novels.distinct()
 
@@ -125,6 +195,7 @@ def novel(request):
         "sort_filter": sort_filter,
     }
     return render(request, "website/novel.html", context)
+
 
 # @login_required("website_login")
 def novel_detail(request, id):
@@ -178,14 +249,15 @@ def novel_detail(request, id):
             ).exists()
             can_follow_author = novel.author.user_id != request.user.id
 
-    # ← active_reward ကို purchasable_chapters loop မတိုင်ခင် ယူ
     active_reward = get_active_chapter_reward(
         request.user if request.user.is_authenticated else None
     )
 
-    # ← purchasable_chapters — purchased ဖြစ်ပြီးသား မပါ (reward မဆိုင်)
+    # Approved chapter တွေပဲ
+    all_chapters = [c for c in novel_chapters_ordered(novel) if chapter_is_public(c)]
+
     purchasable_chapters = []
-    for chapter in novel_chapters_ordered(novel):
+    for chapter in all_chapters:
         if len(purchasable_chapters) >= 10:
             break
         if chapter.is_free:
@@ -194,7 +266,6 @@ def novel_detail(request, id):
             continue
         purchasable_chapters.append(chapter)
 
-    # ← total ကို reward အရ တွက်
     if active_reward and active_reward.reward_type == "free_read":
         buy_ten_total = 0
     elif active_reward and active_reward.reward_type == "discount_read":
@@ -206,14 +277,20 @@ def novel_detail(request, id):
         is_deleted=False, is_approved=True
     ).select_related("user").order_by("-created_at")
 
-    related_novels = NovelModel.objects.filter(
-        genres__in=novel.genres.all()
-    ).exclude(id=novel.id).distinct().select_related("author").order_by("-views")[:6]
+    related_novels = (
+        approved_novels_qs()
+        .filter(genres__in=novel.genres.all())
+        .exclude(id=novel.id)
+        .order_by("-views")[:6]
+    )
 
     if not related_novels:
-        related_novels = NovelModel.objects.filter(
-            author=novel.author
-        ).exclude(id=novel.id).select_related("author").order_by("-views")[:6]
+        related_novels = (
+            approved_novels_qs()
+            .filter(author=novel.author)
+            .exclude(id=novel.id)
+            .order_by("-views")[:6]
+        )
 
     context = {
         "novel": novel,
@@ -221,7 +298,7 @@ def novel_detail(request, id):
         "downloaded": downloaded,
         "is_following_author": is_following_author,
         "can_follow_author": can_follow_author,
-        "chapters_ordered": novel_chapters_ordered(novel),
+        "chapters_ordered": all_chapters,
         "purchased_chapter_ids": purchased_chapter_ids,
         "read_chapter_ids": read_chapter_ids,
         "buy_ten_count": len(purchasable_chapters),
@@ -232,12 +309,14 @@ def novel_detail(request, id):
     }
     return render(request, "website/novel_detail.html", context)
 
+
 def genre_list(request):
     genres = GenreModel.objects.annotate(novel_count=Count('novels')).order_by('name')
     context = {
         "genres": genres,
     }
     return render(request, "website/genre.html", context)
+
 
 @login_required("website_login")
 def edit_comment(request, id):
@@ -278,7 +357,12 @@ def author_profile(request, id):
         AuthorModel.objects.select_related("user"),
         id=id,
     )
-    novels = author.novels.all().order_by("-created_at")
+    novels = author.novels.filter(
+        is_deleted=False,
+        chapters__is_deleted=False,
+        chapters__is_active=True,
+        chapters__approval_status=ChapterModel.ApprovalStatus.APPROVED,
+    ).distinct().order_by("-created_at")
     followers = (
         author.follower_records.select_related("user")
         .order_by("-created_at")
@@ -330,13 +414,14 @@ def follow_author(request, id):
         return redirect(next_url)
     return redirect("author_profile", id=author.id)
 
+
 @login_required("website_login")
 def bookmark(request, id):
     novel = get_object_or_404(NovelModel, id=id)
 
     if not request.user.is_authenticated:
         messages.warning(request, "Please login to save bookmarks.")
-        return redirect("login")
+        return redirect("website_login")
 
     if request.method == "POST":
         bookmark, created = BookmarkModel.objects.get_or_create(
@@ -357,7 +442,7 @@ def toggle_download(request, id):
     novel = get_object_or_404(NovelModel, id=id)
 
     if request.method == "POST":
-        
+
         download, created = DownloadModel.objects.get_or_create(
             user=request.user,
             novel=novel,
@@ -369,6 +454,7 @@ def toggle_download(request, id):
             return JsonResponse({"status": "added", "message": "Downloaded for offline reading."})
 
     return JsonResponse({"status": "error", "message": "Invalid request method."}, status=400)
+
 
 @login_required("website_login")
 def checkout(request, id):
@@ -398,6 +484,7 @@ def checkout(request, id):
     }
     return render(request, "website/checkout.html", context)
 
+
 def profile(request):
     if not request.user.is_authenticated:
         messages.warning(request, "Please login to view your profile.")
@@ -408,13 +495,12 @@ def profile(request):
     chapter_purchases = request.user.chapter_purchases.select_related(
         "chapter", "chapter__novel"
     ).all().order_by("-created_at")
-    
+
     # Get distinct novels from the user's purchased chapters
     purchased_novels = NovelModel.objects.filter(
         chapters__purchased_by__user=request.user
     ).distinct()
 
-    
     reading_list = (
         NovelModel.objects.filter(
             chapters__read_by__user=request.user
@@ -425,7 +511,6 @@ def profile(request):
     )
 
     # Downloaded Novels
-    
     downloaded_novels = DownloadModel.objects.filter(user=request.user).select_related("novel").order_by("-created_at")
 
     # Author stats: follower count & novel count
@@ -467,8 +552,10 @@ def profile(request):
 def buy_chapter(request, id):
     chapter = get_object_or_404(ChapterModel, id=id)
 
-    if not request.user.is_authenticated:
-        return redirect("website_login")
+    # Approve မရသေးတဲ့ chapter ကို ဝယ်လို့မရ
+    if not chapter_is_public(chapter):
+        messages.warning(request, "This chapter is not available.")
+        return redirect("novel_detail", id=chapter.novel.id)
 
     if ChapterPurchaseModel.objects.filter(user=request.user, chapter=chapter).exists():
         messages.info(request, "You already own this chapter.")
@@ -497,12 +584,10 @@ def buy_chapter(request, id):
         return redirect("novel_detail", id=chapter.novel.id)
 
     if request.method == "POST":
-        from helpers.gem_pricing import gem_unit_price_mmk, gems_to_mmk
-
         author = chapter.novel.author
         revenue_share_percent = author.revenue_share_percent if author else 0
-        unit_price       = gem_unit_price_mmk()
-        sale_price_mmk   = gems_to_mmk(effective_price)
+        unit_price = gem_unit_price_mmk()
+        sale_price_mmk = gems_to_mmk(effective_price)
         author_share_mmk = author.calculate_share(sale_price_mmk) if author else 0
 
         with transaction.atomic():
@@ -523,6 +608,7 @@ def buy_chapter(request, id):
 
     return redirect("chapter_detail", id=chapter.id)
 
+
 @login_required("website_login")
 def buy_ten_chapters(request, id):
     novel = get_object_or_404(NovelModel.objects.select_related("author"), id=id)
@@ -534,6 +620,8 @@ def buy_ten_chapters(request, id):
     for chapter in novel_chapters_ordered(novel):
         if len(chapters_to_buy) >= 10:
             break
+        if not chapter_is_public(chapter):
+            continue
         if chapter.is_free or chapter.id in purchased_chapter_ids:
             continue
         chapters_to_buy.append(chapter)
@@ -575,7 +663,7 @@ def buy_ten_chapters(request, id):
                     ch_free = 0
                     ch_paid = effective_price
 
-                sale_price_mmk   = gems_to_mmk(effective_price)
+                sale_price_mmk = gems_to_mmk(effective_price)
                 author_share_mmk = author.calculate_share(sale_price_mmk) if author else 0
 
                 ChapterPurchaseModel.objects.create(
@@ -594,8 +682,14 @@ def buy_ten_chapters(request, id):
 
     return redirect("novel_detail", id=novel.id)
 
+
 def chapter_detail(request, id):
     chapter = get_object_or_404(ChapterModel.objects.select_related("novel"), id=id)
+
+    # Approve မရသေးတဲ့ chapter ကို URL တိုက်ရိုက်ရိုက်လည်း မဖတ်ရ (admin ကလွဲ)
+    if not chapter_is_public(chapter) and not request.user.is_superuser:
+        messages.warning(request, "This chapter is not available.")
+        return redirect("novel_detail", id=chapter.novel.id)
 
     if not chapter_has_access(request.user, chapter):
         messages.warning(request, "Please purchase this chapter to read it.")
@@ -623,20 +717,22 @@ def chapter_detail(request, id):
         },
     )
 
+
 def contact_page(request):
     if request.method == "POST":
         name = request.POST.get('name')
         email = request.POST.get('email')
         message = request.POST.get('message')
-        
+
         if not name or not email or not message:
             messages.error(request, "Please fill all fields")
-            return redirect('contact_page')
-        
+            return redirect('contact')
+
         messages.success(request, "We will touch you soon")
-        return redirect('contact_page')
-        
+        return redirect('contact')
+
     return render(request, "website/contact.html")
+
 
 def page404(request):
     return render(request, "website/page404.html")
@@ -649,50 +745,49 @@ def page404(request):
 def request_account_deletion(request):
     if request.method == "POST":
         reason = request.POST.get("reason", "").strip()
-        
+
         existing_request = AccountDeletionRequestModel.objects.filter(
             user=request.user,
             status=AccountDeletionRequestModel.StatusChoices.PENDING
         ).first()
-        
+
         if existing_request:
             messages.info(request, "You already have a pending account deletion request.")
             return redirect("website_profile")
-        
+
         AccountDeletionRequestModel.objects.create(
             user=request.user,
             reason=reason,
             created_by=request.user,
             updated_by=request.user
         )
-        
+
         messages.success(request, "Your account deletion request has been submitted. Admin will review it.")
         return redirect("website_profile")
-    
+
     return render(request, "website/account_deletion_request.html")
 
 
 @login_required("website_login")
 def cancel_account_deletion_request(request):
     """Cancel pending account deletion request"""
-    
+
     deletion_request = AccountDeletionRequestModel.objects.filter(
         user=request.user,
         status=AccountDeletionRequestModel.StatusChoices.PENDING
     ).first()
-    
+
     if deletion_request:
         deletion_request.delete()
         messages.success(request, "Your account deletion request has been cancelled.")
     else:
         messages.info(request, "No pending deletion request found.")
-    
+
     return redirect("website_profile")
+
 
 def privacy_policy(request):
     return render(request, "website/privacy_policy.html")
-
-
 
 
 @login_required("dashboard_login")
@@ -710,9 +805,9 @@ def novel_subscribe(request, novel_id):
     except (json.JSONDecodeError, KeyError):
         return JsonResponse({"error": "Invalid data"}, status=400)
 
-    endpoint   = data.get("endpoint")
+    endpoint = data.get("endpoint")
     p256dh_key = data.get("keys", {}).get("p256dh")
-    auth_key   = data.get("keys", {}).get("auth")
+    auth_key = data.get("keys", {}).get("auth")
 
     if not all([endpoint, p256dh_key, auth_key]):
         return JsonResponse({"error": "Missing subscription fields"}, status=400)

@@ -102,6 +102,10 @@ def novel_form(request, pk=None):
     if pk:
         novel = get_object_or_404(NovelModel, id=pk, is_deleted=False)
         novel_chapters = novel.chapters.filter(is_deleted=False).order_by("-created_at")
+        novel_chapters = (
+            novel.chapters.filter(is_deleted= False).order_by('-created_at')
+        )
+
         # author = _author_for_user(request.user)
         # if author and not request.user.is_staff and novel.author_id != author.id:
         #     messages.error(request, "You can only edit your own novels.")
@@ -514,21 +518,29 @@ def chapter_approval_list(request):
     return render(request,'dashboard/chapter_approval_list.html',{'chapters':filters['page_obj'], **filters})
 
 #//Chapter Approve
-@login_required('dashboard_login')
-@role_permission_required('change_novelmode')
+@login_required("dashboard_login")
+@role_permission_required("change_novelmodel")
 def chapter_approve(request, pk):
-    chapter = get_object_or_404(ChapterModel, id=pk)
-    if request.method != 'POST':
-        return redirect('chapter_approval_list')
+    if request.method != "POST":
+        return redirect("chapter_approval_list")
 
     if not request.user.is_superuser:
-        messages.error(request,'Only admin can approve chapters')
-        return redirect('chapter_approval_list')
+        messages.error(request, "Only admin can approve chapters.")
+        return redirect("chapter_approval_list")
+
+    chapter = get_object_or_404(
+        ChapterModel,
+        id=pk,
+        is_deleted=False,
+    )
+
     chapter.is_active = True
+    chapter.approval_status = "approved"
     chapter.save()
 
-    messages.success(request,'Chapter approved successfully.')
-    return redirect('chapter_approval_list')
+    messages.success(request, "Chapter approved successfully.")
+    return redirect("chapter_approval_list")
+
 
 @login_required("dashboard_login")
 @role_permission_required("delete_novelmodel")
