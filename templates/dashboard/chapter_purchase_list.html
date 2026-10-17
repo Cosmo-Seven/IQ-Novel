@@ -38,7 +38,7 @@
             <div class="col-lg-3 col-md-6">
                 <div class="card mb-0">
                     <div class="card-body">
-                        <p class="text-muted small mb-1">{% translate 'free_gems_used' request.session.language %}</p>
+                        <p class="text-muted small mb-1">{% translate 'coupon_used' request.session.language %}</p>
                         <h4 class="fw-bold mb-0 text-success">{{ totals.total_free_gems }} 💚</h4>
                     </div>
                 </div>
@@ -46,7 +46,7 @@
             <div class="col-lg-3 col-md-6">
                 <div class="card mb-0">
                     <div class="card-body">
-                        <p class="text-muted small mb-1">{% translate 'paid_gems_used' request.session.language %}</p>
+                        <p class="text-muted small mb-1">{% translate 'gem_used' request.session.language %}</p>
                         <h4 class="fw-bold mb-0 text-danger">{{ totals.total_paid_gems }} ❤️</h4>
                     </div>
                 </div>
@@ -102,8 +102,8 @@
                                 <th>{% translate 'novel' request.session.language %}</th>
                                 <th>{% translate 'chapter' request.session.language %}</th>
                                 <th class="text-center">{% translate 'total_gems' request.session.language %}</th>
-                                <th class="text-center">{% translate 'free_gems_used' request.session.language %} 💚</th>
-                                <th class="text-center">{% translate 'paid_gems_used' request.session.language %} ❤️</th>
+                                <th class="text-center">{% translate 'coupon_used' request.session.language %} 💚</th>
+                                <th class="text-center">{% translate 'gem_used' request.session.language %} ❤️</th>
                                 <th class="text-center">{% translate 'gem_type' request.session.language %}</th>
                                 <th class="text-center">{% translate 'date' request.session.language %}</th>
                             </tr>
