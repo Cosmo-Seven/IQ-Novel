@@ -4,9 +4,9 @@
 <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top py-3 aesthetic-navbar">
     <div class="container-fluid px-md-4 px-lg-5 header-grid-container">
 
-        <!-- 1. LEFT: Brand Logo -->
+        <!-- LEFT: Toggle + Logo -->
         <div class="header-left-zone d-flex align-items-center">
-            <!-- Mobile Toggle for Menu (Left Side) -->
+
             <button class="navbar-toggler border-0 p-0 me-3 d-lg-none navbar-action-icon" type="button"
                 data-bs-toggle="collapse" data-bs-target="#mainNavbarMenu" aria-controls="mainNavbarMenu"
                 aria-expanded="false" aria-label="Toggle navigation">
@@ -15,64 +15,90 @@
 
             <a class="navbar-brand m-0 d-inline-block" href="{% url 'home' %}">
                 <div class="brand-logo-wrapper">
-                    <img src="{% if site.logo %}{{site.logo.url}}{% else %}{% static 'website/images/logo.png' %}{%endif%}" alt="IQ Logo" class="img-fluid" loading="lazy">
+                    <img src="{% if site.logo %}{{ site.logo.url }}{% else %}{% static 'website/images/logo.png' %}{% endif %}"
+                        alt="IQ Logo" class="img-fluid" loading="lazy">
                 </div>
             </a>
         </div>
 
-        <!-- 2. CENTER: Main Navigation Links -->
+        <!-- CENTER: Navigation Menu -->
         <div class="collapse navbar-collapse header-center-zone justify-content-center" id="mainNavbarMenu">
-            <!-- Mobile Close Button (Shows only inside mobile menu Drawer) -->
+
             <div class="d-flex justify-content-end w-100 d-lg-none p-3">
-                <button class="btn-close" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#mainNavbarMenu"></button>
+                <button class="btn-close" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbarMenu"
+                    aria-label="Close menu">
+                </button>
             </div>
 
             <ul class="navbar-nav gap-3 gap-lg-5 text-center py-3 py-lg-0">
+
                 <li class="nav-item">
                     <a class="nav-link custom-nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
                         href="{% url 'home' %}">
                         Home <span class="butterfly-icon">🦋</span>
                     </a>
                 </li>
+
                 <li class="nav-item">
                     <a class="nav-link custom-nav-item {% if request.resolver_match.url_name == 'genre' %}active{% endif %}"
                         href="{% url 'genre' %}">
                         Genre <span class="butterfly-icon">🦋</span>
                     </a>
                 </li>
+
                 <li class="nav-item">
                     <a class="nav-link custom-nav-item {% if request.resolver_match.url_name == 'gem' %}active{% endif %}"
                         href="{% url 'gem' %}">
                         Gem <span class="butterfly-icon">🦋</span>
                     </a>
                 </li>
+
                 <li class="nav-item">
                     <a class="nav-link custom-nav-item {% if request.resolver_match.url_name == 'campaign_list_website' or request.resolver_match.url_name == 'campaign_detail' %}active{% endif %}"
                         href="{% url 'campaign_list_website' %}">
                         Review Contest <span class="butterfly-icon">🦋</span>
                     </a>
                 </li>
+
                 <li class="nav-item">
                     <a class="nav-link custom-nav-item {% if request.resolver_match.url_name == 'website_profile' %}active{% endif %}"
                         href="{% url 'website_profile' %}">
                         Library <span class="butterfly-icon">🦋</span>
                     </a>
                 </li>
+
+                <!-- Mobile Only: Theme Toggle -->
+                <li class="nav-item d-lg-none">
+                    <button class="btn btn-link text-decoration-none mobile-menu-action" id="mobileEyeCareToggle"
+                        type="button">
+                        <i class="fa-regular fa-moon fs-5 me-2 eye-care-icon"></i>
+                        <span>Change Theme</span>
+                    </button>
+                </li>
+
+                <!-- Mobile Only: User Guide -->
+                <li class="nav-item d-lg-none">
+                    <button type="button" class="btn btn-link text-decoration-none mobile-menu-action"
+                        data-bs-toggle="modal" data-bs-target="#userManualModal">
+                        <i class="bi bi-question-circle fs-5 me-2"></i>
+                        <span>User Guide</span>
+                    </button>
+                </li>
+
             </ul>
         </div>
 
-        <!-- 3. RIGHT: Search Toggle & User Actions -->
+        <!-- RIGHT: Desktop Actions + Mobile Sign In -->
         <div class="header-right-zone d-flex align-items-center gap-2 gap-sm-3 justify-content-end position-relative">
 
-            <!-- Dynamic Reveal Search Wrapper -->
-            <div class="search-wrapper-container d-flex align-items-center">
-                <!-- Smooth Expandable Form -->
+            <!-- Desktop Search -->
+            <div class="search-wrapper-container d-flex align-items-center desktop-search">
                 <div class="collapse collapse-horizontal" id="aestheticSearchCollapse">
                     <form action="{% url 'novel' %}" class="m-0 me-2">
                         <div class="input-group input-group-sm aesthetic-search-box">
                             <input type="text" id="searchInput" name="search" class="form-control bg-light"
-                                placeholder="Search novels..." value="{{request.GET.search}}">
+                                placeholder="Search novels..." value="{{ request.GET.search }}">
+
                             <button class="btn btn-maroon-search" type="submit">
                                 <i class="bi bi-arrow-right"></i>
                             </button>
@@ -80,7 +106,6 @@
                     </form>
                 </div>
 
-                <!-- Trigger Icon (မှန်ဘီလူးခလုတ်) -->
                 <button class="btn btn-link text-dark p-1 navbar-action-icon search-trigger-btn" type="button"
                     data-bs-toggle="collapse" data-bs-target="#aestheticSearchCollapse" aria-expanded="false"
                     aria-controls="aestheticSearchCollapse">
@@ -89,54 +114,79 @@
                 </button>
             </div>
 
-            <!-- Theme Toggle Button (Eye Care / Dark Mode) -->
-            <button class="btn btn-link p-1 navbar-action-icon mx-1" id="eyeCareToggle" type="button"
-                title="Toggle Theme">
+            <!-- Desktop Theme Toggle -->
+            <button class="btn btn-link p-1 navbar-action-icon mx-1 desktop-theme-toggle" id="eyeCareToggle"
+                type="button" title="Toggle Theme">
                 <i class="fa-regular fa-moon fs-5 eye-care-icon"></i>
             </button>
 
-            <button type="button" class="btn btn-sm rounded-pill manual-help-btn-header" data-bs-toggle="modal" data-bs-target="#userManualModal">
-                <i class="bi bi-question-circle me-1"></i> User Guide
+            <!-- Desktop User Guide -->
+            <button type="button" class="btn btn-sm rounded-pill manual-help-btn-header desktop-user-guide"
+                data-bs-toggle="modal" data-bs-target="#userManualModal">
+                <i class="bi bi-question-circle me-1"></i>
+                User Guide
             </button>
 
-            <!-- Notification Bell -->
-            <!-- <button class="btn btn-link text-dark p-1 navbar-action-icon position-relative mx-1" type="button">
-                <i class="fa-regular fa-bell fs-5"></i>
-                <span
-                    class="position-absolute top-1 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-            </button> -->
-
-            <!-- User Auth Profile / Login Trigger -->
+            <!-- User Profile -->
             {% if user.is_authenticated %}
+
             <div class="dropdown profile-dropdown">
-                <div data-bs-toggle="dropdown" aria-expanded="false" class="avatar-trigger">
-                    <img src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static 'dashboard/images/no-profile.png' %}{% endif %}" alt="Profile" class="avatar-img" loading="lazy">
-                </div>
+                <button type="button" data-bs-toggle="dropdown" aria-expanded="false"
+                    class="avatar-trigger border-0 bg-transparent p-0">
+                    <img src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static 'dashboard/images/no-profile.png' %}{% endif %}"
+                        alt="Profile" class="avatar-img" loading="lazy">
+                </button>
+
                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3 p-2 dynamic-dropdown">
-                    <li><a class="dropdown-item rounded py-2" href="{{website_profile_url}}">
-                            <i class="bi bi-person-circle me-2"></i></i>Profile</a>
+                    <li>
+                        <a class="dropdown-item rounded py-2" href="{{ website_profile_url }}">
+                            <i class="bi bi-person-circle me-2"></i>Profile
+                        </a>
                     </li>
-                    <li><a class="dropdown-item rounded py-2" href="{{website_profile_url}}">
-                            <i class="bi bi-gem text-warning me-2"></i>My Gems</a>
+                    <li>
+                        <a class="dropdown-item rounded py-2" href="{{ website_profile_url }}">
+                            <i class="bi bi-gem text-warning me-2"></i>My Gems
+                        </a>
                     </li>
-                    <li><a class="dropdown-item rounded py-2" href="{{website_profile_url}}">
-                            <i class="bi bi-credit-card me-2"></i>Payment History</a>
+                    <li>
+                        <a class="dropdown-item rounded py-2" href="{{ website_profile_url }}">
+                            <i class="bi bi-credit-card me-2"></i>Payment History
+                        </a>
                     </li>
                     <li>
                         <hr class="dropdown-divider">
                     </li>
-                    <li><a class="dropdown-item rounded py-2 text-danger" href="{% url 'website_logout' %}">
-                            <i class="bi bi-box-arrow-right me-2"></i>Logout</a>
+                    <li>
+                        <a class="dropdown-item rounded py-2 text-danger" href="{% url 'website_logout' %}">
+                            <i class="bi bi-box-arrow-right me-2"></i>Logout
+                        </a>
                     </li>
                 </ul>
             </div>
+
             {% else %}
+
             <a class="btn btn-sm px-3 px-sm-4 rounded-pill action-login-btn" href="{% url 'website_login' %}">
                 Sign In
             </a>
+
             {% endif %}
+
         </div>
 
+        <!-- Mobile Always Visible Search: below logo & Sign In -->
+        <div class="mobile-search-row">
+            <form action="{% url 'novel' %}" class="mobile-search-form">
+                <div class="input-group aesthetic-search-box">
+                    <input type="text" name="search" class="form-control" placeholder="Search novels..."
+                        value="{{ request.GET.search }}">
+
+                    <button class="btn btn-maroon-search" type="submit">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </nav>
 
@@ -293,6 +343,14 @@
         .navbar-nav .custom-nav-item.active::after {
             width: 100%;
         }
+
+    }
+
+    @media (max-width:720px) {
+        .brand-logo-wrapper {
+            width: 40px;
+            height: 40px;
+        }
     }
 
     /* --- Smooth Click-to-Reveal Search Engine --- */
@@ -437,15 +495,196 @@
         background-color: var(--brand-maroon-hover);
         color: #ffffff;
     }
+
+    /* Mobile Search: Hidden on Desktop */
+    .mobile-search-row {
+        display: none;
+    }
+
+    .mobile-menu-action {
+        color: var(--main-text) !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        padding: 10px 16px;
+    }
+
+    .mobile-menu-action:hover {
+        color: var(--brand-maroon) !important;
+    }
+
+    /* Mobile and Tablet */
+    @media (max-width: 991.98px) {
+
+        .header-grid-container {
+            display: grid !important;
+            grid-template-columns: 1fr auto;
+            grid-template-rows: auto auto;
+            column-gap: 10px;
+            row-gap: 12px;
+            justify-content: initial !important;
+            align-items: center;
+        }
+
+        /* First row: Toggle + Logo */
+        .header-left-zone {
+            grid-column: 1;
+            grid-row: 1;
+            min-width: 0;
+        }
+
+        .brand-logo-wrapper {
+            width: 45px;
+            height: 45px;
+        }
+
+        .header-left-zone .navbar-toggler {
+            flex-shrink: 0;
+        }
+
+        /* First row: Sign In / Profile on right */
+        .header-right-zone {
+            grid-column: 2;
+            grid-row: 1;
+            min-width: 0;
+            gap: 0 !important;
+            margin-left: 1rem;
+        }
+
+        /* Hide desktop-only actions */
+        .desktop-search,
+        .desktop-theme-toggle,
+        .desktop-user-guide {
+            display: none !important;
+        }
+
+        /* Second row: Always visible Search */
+        .mobile-search-row {
+            display: block;
+            grid-column: 1 / -1;
+            grid-row: 2;
+            width: 100%;
+        }
+
+        .mobile-search-form {
+            width: 100%;
+            margin: 0;
+        }
+
+        .mobile-search-row .aesthetic-search-box {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .mobile-search-row .form-control {
+            min-width: 0;
+            height: 42px;
+            border: 1px solid var(--border-color);
+            border-radius: 25px 0 0 25px !important;
+            padding-left: 16px;
+            background-color: var(--card-bg) !important;
+            color: var(--main-text);
+        }
+
+        .mobile-search-row .btn-maroon-search {
+            min-width: 45px;
+        }
+
+        /* Mobile menu drawer */
+        .navbar-collapse {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100dvh;
+            width: min(300px, 85vw);
+            overflow-y: auto;
+            background: var(--site-bg);
+            box-shadow: 5px 0 25px rgba(0, 0, 0, 0.1);
+            z-index: 1050;
+            padding: 1rem;
+            transition: background-color 0.4s ease;
+        }
+
+        .navbar-collapse .navbar-nav {
+            align-items: stretch;
+            gap: 8px !important;
+            padding-top: 10px !important;
+        }
+
+        .navbar-collapse .nav-item {
+            width: 100%;
+            text-align: left;
+        }
+
+        .navbar-collapse .custom-nav-item {
+            display: flex;
+            justify-content: flex-start;
+            width: 100%;
+            padding: 12px 10px !important;
+            border-radius: 8px;
+        }
+
+        .navbar-collapse .custom-nav-item:hover,
+        .navbar-collapse .custom-nav-item.active {
+            background-color: var(--brand-maroon-light);
+        }
+
+        .navbar-collapse .butterfly-icon {
+            margin-left: auto;
+        }
+
+        .navbar-collapse .mobile-menu-action {
+            width: 100%;
+            justify-content: flex-start;
+            border-radius: 8px;
+            padding: 12px 10px;
+        }
+
+        .navbar-collapse .mobile-menu-action:hover {
+            background-color: var(--brand-maroon-light);
+        }
+
+        /* Keep the profile image compact */
+        .avatar-img {
+            width: 34px;
+            height: 34px;
+        }
+    }
+
+    /* Small mobile phones */
+    @media (max-width: 380px) {
+
+        .header-grid-container {
+            column-gap: 6px;
+        }
+
+        .header-left-zone .navbar-toggler {
+            margin-right: 8px !important;
+        }
+
+        .brand-logo-wrapper {
+            width: 38px;
+            height: 38px;
+        }
+
+        .action-login-btn {
+            padding-left: 12px !important;
+            padding-right: 12px !important;
+            font-size: 0.8rem;
+        }
+    }
 </style>
 
-<div class="modal fade manual-modal" id="userManualModal" tabindex="-1" aria-labelledby="userManualModalLabel" aria-hidden="true">
+<div class="modal fade manual-modal" id="userManualModal" tabindex="-1" aria-labelledby="userManualModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
         <div class="modal-content shadow-lg">
             <div class="modal-header px-4 py-3">
                 <div>
                     <p class="mb-1 text-uppercase small fw-bold text-muted">Quick Guide / အမြန်လမ်းညွှန်</p>
-                    <h5 class="modal-title fw-bold text-dark mb-0" id="userManualModalLabel">How to use your library / သင့် library ကို ဘယ်လိုအသုံးပြုမလဲ</h5>
+                    <h5 class="modal-title fw-bold text-dark mb-0" id="userManualModalLabel">How to use your library /
+                        သင့် library ကို ဘယ်လိုအသုံးပြုမလဲ</h5>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -455,21 +694,29 @@
                         <div class="manual-step h-100 border rounded-4 p-3 bg-light-subtle">
                             <div class="step-number">1</div>
                             <h6 class="fw-bold text-dark">Buy Gems / Gems ဝယ်ရန်</h6>
-                            <p class="small text-muted mb-0">Open the Gem page, choose a package, and click Buy Now. Upload your payment screenshot and wait for admin approval.<br><br>Gem page ကိုဖွင့်ပြီး package တစ်ခုရွေးပါ။ Buy Now ကိုနှိပ်ပြီးငွေချေမှု screenshot တင်ပါ။ admin approval ရရန်စောင့်ပါ။</p>
+                            <p class="small text-muted mb-0">Open the Gem page, choose a package, and click Buy Now.
+                                Upload your payment screenshot and wait for admin approval.<br><br>Gem page ကိုဖွင့်ပြီး
+                                package တစ်ခုရွေးပါ။ Buy Now ကိုနှိပ်ပြီးငွေချေမှု screenshot တင်ပါ။ admin approval
+                                ရရန်စောင့်ပါ။</p>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="manual-step h-100 border rounded-4 p-3 bg-light-subtle">
                             <div class="step-number">2</div>
                             <h6 class="fw-bold text-dark">Use Gems / Gems အသုံးပြုရန်</h6>
-                            <p class="small text-muted mb-0">Users can read paid chapters only when enough gems are available in their account.<br><br>အခ charged chapter များကို သင့် account ထဲရှိ gem အရေအတွက် များသလောက်သာ ဖတ်နိုင်ပါသည်။</p>
+                            <p class="small text-muted mb-0">Users can read paid chapters only when enough gems are
+                                available in their account.<br><br>အခ charged chapter များကို သင့် account ထဲရှိ gem
+                                အရေအတွက် များသလောက်သာ ဖတ်နိုင်ပါသည်။</p>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="manual-step h-100 border rounded-4 p-3 bg-light-subtle">
                             <div class="step-number">3</div>
                             <h6 class="fw-bold text-dark">Bookmarks & Reading List / Bookmark နှင့် Reading List</h6>
-                            <p class="small text-muted mb-0">Go to Profile → My Library → Bookmarks or Reading List to view saved novels and your reading progress.<br><br>Profile → My Library → Bookmarks သို့မဟုတ် Reading List သို့သွားပြီး သိမ်းထားသော novel များနှင့် ဖတ်နေမှုကို ကြည့်နိုင်ပါသည်။</p>
+                            <p class="small text-muted mb-0">Go to Profile → My Library → Bookmarks or Reading List to
+                                view saved novels and your reading progress.<br><br>Profile → My Library → Bookmarks
+                                သို့မဟုတ် Reading List သို့သွားပြီး သိမ်းထားသော novel များနှင့် ဖတ်နေမှုကို
+                                ကြည့်နိုင်ပါသည်။</p>
                         </div>
                     </div>
                 </div>
@@ -482,8 +729,10 @@
                     <ol class="mb-0 ps-3 small text-muted">
                         <li>Open your profile. / သင့် profile ကို ဖွင့်ပါ။</li>
                         <li>Click My Library. / My Library ကိုနှိပ်ပါ။</li>
-                        <li>To check bookmarks, open the Bookmarks tab. / Bookmark ကြည့်မယ်ဆို Bookmarks tab ကိုဖွင့်ပါ။</li>
-                        <li>To view reading progress, open the Reading List tab. / Reading List ကြည့်မယ်ဆို Reading List tab ကိုဖွင့်ပါ။</li>
+                        <li>To check bookmarks, open the Bookmarks tab. / Bookmark ကြည့်မယ်ဆို Bookmarks tab ကိုဖွင့်ပါ။
+                        </li>
+                        <li>To view reading progress, open the Reading List tab. / Reading List ကြည့်မယ်ဆို Reading List
+                            tab ကိုဖွင့်ပါ။</li>
                         <li>Tap a novel card to open it again and continue reading. / novel ကိုနှိပ်ပြီး ဆက်ဖတ်ပါ။</li>
                     </ol>
                 </div>
@@ -495,9 +744,12 @@
                     </div>
                     <ol class="mb-0 ps-3 small text-muted">
                         <li>You need gems to unlock a paid chapter. / Paid chapter ဖတ်ဖို့ gem လိုအပ်သည်။</li>
-                        <li>Open your account and check your current gem balance. / Account ကိုဖွင့်ပြီး gem balance ကိုစစ်ပါ။</li>
-                        <li>If your balance is not enough, go to Gem page and buy more gems. / မလုံလောက်ရင် Gem page သို့သွားပြီး gem ဝယ်ပါ။</li>
-                        <li>When buying a paid chapter, free gems are used first, then paid gems are used. / Paid chapter ဝယ်တဲ့အခါ free gems ကိုအရင်သုံးပြီးမှ paid gems သုံးပါမည်။</li>
+                        <li>Open your account and check your current gem balance. / Account ကိုဖွင့်ပြီး gem balance
+                            ကိုစစ်ပါ။</li>
+                        <li>If your balance is not enough, go to Gem page and buy more gems. / မလုံလောက်ရင် Gem page
+                            သို့သွားပြီး gem ဝယ်ပါ။</li>
+                        <li>When buying a paid chapter, free gems are used first, then paid gems are used. / Paid
+                            chapter ဝယ်တဲ့အခါ free gems ကိုအရင်သုံးပြီးမှ paid gems သုံးပါမည်။</li>
                     </ol>
                 </div>
 
@@ -508,9 +760,12 @@
                     </div>
                     <ol class="mb-0 ps-3 small text-muted">
                         <li>Go to the Gem page and place your order. / Gem page သို့သွားပြီး order တင်ပါ။</li>
-                        <li>Your order will appear in Profile → Order History → Gem Orders with Pending status. / သင့် order သည် Profile → Order History → Gem Orders တွင် pending အဆင့်ဖြင့် မြင်ရပါမည်။</li>
-                        <li>Admin checks the payment and verifies it. / Admin က payment ကိုစစ်ဆေးပြီး verify လုပ်ပါမည်။</li>
-                        <li>Once approved, gems are added to your account automatically. / approve ဖြစ်သွားရင် gems က သင့် account ထဲဝင်သွားပါမည်။</li>
+                        <li>Your order will appear in Profile → Order History → Gem Orders with Pending status. / သင့်
+                            order သည် Profile → Order History → Gem Orders တွင် pending အဆင့်ဖြင့် မြင်ရပါမည်။</li>
+                        <li>Admin checks the payment and verifies it. / Admin က payment ကိုစစ်ဆေးပြီး verify လုပ်ပါမည်။
+                        </li>
+                        <li>Once approved, gems are added to your account automatically. / approve ဖြစ်သွားရင် gems က
+                            သင့် account ထဲဝင်သွားပါမည်။</li>
                     </ol>
                 </div>
 
@@ -520,66 +775,134 @@
                         <h6 class="fw-bold text-dark mb-0">Contact Admin / Admin ကိုဆက်သွယ်ရန်</h6>
                     </div>
                     <ul class="mb-0 ps-3 small text-muted">
-                        <li>Website Contact Page: <a href="{% url 'contact' %}">Contact</a>. / Website Contact Page: Page အောင်ဆုံးတွင်ရှိသော contact ခလုတ်ကိုနှိပ်၍ admin အားတိုက်ရိုက် ဆက်သွယ် နိုင်ပါတယ်</li>
+                        <li>Website Contact Page: <a href="{% url 'contact' %}">Contact</a>. / Website Contact Page:
+                            Page အောင်ဆုံးတွင်ရှိသော contact ခလုတ်ကိုနှိပ်၍ admin အားတိုက်ရိုက် ဆက်သွယ် နိုင်ပါတယ်</li>
                         <!-- <li>Facebook / Messenger: Add your official social page link here. / Facebook / Messenger: တရားဝင် social media link ထည့်ပါ။</li>
                         <li>Telegram / Viber / Instagram: Add your preferred contact channel here. / Telegram / Viber / Instagram: ရရှိသည့် contact channel ကိုထည့်ပါ။</li> -->
                     </ul>
                 </div>
             </div>
             <div class="modal-footer border-0 px-4 pb-4 pt-0">
-                <button type="button" class="btn btn-maroon px-4 rounded-pill" data-bs-dismiss="modal">Got it / နားလည်ပါပြီ</button>
+                <button type="button" class="btn btn-maroon px-4 rounded-pill" data-bs-dismiss="modal">Got it /
+                    နားလည်ပါပြီ</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const themeToggle = document.getElementById('eyeCareToggle');
-        const themeIcon = themeToggle.querySelector('.eye-care-icon');
+    // document.addEventListener('DOMContentLoaded', () => {
+    //     const themeToggle = document.getElementById('eyeCareToggle');
+    //     const themeIcon = themeToggle.querySelector('.eye-care-icon');
 
-        const savedTheme = localStorage.getItem('siteTheme');
-        
-        // Apply saved theme on load
-        if (savedTheme === 'eye-care') {
-            document.documentElement.setAttribute('data-theme', 'eye-care');
-            themeIcon.classList.replace('fa-moon', 'fa-sun');
-            themeIcon.classList.replace('fa-regular', 'fa-solid');
-            themeToggle.classList.add('text-warning');
-        } else if (savedTheme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            themeIcon.classList.replace('fa-moon', 'fa-moon');
-            themeIcon.classList.replace('fa-regular', 'fa-solid');
-            themeToggle.classList.add('text-secondary');
+    //     const savedTheme = localStorage.getItem('siteTheme');
+
+    //     // Apply saved theme on load
+    //     if (savedTheme === 'eye-care') {
+    //         document.documentElement.setAttribute('data-theme', 'eye-care');
+    //         themeIcon.classList.replace('fa-moon', 'fa-sun');
+    //         themeIcon.classList.replace('fa-regular', 'fa-solid');
+    //         themeToggle.classList.add('text-warning');
+    //     } else if (savedTheme === 'dark') {
+    //         document.documentElement.setAttribute('data-theme', 'dark');
+    //         themeIcon.classList.replace('fa-moon', 'fa-moon');
+    //         themeIcon.classList.replace('fa-regular', 'fa-solid');
+    //         themeToggle.classList.add('text-secondary');
+    //     }
+
+    //     themeToggle.addEventListener('click', () => {
+    //         const currentTheme = document.documentElement.getAttribute('data-theme');
+
+    //         // Cycle through: bright → eye-care → dark → bright
+    //         if (!currentTheme) {
+    //             // Switch to eye-care mode
+    //             document.documentElement.setAttribute('data-theme', 'eye-care');
+    //             localStorage.setItem('siteTheme', 'eye-care');
+    //             themeIcon.classList.replace('fa-moon', 'fa-sun');
+    //             themeIcon.classList.replace('fa-regular', 'fa-solid');
+    //             themeToggle.classList.remove('text-secondary');
+    //             themeToggle.classList.add('text-warning');
+    //         } else if (currentTheme === 'eye-care') {
+    //             // Switch to dark mode
+    //             document.documentElement.setAttribute('data-theme', 'dark');
+    //             localStorage.setItem('siteTheme', 'dark');
+    //             themeIcon.classList.replace('fa-sun', 'fa-moon');
+    //             themeToggle.classList.remove('text-warning');
+    //             themeToggle.classList.add('text-secondary');
+    //         } else {
+    //             // Switch back to bright mode
+    //             document.documentElement.removeAttribute('data-theme');
+    //             localStorage.setItem('siteTheme', 'bright');
+    //             themeIcon.classList.replace('fa-moon', 'fa-moon');
+    //             themeIcon.classList.replace('fa-solid', 'fa-regular');
+    //             themeToggle.classList.remove('text-secondary', 'text-warning');
+    //         }
+    //     });
+    // });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const themeButtons = [
+            document.getElementById('eyeCareToggle'),
+            document.getElementById('mobileEyeCareToggle')
+        ].filter(Boolean);
+
+        function applyTheme(theme) {
+            const root = document.documentElement;
+
+            if (theme === 'bright') {
+                root.removeAttribute('data-theme');
+            } else {
+                root.setAttribute('data-theme', theme);
+            }
+
+            localStorage.setItem('siteTheme', theme);
+
+            // Update both desktop and mobile icons
+            themeButtons.forEach(button => {
+                const icon = button.querySelector('.eye-care-icon');
+                if (!icon) return;
+
+                icon.classList.remove('fa-moon', 'fa-sun', 'fa-regular', 'fa-solid');
+
+                if (theme === 'eye-care') {
+                    icon.classList.add('fa-solid', 'fa-sun');
+                } else if (theme === 'dark') {
+                    icon.classList.add('fa-solid', 'fa-moon');
+                } else {
+                    icon.classList.add('fa-regular', 'fa-moon');
+                }
+
+                button.classList.remove('text-warning', 'text-secondary');
+
+                if (theme === 'eye-care') {
+                    button.classList.add('text-warning');
+                } else if (theme === 'dark') {
+                    button.classList.add('text-secondary');
+                }
+            });
         }
 
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            
-            // Cycle through: bright → eye-care → dark → bright
-            if (!currentTheme) {
-                // Switch to eye-care mode
-                document.documentElement.setAttribute('data-theme', 'eye-care');
-                localStorage.setItem('siteTheme', 'eye-care');
-                themeIcon.classList.replace('fa-moon', 'fa-sun');
-                themeIcon.classList.replace('fa-regular', 'fa-solid');
-                themeToggle.classList.remove('text-secondary');
-                themeToggle.classList.add('text-warning');
-            } else if (currentTheme === 'eye-care') {
-                // Switch to dark mode
-                document.documentElement.setAttribute('data-theme', 'dark');
-                localStorage.setItem('siteTheme', 'dark');
-                themeIcon.classList.replace('fa-sun', 'fa-moon');
-                themeToggle.classList.remove('text-warning');
-                themeToggle.classList.add('text-secondary');
-            } else {
-                // Switch back to bright mode
-                document.documentElement.removeAttribute('data-theme');
-                localStorage.setItem('siteTheme', 'bright');
-                themeIcon.classList.replace('fa-moon', 'fa-moon');
-                themeIcon.classList.replace('fa-solid', 'fa-regular');
-                themeToggle.classList.remove('text-secondary', 'text-warning');
-            }
+        // Restore saved theme
+        const savedTheme = localStorage.getItem('siteTheme');
+        applyTheme(
+            ['eye-care', 'dark'].includes(savedTheme) ? savedTheme : 'bright'
+        );
+
+        // Share the same theme cycle between desktop and mobile
+        themeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const currentTheme =
+                    document.documentElement.getAttribute('data-theme');
+
+                if (!currentTheme) {
+                    applyTheme('eye-care');
+                } else if (currentTheme === 'eye-care') {
+                    applyTheme('dark');
+                } else {
+                    applyTheme('bright');
+                }
+            });
         });
     });
+
 </script>
