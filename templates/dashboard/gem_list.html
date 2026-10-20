@@ -36,6 +36,7 @@
                                 <th>{% translate 'gem_amount' request.session.language %}</th>
                                 <th>{% translate 'price' request.session.language %}</th>
                                 <th>{% translate 'popular' request.session.language %}</th>
+                                <th>Order</th>
                                 <th class="text-center">{% translate 'action' request.session.language %}</th>
                             </tr>
                         </thead>
@@ -50,6 +51,24 @@
                                         <i class="ti ti-point-filled me-1 fs-11"></i>
                                         {% if gem.is_popular %}{% translate 'yes' request.session.language %}{% else %}{% translate 'no' request.session.language %}{% endif %}
                                     </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <form method="POST" action="{% url 'gem_move' gem.id 'up' %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                            <button type="submit" class="btn btn-sm btn-light" aria-label="Move gem up" title="Move up">
+                                                <i class="ti ti-arrow-up"></i>
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{% url 'gem_move' gem.id 'down' %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                            <button type="submit" class="btn btn-sm btn-light" aria-label="Move gem down" title="Move down">
+                                                <i class="ti ti-arrow-down"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                                 <td class="action-table-data">
                                     <div class="edit-delete-action">

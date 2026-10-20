@@ -132,7 +132,7 @@ def index(request):
 
 
 def gem(request):
-    gems = GemModel.objects.all()
+    gems = GemModel.objects.all().order_by("sort_order")
     context = {
         "gems": gems
     }

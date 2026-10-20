@@ -10,6 +10,7 @@ class GemModel(BaseModel):
     gem_amount = models.PositiveIntegerField(default=0)
     price = models.PositiveIntegerField(default=0)
     is_popular = models.BooleanField(default=False)
+    sort_order = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.gem_amount

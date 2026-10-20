@@ -84,6 +84,7 @@ urlpatterns = (
         path("dashboard/gem/create/", gem_views.gem_create, name="gem_create"),
         path("dashboard/gem/update/<uuid:pk>/", gem_views.gem_update, name="gem_update"),
         path("dashboard/gem/delete/<uuid:pk>/", gem_views.gem_delete, name="gem_delete"),
+        path("dashboard/gem/<uuid:pk>/move/<str:direction>/", gem_views.gem_move, name="gem_move"),
         path("dashboard/gem/order/list/", gem_views.gem_order_list, name="gem_order_list"),
         path("dashboard/gem/order/approve/<uuid:pk>/", gem_views.gem_order_approve, name="gem_order_approve"),
         path("dashboard/gem/order/reject/<uuid:pk>/", gem_views.gem_order_reject, name="gem_order_reject"),
