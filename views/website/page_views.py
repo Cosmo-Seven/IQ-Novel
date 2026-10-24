@@ -82,7 +82,7 @@ def chapter_is_public(chapter):
 # Index
 # ========================
 def index(request):
-    sliders = SliderModel.objects.all().order_by("-created_at")
+    sliders = SliderModel.objects.filter(status=True).order_by("-created_at")
 
     approved_novels = approved_novels_qs()
 
