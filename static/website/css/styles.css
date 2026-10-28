@@ -88,14 +88,24 @@ footer a:hover {
 /* စာသားများ ဖတ်ရလွယ်ကူစေရန် Font Space ညှိခြင်း */
 .chapter-reading-content {
     font-size: 1.15rem;       /* စာလုံးအရွယ်အစားကို ဖတ်ရလွယ်အောင် အနည်းငယ်မြှင့်ထားသည် */
-    line-height: 2;          /* စာကြောင်း တစ်ကြောင်းချင်းစီ ကြပ်မနေစေရန် */
+    line-height: 1.7;
     color: #2b2d42 !important;
     letter-spacing: 0.2px;
+    max-width: 100%;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
-/* Paragraph တစ်ခုချင်းစီကြား အကွာအဝေး */
+/* Paragraph တစ်ခုချင်းစီကြား အကွာအဝေး — admin editor နှင့် နီးစေရန် */
 .chapter-reading-content p {
-    margin-bottom: 1.8rem;
+    margin-top: 0;
+    margin-bottom: 0.9rem;
+}
+
+.chapter-reading-content p:empty,
+.chapter-reading-content p:has(> br:only-child) {
+    display: none;
 }
 
 /* Navigation Box & Transition Dynamic Effects */
@@ -132,10 +142,12 @@ footer a:hover {
 @media (max-width: 768px) {
     .reader-card {
         padding: 1.5rem !important; /* ဖုန်းပေါ်မှာ ဘေး Padding ကို လျှော့ချပေးခြင်း */
+        overflow-x: hidden;
+        max-width: 100%;
     }
     .chapter-reading-content {
         font-size: 1.08rem; /* ဖုန်း Screen ပေါ်တွင် စာလုံးအရွယ်အစား အနည်းငယ်ပြန်ညှိခြင်း */
-        line-height: 1.9;
+        line-height: 1.6;
     }
 }
 
