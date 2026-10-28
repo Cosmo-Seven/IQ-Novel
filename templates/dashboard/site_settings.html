@@ -167,6 +167,29 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="border-top pt-3 mb-3 pb-3">
+                                    <div class="card-title-head">
+                                        <h6 class="fs-16 fw-bold mb-2">
+                                            <span class="fs-16 me-2"><i class="ti ti-shield-check"></i></span>
+                                            Chapter Approval Settings
+                                        </h6>
+                                    </div>
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-8">
+                                            <h6 class="fw-semibold mb-1">Require Admin Approval for Chapters</h6>
+                                            <p class="text-muted small mb-0">
+                                                When enabled (checked), chapters uploaded by authors require admin approval before appearing on the website. When disabled, chapters are auto-approved and published immediately upon submission.
+                                            </p>
+                                        </div>
+                                        <div class="col-lg-4 text-lg-end mt-2 mt-lg-0">
+                                            <div class="status-toggle modal-status d-flex justify-content-lg-end align-items-center gap-2">
+                                                <span class="status-label fw-medium text-dark">Require Approval:</span>
+                                                <input type="checkbox" id="require_chapter_approval" name="require_chapter_approval" {% if site.require_chapter_approval %}checked{% endif %} class="check">
+                                                <label for="require_chapter_approval" class="checktoggle" style="cursor: pointer;"></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="text-end settings-bottom-btn mt-0">
                                     <button type="submit" class="btn btn-primary">{% translate 'save' request.session.language %}</button>
                                 </div>

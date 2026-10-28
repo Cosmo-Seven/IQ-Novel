@@ -11,6 +11,21 @@ class SiteModel(BaseModel):
     address = models.TextField(null=True)
     favicon = models.ImageField(upload_to="favicon")
     logo = models.ImageField(upload_to="logo", null=True)
+    require_chapter_approval = models.BooleanField(
+        default=False,
+        help_text="If True, chapters uploaded by authors require admin approval. If False, chapters are auto-approved.",
+    )
+
+    @classmethod
+    def get_settings(cls):
+        site = cls.objects.first()
+        if not site:
+            site = cls.objects.create(name="IQ-Novel", require_chapter_approval=False)
+        return site
+
+    @property
+    def auto_approve_chapters(self):
+        return not self.require_chapter_approval
 
     def __str__(self):
         return self.name

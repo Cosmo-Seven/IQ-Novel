@@ -129,6 +129,8 @@ urlpatterns = (
         path("dashboard/novel-chapter/delete/<uuid:pk>/",novel_views.novel_chapter_delete,name="novel_chapter_delete"),
         #//-----Approval admin---------------
         path('dashboard/chapter/approval/list/',novel_views.chapter_approval_list,name='chapter_approval_list'),
+        path('dashboard/chapter/approval/toggle-mode/', novel_views.chapter_toggle_approval_mode, name='chapter_toggle_approval_mode'),
+        path('dashboard/chapter/approval/bulk-approve/', novel_views.chapter_bulk_approve, name='chapter_bulk_approve'),
         path('dashboard/chapter/approve/<uuid:pk>/',novel_views.chapter_approve,name='chapter_approve'),
         path("dashboard/chapter/approval/reject/<uuid:pk>/", novel_views.chapter_reject,name="chapter_approval_reject"),
         path("dashboard/chapter/purchases/", novel_views.chapter_purchase_list, name="chapter_purchase_list"),

@@ -1,11 +1,13 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
 from core.models import (
     NovelModel,
     ChapterModel,
     ChapterPurchaseModel,
     GenreModel,
     AuthorModel,
+    SiteModel,
 )
 from helpers.filters import filter_querysets
 from decorators.role_decorator import role_permission_required
@@ -366,24 +368,28 @@ def novel_chapter_create(request, novel_id):
 
     
 
+    site_setting = SiteModel.get_settings()
+    require_approval = site_setting.require_chapter_approval
+    should_approve = is_admin or (not require_approval)
+
     with transaction.atomic():
         ChapterModel.objects.create(
             novel=novel,
             chapter_title=chapter_title,
             content=content,
             is_free=is_free,
-            is_active=is_admin,
+            is_active=should_approve,
             gem_price=0 if is_free else gem_price,
             approval_status=(
                 ChapterModel.ApprovalStatus.APPROVED
-                if is_admin
+                if should_approve
                 else ChapterModel.ApprovalStatus.PENDING
             ),
         )
-    if is_admin:
-        messages.success(request,'Chapter create successfully')
+    if should_approve:
+        messages.success(request, 'Chapter created and published successfully.')
     else:
-        messages.success(request,'Chapter submitted.Waiting for admin approval.')
+        messages.success(request, 'Chapter submitted. Waiting for admin approval.')
     
     return redirect("novel_update", novel.id)
 
@@ -515,7 +521,76 @@ def chapter_approval_list(request):
             date_field="created_at",
             order="-created_at",
         )
-    return render(request,'dashboard/chapter_approval_list.html',{'chapters':filters['page_obj'], **filters})
+    site_setting = SiteModel.get_settings()
+    return render(request,'dashboard/chapter_approval_list.html',{'chapters':filters['page_obj'], 'site_setting': site_setting, **filters})
+
+#// Toggle Chapter Approval Mode (Auto-Approve vs Require Admin Approval)
+@login_required('dashboard_login')
+@role_permission_required('change_novelmodel')
+def chapter_toggle_approval_mode(request):
+    if request.method != "POST":
+        return redirect("chapter_approval_list")
+
+    if not (request.user.is_superuser or request.user.is_staff):
+        if request.headers.get("x-requested-with") == "XMLHttpRequest" or "application/json" in request.headers.get("Accept", ""):
+            return JsonResponse({"success": False, "message": "Only admin can change approval settings."}, status=403)
+        messages.error(request, "Only admin can change approval settings.")
+        return redirect("chapter_approval_list")
+
+    site_setting = SiteModel.get_settings()
+
+    require_param = request.POST.get("require_approval")
+    if require_param is not None:
+        site_setting.require_chapter_approval = (str(require_param).lower() in ["true", "1", "on", "yes"])
+    else:
+        site_setting.require_chapter_approval = not site_setting.require_chapter_approval
+
+    site_setting.save(update_fields=["require_chapter_approval"])
+
+    if site_setting.require_chapter_approval:
+        msg = "Admin approval is now REQUIRED for author chapters."
+    else:
+        msg = "Auto-approve is now ENABLED. Author chapters will be published automatically."
+
+    if request.headers.get("x-requested-with") == "XMLHttpRequest" or "application/json" in request.headers.get("Accept", ""):
+        return JsonResponse({
+            "success": True,
+            "require_chapter_approval": site_setting.require_chapter_approval,
+            "auto_approve_chapters": site_setting.auto_approve_chapters,
+            "message": msg,
+        })
+
+    messages.success(request, msg)
+    return redirect("chapter_approval_list")
+
+#// Bulk Chapter Approve
+@login_required("dashboard_login")
+@role_permission_required("change_novelmodel")
+def chapter_bulk_approve(request):
+    if request.method != "POST":
+        return redirect("chapter_approval_list")
+
+    if not (request.user.is_superuser or request.user.is_staff):
+        messages.error(request, "Only admin can approve chapters.")
+        return redirect("chapter_approval_list")
+
+    chapter_ids = request.POST.getlist("chapter_ids")
+    if not chapter_ids:
+        messages.warning(request, "Please select at least one chapter to approve.")
+        return redirect("chapter_approval_list")
+
+    with transaction.atomic():
+        updated_count = ChapterModel.objects.filter(
+            id__in=chapter_ids,
+            is_deleted=False,
+            approval_status=ChapterModel.ApprovalStatus.PENDING,
+        ).update(
+            is_active=True,
+            approval_status=ChapterModel.ApprovalStatus.APPROVED,
+        )
+
+    messages.success(request, f"{updated_count} chapter(s) approved successfully.")
+    return redirect("chapter_approval_list")
 
 #//Chapter Approve
 @login_required("dashboard_login")

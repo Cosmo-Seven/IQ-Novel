@@ -69,6 +69,7 @@ def site_settings(request):
         email = request.POST.get("email")
         favicon = request.FILES.get("favicon")
         logo = request.FILES.get("logo")
+        require_chapter_approval = request.POST.get("require_chapter_approval") == "on"
         if not site:
             site = SiteModel.objects.create(
                 name=name,
@@ -77,6 +78,7 @@ def site_settings(request):
                 phone=phone,
                 address=address,
                 email=email,
+                require_chapter_approval=require_chapter_approval,
             )
             site.save()
         else:
@@ -84,6 +86,7 @@ def site_settings(request):
             site.phone = phone
             site.address = address
             site.email = email
+            site.require_chapter_approval = require_chapter_approval
             if favicon:
                 if site.favicon:
                     site.favicon.delete(save=False)
