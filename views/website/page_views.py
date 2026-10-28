@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from helpers.reward_helper import get_active_chapter_reward, get_effective_price
-from helpers.gem_helper import calculate_gem_usage, deduct_gems
+from helpers.gem_helper import deduct_gems
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes
@@ -577,13 +577,24 @@ def buy_chapter(request, id):
         messages.info(request, "🎉 အခမဲ့ ဖတ်ခွင့်ရသည်။")
         return redirect("chapter_detail", id=chapter.id)
 
-    gem_usage = calculate_gem_usage(request.user, effective_price)
-
-    if not gem_usage["can_afford"]:
-        messages.error(request, "Insufficient gems. Please top up your gems.")
-        return redirect("novel_detail", id=chapter.novel.id)
-
     if request.method == "POST":
+        payment_method = request.POST.get("payment_method")
+        if payment_method == "coupon":
+            if request.user.free_gem < effective_price:
+                messages.error(request, "Insufficient coupons.")
+                return redirect("novel_detail", id=chapter.novel.id)
+            free_gems_used = effective_price
+            paid_gems_used = 0
+        elif payment_method == "gem":
+            if request.user.gem < effective_price:
+                messages.error(request, "Insufficient gems. Please top up your gems.")
+                return redirect("novel_detail", id=chapter.novel.id)
+            free_gems_used = 0
+            paid_gems_used = effective_price
+        else:
+            messages.error(request, "Please choose Coupons or Gems.")
+            return redirect("novel_detail", id=chapter.novel.id)
+
         author = chapter.novel.author
         revenue_share_percent = author.revenue_share_percent if author else 0
         unit_price = gem_unit_price_mmk()
@@ -591,13 +602,13 @@ def buy_chapter(request, id):
         author_share_mmk = author.calculate_share(sale_price_mmk) if author else 0
 
         with transaction.atomic():
-            deduct_gems(request.user, gem_usage["free_gems_used"], gem_usage["paid_gems_used"])
+            deduct_gems(request.user, free_gems_used, paid_gems_used)
             ChapterPurchaseModel.objects.create(
                 user=request.user,
                 chapter=chapter,
                 gems_paid=effective_price,
-                free_gems_used=gem_usage["free_gems_used"],
-                paid_gems_used=gem_usage["paid_gems_used"],
+                free_gems_used=free_gems_used,
+                paid_gems_used=paid_gems_used,
                 sale_price_mmk=sale_price_mmk,
                 author_share_mmk=author_share_mmk,
                 gem_unit_price_mmk=unit_price,
@@ -639,24 +650,40 @@ def buy_ten_chapters(request, id):
     else:
         total_price = sum(int(c.gem_price or 0) for c in chapters_to_buy)
 
-    gem_usage = calculate_gem_usage(request.user, total_price)
-
-    if not gem_usage["can_afford"]:
-        messages.error(request, "Insufficient gems. Please top up your gems.")
-        return redirect("novel_detail", id=novel.id)
-
     if request.method == "POST":
+        if active_reward and active_reward.reward_type == "free_read":
+            payment_method = None
+            free_gems_used = 0
+            paid_gems_used = 0
+        else:
+            payment_method = request.POST.get("payment_method")
+            if payment_method == "coupon":
+                if request.user.free_gem < total_price:
+                    messages.error(request, "Insufficient coupons.")
+                    return redirect("novel_detail", id=novel.id)
+                free_gems_used = total_price
+                paid_gems_used = 0
+            elif payment_method == "gem":
+                if request.user.gem < total_price:
+                    messages.error(request, "Insufficient gems. Please top up your gems.")
+                    return redirect("novel_detail", id=novel.id)
+                free_gems_used = 0
+                paid_gems_used = total_price
+            else:
+                messages.error(request, "Please choose Coupons or Gems.")
+                return redirect("novel_detail", id=novel.id)
+
         author = novel.author
         revenue_share_percent = author.revenue_share_percent if author else 0
         unit_price = gem_unit_price_mmk()
 
         with transaction.atomic():
-            deduct_gems(request.user, gem_usage["free_gems_used"], gem_usage["paid_gems_used"])
+            deduct_gems(request.user, free_gems_used, paid_gems_used)
 
             for chapter in chapters_to_buy:
                 effective_price, _ = get_effective_price(chapter, request.user)
 
-                if gem_usage["free_gems_used"] > 0:
+                if payment_method == "coupon":
                     ch_free = effective_price
                     ch_paid = 0
                 else:

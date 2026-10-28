@@ -50,11 +50,11 @@ def award_review(review, admin_user):
     review.save(update_fields=["is_winner", "awarded_at"])
 
     winner = review.user
-    # Contest reward ဖြစ်တဲ့အတွက် (ဝယ်ထားတဲ့ paid gem မဟုတ်ဘဲ) promotion/free gem အနေနဲ့ ထည့်ပေး
+    # Contest prizes are promotional coupons, not purchased gems.
     winner.free_gem = (winner.free_gem or 0) + campaign.reward_amount
     winner.save(update_fields=["free_gem"])
 
-    return True, f"{winner.username} has been awarded {campaign.reward_amount} diamonds."
+    return True, f"{winner.username} has been awarded {campaign.reward_amount} coupons."
 
 
 def unaward_review(review):
@@ -74,4 +74,4 @@ def unaward_review(review):
     review.awarded_at = None
     review.save(update_fields=["is_winner", "awarded_at"])
 
-    return True, "Winner status removed and diamonds reverted."
+    return True, "Winner status removed and coupons reverted."

@@ -11,7 +11,7 @@
                     <h4 class="fw-bold">{{ campaign.title }}</h4>
                     <h6>
                         {{ reviews|length }} submission{{ reviews|length|pluralize }} ·
-                        Reward per winner: <span class="text-primary">{{ campaign.reward_amount }} Diamonds</span>
+                        Reward per winner: <span class="text-primary">{{ campaign.reward_amount }} Coupons</span>
                         · <span class="badge bg-primary">{{ campaign.winner_count }} Winner{{ campaign.winner_count|pluralize }} so far</span>
                     </h6>
                 </div>
@@ -46,7 +46,7 @@
 
                         {% if review.is_winner %}
                         <form method="POST" action="{% url 'campaign_unaward' campaign.id review.id %}"
-                            onsubmit="return confirm('Remove winner status from {{ review.user.username }} and revert the diamonds?');">
+                            onsubmit="return confirm('Remove winner status from {{ review.user.username }} and revert the coupons?');">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm btn-outline-danger w-100">
                                 <i class="ti ti-x me-1"></i> Remove Winner
@@ -54,7 +54,7 @@
                         </form>
                         {% else %}
                         <form method="POST" action="{% url 'campaign_award' campaign.id review.id %}"
-                            onsubmit="return confirm('Award {{ campaign.reward_amount }} diamonds to {{ review.user.username }} for this review?');">
+                            onsubmit="return confirm('Award {{ campaign.reward_amount }} coupons to {{ review.user.username }} for this review?');">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm btn-primary w-100">
                                 <i class="ti ti-trophy me-1"></i> Select as Winner

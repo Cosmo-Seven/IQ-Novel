@@ -37,7 +37,6 @@ def slider_create(request):
         slider.save()
         messages.success(request, CREATE)
         return redirect("slider_list")
-    
 
 # // Slider Update -----------------------------------------------------------
 @login_required("dashboard_login")

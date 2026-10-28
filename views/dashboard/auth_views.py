@@ -26,7 +26,7 @@ def dashboard_login(request):
                 # Process daily rewards
                 reward_amount = process_daily_reward(user)
                 if reward_amount > 0:
-                    messages.success(request, f"Welcome {user.username}! You received {reward_amount} gems as daily reward.")
+                    messages.success(request, f"Welcome {user.username}! You received {reward_amount} coupons as daily reward.")
                 else:
                     messages.success(request, f"Welcome {user.username}")
                 

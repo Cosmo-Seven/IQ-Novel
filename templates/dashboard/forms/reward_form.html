@@ -7,7 +7,7 @@
         <select name="reward_type" class="form-select" id="rewardTypeSelect" required>
             <option value="gem_gift"
                 {% if reward and reward.reward_type == "gem_gift" %}selected{% endif %}>
-                💎 Gem Gift (Login Reward)
+                🎟️ Coupons (Login Reward)
             </option>
             <option value="free_read"
                 {% if reward and reward.reward_type == "free_read" %}selected{% endif %}>
@@ -15,7 +15,7 @@
             </option>
             <option value="discount_read"
                 {% if reward and reward.reward_type == "discount_read" %}selected{% endif %}>
-                🏷️ Discount Read (All Chapters 1 Gem)
+                🏷️ Discount Read (All Chapters for Coupons or Gems)
             </option>
         </select>
     </div>
@@ -23,11 +23,11 @@
 
 <div class="col-lg-12" id="amountField">
     <div class="mb-3">
-        <label class="form-label">Gem Amount <span class="text-danger">*</span></label>
+        <label class="form-label">Number of Coupons <span class="text-danger">*</span></label>
         <input type="number" name="amount" class="form-control" min="1"
             value="{{ reward.amount|default:'' }}"
-            placeholder="gem အရေအတွက် ထည့်ပါ">
-        <small class="text-muted">Gem Gift reward အတွက်သာ သုံးသည်</small>
+            placeholder="Coupons အရေအတွက် ထည့်ပါ">
+        <small class="text-muted">Coupons reward အတွက်သာ သုံးသည်</small>
     </div>
 </div>
 

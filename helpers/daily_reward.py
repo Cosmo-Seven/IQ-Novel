@@ -33,9 +33,8 @@ def process_daily_reward(user):
         ).exists()
 
         if not already_claimed:
-            # Award the gem/amount
-            user.gem = (user.gem or 0) + reward.amount
-            user.save(update_fields=["gem"])
+            user.free_gem = (user.free_gem or 0) + reward.amount
+            user.save(update_fields=["free_gem"])
 
             # Record the claim
             DailyRewardModel.objects.create(

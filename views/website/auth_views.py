@@ -33,7 +33,7 @@ def login_view(request):
                 if reward_amount > 0:
                     messages.success(
                         request,
-                        f"Welcome {user.username}! You received {reward_amount} gems as a daily login reward!",
+                        f"Welcome {user.username}! You received {reward_amount} coupons as a daily login reward!",
                     )
                 else:
                     messages.success(request, f"Welcome {user.username}")

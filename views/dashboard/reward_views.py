@@ -148,8 +148,11 @@ def reward_update(request, pk):
 @login_required("dashboard_login")
 @role_permission_required("delete_rewardmodel")
 def reward_delete(request, pk):
-    reward = get_object_or_404(RewardModel, id=pk)
-    if request.method == "POST":
-        reward.delete()
-        messages.success(request, DELETE)
+    if request.method != "POST":
+        messages.warning(request, "Please use the delete confirmation to remove a reward.")
         return redirect("reward_list")
+
+    reward = get_object_or_404(RewardModel, id=pk)
+    reward.delete()
+    messages.success(request, DELETE)
+    return redirect("reward_list")

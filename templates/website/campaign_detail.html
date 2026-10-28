@@ -63,7 +63,7 @@
         {% endif %}
         <div class="d-flex flex-wrap gap-4 small text-muted">
             <span><i class="bi bi-calendar-range me-1"></i>{{ campaign.start_date|date:"M d, Y H:i" }} - {{ campaign.end_date|date:"M d, Y H:i" }}</span>
-            <span class="fw-semibold text-warning"><i class="bi bi-gem me-1"></i>Winner gets {{ campaign.reward_amount }} Diamonds</span>
+            <span class="fw-semibold text-warning"><i class="bi bi-ticket-perforated me-1"></i>Winner gets {{ campaign.reward_amount }} Coupons</span>
         </div>
     </div>
 
@@ -77,7 +77,7 @@
             {% for winner_review in campaign.winner_reviews %}
             <li>
                 <strong>{{ winner_review.user.username }}</strong>
-                won {{ campaign.reward_amount }} diamonds for their review of
+                won {{ campaign.reward_amount }} coupons for their review of
                 <strong>{{ winner_review.novel.title }}</strong>
             </li>
             {% endfor %}

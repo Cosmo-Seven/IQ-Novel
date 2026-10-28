@@ -129,16 +129,28 @@
           <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content border-0 shadow-lg rounded-3 theme-modal">
               <div class="modal-header border-0 pb-0">
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span>
-                        </button>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <form action="{% url 'buy_ten_chapters' novel.id %}" method="POST">
                 {% csrf_token %}
                 <div class="modal-body text-center py-3">
                   <div class="mb-3 text-warning"><i class="bi bi-gem-fill fs-1"></i></div>
                   <h6 class="fw-bold mb-2 theme-text-main">Buy {{ buy_ten_count }} Chapters</h6>
-                  <p class="theme-text-muted small">Unlock the next {{ buy_ten_count }} paid chapters for <strong>{{ buy_ten_total }}</strong> gems?</p>
+                  <p class="theme-text-muted small">Unlock the next {{ buy_ten_count }} paid chapters for <strong>{{ buy_ten_total }}</strong> Coupons or Gems? (Coupons and Gems are 1:1)</p>
+                  {% if active_reward.reward_type == "free_read" %}
+                  <p class="text-success small mb-0">This reward unlocks these chapters for free.</p>
+                  {% else %}
+                  <div class="text-start small">
+                    <label class="d-flex align-items-center justify-content-between border rounded p-2 mb-2 theme-border">
+                      <span><input type="radio" name="payment_method" value="coupon" required> Coupons</span>
+                      <span>{{ request.user.free_gem }} available</span>
+                    </label>
+                    <label class="d-flex align-items-center justify-content-between border rounded p-2 theme-border">
+                      <span><input type="radio" name="payment_method" value="gem" required> Gems</span>
+                      <span>{{ request.user.gem }} available</span>
+                    </label>
+                  </div>
+                  {% endif %}
                 </div>
                 <div class="modal-footer border-0 pt-0 d-flex justify-content-center gap-2 pb-4">
                   <button type="button" class="btn btn-sm btn-light theme-btn-light px-3 rounded-pill" data-bs-dismiss="modal">Cancel</button>
@@ -299,9 +311,7 @@
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content border-0 shadow-lg rounded-3 theme-modal">
                 <div class="modal-header border-0 pb-0">
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span>
-                        </button>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="{% url 'buy_chapter' chapter.id %}" method="POST">
                     {% csrf_token %}
@@ -309,12 +319,22 @@
                         <div class="mb-3 text-warning"><i class="bi bi-gem-fill fs-1"></i></div>
                         <h6 class="fw-bold mb-2 theme-text-main">Confirm Purchase</h6>
                         <p class="theme-text-muted small">
-                            🎉 Reward Event! <strong>{{ chapter.chapter_title }}</strong> ကို 1 gem နဲ့ ဖတ်မလား?
+                            🎉 Reward Event! <strong>{{ chapter.chapter_title }}</strong> ကို Coupons သို့မဟုတ် Gems နဲ့ ဖတ်မလား? (1:1)
                         </p>
+                        <div class="text-start small">
+                            <label class="d-flex align-items-center justify-content-between border rounded p-2 mb-2 theme-border">
+                                <span><input type="radio" name="payment_method" value="coupon" required> Coupons</span>
+                                <span>{{ request.user.free_gem }} available</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between border rounded p-2 theme-border">
+                                <span><input type="radio" name="payment_method" value="gem" required> Gems</span>
+                                <span>{{ request.user.gem }} available</span>
+                            </label>
+                        </div>
                     </div>
                     <div class="modal-footer border-0 pt-0 d-flex justify-content-center gap-2 pb-4">
                         <button type="button" class="btn btn-sm btn-light theme-btn-light px-3 rounded-pill" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-sm btn-warning px-3 rounded-pill">Unlock 1 Gem</button>
+                        <button type="submit" class="btn btn-sm btn-warning px-3 rounded-pill">Unlock with Coupons or Gems</button>
                     </div>
                 </form>
             </div>
@@ -333,16 +353,24 @@
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content border-0 shadow-lg rounded-3 theme-modal">
                 <div class="modal-header border-0 pb-0">
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span>
-                        </button>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="{% url 'buy_chapter' chapter.id %}" method="POST">
                     {% csrf_token %}
                     <div class="modal-body text-center py-3">
                         <div class="mb-3 text-warning"><i class="bi bi-gem-fill fs-1"></i></div>
                         <h6 class="fw-bold mb-2 theme-text-main">Confirm Purchase</h6>
-                        <p class="theme-text-muted small">Unlock <strong>{{ chapter.chapter_title }}</strong> for {{ chapter.gem_price }} gems?</p>
+                        <p class="theme-text-muted small">Unlock <strong>{{ chapter.chapter_title }}</strong> for {{ chapter.gem_price }} Coupons or Gems? (Coupons and Gems are 1:1)</p>
+                        <div class="text-start small">
+                            <label class="d-flex align-items-center justify-content-between border rounded p-2 mb-2 theme-border">
+                                <span><input type="radio" name="payment_method" value="coupon" required> Coupons</span>
+                                <span>{{ request.user.free_gem }} available</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between border rounded p-2 theme-border">
+                                <span><input type="radio" name="payment_method" value="gem" required> Gems</span>
+                                <span>{{ request.user.gem }} available</span>
+                            </label>
+                        </div>
                     </div>
                     <div class="modal-footer border-0 pt-0 d-flex justify-content-center gap-2 pb-4">
                         <button type="button" class="btn btn-sm btn-light theme-btn-light px-3 rounded-pill" data-bs-dismiss="modal">Cancel</button>

@@ -10,7 +10,7 @@
             <div class="add-item d-flex">
                 <div class="page-title">
                     <h4 class="fw-bold">{% translate 'review_campaigns' request.session.language %}</h4>
-                    <h6>Reader review contests - readers post an image + review, admin picks the best entry and awards diamonds</h6>
+                    <h6>Reader review contests - readers post an image + review, admin picks the best entry and awards coupons</h6>
                 </div>
             </div>
             <div class="page-btn">
@@ -39,7 +39,7 @@
                                 <td>{{ campaign.title }}</td>
                                 <td>{{ campaign.start_date|date:"Y-m-d H:i" }}</td>
                                 <td>{{ campaign.end_date|date:"Y-m-d H:i" }}</td>
-                                <td><span class="text-primary">{{ campaign.reward_amount }} Diamonds</span></td>
+                                <td><span class="text-primary">{{ campaign.reward_amount }} Coupons</span></td>
                                 <td>
                                     {% if campaign.winner_count %}
                                     <span class="badge bg-primary">{{ campaign.winner_count }} Winner{{ campaign.winner_count|pluralize }} Picked</span>
@@ -144,7 +144,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Winner Reward (Diamonds) <span class="text-danger">*</span></label>
+                            <label class="form-label">Winner Reward (Coupons) <span class="text-danger">*</span></label>
                             <input type="number" name="reward_amount" min="1" required class="form-control" value="{{ campaign.reward_amount }}">
                         </div>
                     </div>
@@ -220,7 +220,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Winner Reward (Diamonds) <span class="text-danger">*</span></label>
+                            <label class="form-label">Winner Reward (Coupons) <span class="text-danger">*</span></label>
                             <input type="number" name="reward_amount" min="1" required class="form-control" placeholder="e.g. 500">
                         </div>
                     </div>
