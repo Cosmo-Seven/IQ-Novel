@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.http import JsonResponse
 from core.models import (
     NovelModel,
@@ -123,7 +124,9 @@ def novel_form(request, pk=None):
                 "selected_genres": list(novel.genres.values_list("id", flat=True)) if novel else [],
                 "novel_chapters": novel_chapters,
                 'authors':AuthorModel.objects.all() if request.user.is_superuser else [],
-                'current_author':_author_for_user(request.user)
+                'current_author':_author_for_user(request.user),
+                'novel_create_url': reverse('novel_create'),
+                'novel_list_url': reverse('novel_list'),
             },
         )
 
