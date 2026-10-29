@@ -520,7 +520,7 @@
         .header-grid-container {
             display: grid !important;
             grid-template-columns: 1fr auto;
-            grid-template-rows: auto auto;
+            grid-template-rows: auto;
             column-gap: 10px;
             row-gap: 12px;
             justify-content: initial !important;
@@ -559,12 +559,9 @@
             display: none !important;
         }
 
-        /* Second row: Always visible Search */
+        /* Second row: Always visible Search - HIDE ON MOBILE */
         .mobile-search-row {
-            display: block;
-            grid-column: 1 / -1;
-            grid-row: 2;
-            width: 100%;
+            display: none !important;
         }
 
         .mobile-search-form {

@@ -39,22 +39,22 @@
 
     <!-- Mobile Bottom Nav -->
     <nav class="mobile-bottom-nav d-md-none">
-        <a href="#" class="nav-item active">
+        <a href="{% url 'home' %}" class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
             <i class="bi bi-house"></i>
             <span>Home</span>
         </a>
 
-        <a href="#" class="nav-item">
+        <a href="#" class="nav-item search-trigger" id="mobileSearchTrigger">
             <i class="bi bi-search"></i>
             <span>Search</span>
         </a>
 
-        <a href="#" class="nav-item">
+        <a href="{% url 'gem' %}" class="nav-item {% if request.resolver_match.url_name == 'gem' %}active{% endif %}">
             <i class="bi bi-gem"></i>
             <span>Gems</span>
         </a>
 
-        <a href="#" class="nav-item">
+        <a href="{% url 'website_profile' %}" class="nav-item {% if request.resolver_match.url_name == 'website_profile' %}active{% endif %}">
             <i class="bi bi-book"></i>
             <span>Library</span>
         </a>
@@ -64,3 +64,230 @@
             <span>Alerts</span>
         </a>
     </nav>
+
+    <!-- Mobile Search Overlay -->
+    <div class="mobile-search-overlay" id="mobileSearchOverlay">
+        <div class="mobile-search-container">
+            <div class="mobile-search-header">
+                <h5 class="mb-0 text-dark fw-bold">Search Novels</h5>
+                <button class="btn btn-close" id="closeMobileSearch">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            
+            <div class="mobile-search-body">
+                <form action="{% url 'novel' %}" method="GET" class="mb-4">
+                    <div class="input-group input-group-lg shadow-sm">
+                        <input type="text" name="search" class="form-control form-control-lg border-0" 
+                               placeholder="Search by title, author, genre..." 
+                               autocomplete="off" autofocus id="mobileSearchInput">
+                        <button class="btn btn-dark" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="search-suggestions">
+                    <h6 class="text-muted mb-3">Popular Searches</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="{% url 'novel' %}?search=romance" class="badge bg-light text-dark border">Romance</a>
+                        <a href="{% url 'novel' %}?search=fantasy" class="badge bg-light text-dark border">Fantasy</a>
+                        <a href="{% url 'novel' %}?search=mystery" class="badge bg-light text-dark border">Mystery</a>
+                        <a href="{% url 'novel' %}?search=action" class="badge bg-light text-dark border">Action</a>
+                        <a href="{% url 'novel' %}?search=drama" class="badge bg-light text-dark border">Drama</a>
+                        <a href="{% url 'novel' %}?search=comedy" class="badge bg-light text-dark border">Comedy</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Search CSS -->
+    <style>
+        .mobile-search-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 20vh;
+            backdrop-filter: blur(5px);
+        }
+
+        .mobile-search-overlay.active {
+            display: flex;
+        }
+
+        .mobile-search-container {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .mobile-search-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid #eee;
+            background: linear-gradient(135deg, #fff0f3 0%, #ffffff 100%);
+        }
+
+        .mobile-search-header h5 {
+            color: #590d22;
+        }
+
+        .mobile-search-header .btn-close {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            color: #590d22;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .mobile-search-header .btn-close:hover {
+            background-color: rgba(89, 13, 34, 0.1);
+        }
+
+        .mobile-search-body {
+            padding: 24px;
+        }
+
+        .mobile-search-body .input-group-lg {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .mobile-search-body .form-control-lg {
+            padding: 16px 20px;
+            font-size: 1.1rem;
+            border: 2px solid #ffb3c1 !important;
+            background-color: #fffafb;
+        }
+
+        .mobile-search-body .form-control-lg:focus {
+            border-color: #c9184a !important;
+            box-shadow: 0 0 0 0.25rem rgba(201, 24, 74, 0.15);
+        }
+
+        .mobile-search-body .btn-dark {
+            background-color: #590d22;
+            border: none;
+            padding: 0 24px;
+            transition: all 0.2s ease;
+        }
+
+        .mobile-search-body .btn-dark:hover {
+            background-color: #42101a;
+        }
+
+        .search-suggestions .badge {
+            padding: 10px 16px;
+            border-radius: 50px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .search-suggestions .badge:hover {
+            background-color: #fff0f3 !important;
+            border-color: #ffb3c1 !important;
+            transform: translateY(-2px);
+        }
+
+        /* Mobile bottom nav search trigger animation */
+        .nav-item.search-trigger.active {
+            color: #c9184a;
+        }
+
+        .nav-item.search-trigger.active i {
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from {
+                transform: scale(1);
+            }
+            to {
+                transform: scale(1.2);
+            }
+        }
+    </style>
+
+    <!-- Mobile Search JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchTrigger = document.getElementById('mobileSearchTrigger');
+            const searchOverlay = document.getElementById('mobileSearchOverlay');
+            const closeSearch = document.getElementById('closeMobileSearch');
+            const searchInput = document.getElementById('mobileSearchInput');
+            
+            if (searchTrigger && searchOverlay) {
+                searchTrigger.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    searchOverlay.classList.add('active');
+                    searchInput.focus();
+                    
+                    // Add active class to search trigger
+                    this.classList.add('active');
+                });
+                
+                closeSearch.addEventListener('click', function() {
+                    searchOverlay.classList.remove('active');
+                    searchTrigger.classList.remove('active');
+                });
+                
+                // Close overlay when clicking outside
+                searchOverlay.addEventListener('click', function(e) {
+                    if (e.target === searchOverlay) {
+                        searchOverlay.classList.remove('active');
+                        searchTrigger.classList.remove('active');
+                    }
+                });
+                
+                // Close on escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && searchOverlay.classList.contains('active')) {
+                        searchOverlay.classList.remove('active');
+                        searchTrigger.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Activate search item when on search page
+            const currentUrl = window.location.pathname;
+            if (currentUrl.includes('/novel/') && new URLSearchParams(window.location.search).has('search')) {
+                const searchTrigger = document.getElementById('mobileSearchTrigger');
+                if (searchTrigger) {
+                    searchTrigger.classList.add('active');
+                }
+            }
+        });
+    </script>

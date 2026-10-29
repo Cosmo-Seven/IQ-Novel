@@ -771,6 +771,7 @@
                         
                         <!-- TAB 1: STORY DETAILS & SYNOPSIS -->
                         <div class="tab-pane fade show active" id="tab-details" role="tabpanel" aria-labelledby="details-tab">
+                    {% endif %}
                             <!-- Card 1: Story Details -->
                             <div class="novel-card">
                         <div class="novel-card-header">
@@ -808,7 +809,7 @@
                                     {% if request.user.is_superuser %}
                                         <select class="select form-control" name="author" required>
                                             {% for author in authors %}
-                                                <option value="{{ author.id }}" {% if author.id in selected_authors %}selected{% elif novel.author_id == author.id %}selected{% endif %}>
+                                                <option value="{{ author.id }}" {% if author.id in selected_authors %}selected{% elif novel and novel.author_id == author.id %}selected{% endif %}>
                                                     {{ author }}
                                                 </option>
                                             {% endfor %}
@@ -828,9 +829,9 @@
                                         <span>{% translate 'novel_type' request.session.language %} <span class="text-danger">*</span></span>
                                     </label>
                                     <select name="novel_type" class="form-control form-control-custom">
-                                        <option value="own_creation" {% if novel.novel_type == 'own_creation' %}selected{% endif %}>Own Creation (မူရင်းဖန်တီးမှု)</option>
-                                        <option value="translate" {% if novel.novel_type == 'translate' %}selected{% endif %}>Translate (ဘာသာပြန်)</option>
-                                        <option value="fanfic" {% if novel.novel_type == 'fanfic' %}selected{% endif %}>Fanfic</option>
+                                        <option value="own_creation" {% if novel and novel.novel_type == 'own_creation' %}selected{% endif %}>Own Creation (မူရင်းဖန်တီးမှု)</option>
+                                        <option value="translate" {% if novel and novel.novel_type == 'translate' %}selected{% endif %}>Translate (ဘာသာပြန်)</option>
+                                        <option value="fanfic" {% if novel and novel.novel_type == 'fanfic' %}selected{% endif %}>Fanfic</option>
                                     </select>
                                 </div>
 
@@ -870,6 +871,7 @@
                         </div>
                     </div>
 
+                    {% if novel %}
                         </div>
                         <!-- END TAB 1 -->
 
@@ -1025,7 +1027,6 @@
                                 </div>
                             </div>
                         </div>
-
                     </div>
                     {% endif %}
 

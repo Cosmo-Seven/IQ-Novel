@@ -35,33 +35,59 @@ footer a:hover {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 60px;
-  background: #fff;
+  height: 70px;
+  background: #ffffff;
   display: flex;
   justify-content: space-around;
   align-items: center;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #e0e0e0;
   z-index: 999;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.95);
 }
 
 .mobile-bottom-nav .nav-item {
   text-decoration: none;
-  color: #777;
-  font-size: 12px;
+  color: #666;
+  font-size: 11px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   flex: 1;
+  padding: 8px 0;
+  transition: all 0.2s ease;
+  position: relative;
 }
 
 .mobile-bottom-nav .nav-item i {
-  font-size: 18px;
-  margin-bottom: 3px;
+  font-size: 20px;
+  margin-bottom: 4px;
+  transition: all 0.2s ease;
+}
+
+.mobile-bottom-nav .nav-item:hover {
+  color: #c9184a;
+}
+
+.mobile-bottom-nav .nav-item:hover i {
+  transform: translateY(-2px);
 }
 
 .mobile-bottom-nav .nav-item.active {
-  color: #dc3545;
+  color: #c9184a;
+  font-weight: 600;
+}
+
+.mobile-bottom-nav .nav-item.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 30px;
+  height: 3px;
+  background-color: #c9184a;
+  border-radius: 0 0 3px 3px;
 }
 
 .novel-detail-container img {
