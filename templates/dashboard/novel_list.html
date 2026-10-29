@@ -90,7 +90,7 @@
                                         {{genre.name}}
                                     {% endfor %}
                                 </td>
-                                <td>{{ novel.summary|safe|truncatechars:"20" }}</td>
+                                <td>{{ novel.summary|striptags|truncatechars:"20" }}</td>
                                 <td>{{ novel.created_at|date:'d M Y' }}</td>
                                 <td class="action-table-data">
                                     <div class="edit-delete-action">
