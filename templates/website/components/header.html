@@ -133,7 +133,7 @@
             <div class="dropdown profile-dropdown">
                 <button type="button" data-bs-toggle="dropdown" aria-expanded="false"
                     class="avatar-trigger border-0 bg-transparent p-0">
-                    <img src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static 'dashboard/images/no-profile.png' %}{% endif %}"
+                    <img src="{% if user.profile %}{{ user.profile.url }}{% else %}{% static 'dashboard/images/no-profile.png' %}{% endif %}"
                         alt="Profile" class="avatar-img" loading="lazy">
                 </button>
 

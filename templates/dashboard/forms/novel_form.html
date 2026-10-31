@@ -719,16 +719,8 @@
                    class="btn btn-light border px-3" style="border-radius: 9px;" title="{% translate 'refresh' request.session.language %}">
                     <i class="ti ti-refresh"></i>
                 </a>
-                {% if novel %}
-                <button type="button" data-bs-target="#createModal" data-bs-toggle="modal"
-                        class="btn btn-primary px-3 fw-semibold shadow-sm d-inline-flex align-items-center gap-1"
-                        style="border-radius: 9px;">
-                    <i class="ti ti-plus fs-16"></i> {% translate 'add_chapter' request.session.language %}
-                </button>
-                {% endif %}
-                <button type="button" onclick="document.getElementById('mainNovelForm').requestSubmit();" class="btn-save-header">
-                    <i class="ti ti-device-floppy me-1"></i> {% translate 'save' request.session.language %}
-                </button>
+                
+               
             </div>
         </div>
 
@@ -890,10 +882,7 @@
                                         </span>
                                     </div>
 
-                                    <button type="button" data-bs-target="#createModal" data-bs-toggle="modal"
-                                            class="btn btn-primary btn-sm px-3 fw-semibold rounded-pill shadow-sm">
-                                        <i class="ti ti-plus me-1"></i> {% translate 'add_chapter' request.session.language %}
-                                    </button>
+                                    
                                 </div>
 
                                 <div class="novel-card-body">

@@ -263,7 +263,7 @@
         <div class="col-lg-4 col-xl-3">
             <div class="card modern-card p-4 text-center">
                 <div class="position-relative d-inline-block mx-auto mb-3">
-                    <img src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static 'dashboard/images/no-profile.png' %}{% endif %}"
+                    <img src="{% if user.profile %}{{ user.profile.url }}{% else %}{% static 'dashboard/images/no-profile.png' %}{% endif %}"
                         alt="Avatar" class="main-avatar">
                 </div>
                 <h4 class="fw-bold mb-1 text-dark">{{ request.user.username }}</h4>
@@ -576,27 +576,28 @@
                 <div class="tab-pane fade" id="panel-edit" role="tabpanel" aria-labelledby="tab-edit-btn">
                     <h3 class="fw-bold mb-4 text-dark">Edit Profile</h3>
 
-                    <form>
+                    <form method="post" action="{% url 'website_profile' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
                         <div class="row mb-4 align-items-center bg-light p-3 rounded-3 mx-0">
                             <div class="col-auto">
-                                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"
+                                <img src="{% if user.profile %}{{ user.profile.url }}{% else %}{% static 'dashboard/images/no-profile.png' %}{% endif %}"
                                     alt="Preview" class="rounded-circle border border-2 border-white shadow-sm"
                                     style="width: 75px; height: 75px; object-fit: cover;">
                             </div>
                             <div class="col">
                                 <label class="form-label small fw-bold text-secondary mb-1">Change Profile Picture</label>
-                                <input class="form-control form-control-sm w-100 w-sm-50" type="file" name="profile" id="profileImageInput">
+                                <input class="form-control form-control-sm w-100 w-sm-50" type="file" name="profile" id="profileImageInput" accept="image/*">
                             </div>
                         </div>
 
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold text-secondary">Full Name</label>
-                                <input type="text" class="form-control border-light-subtle shadow-sm" value="{{user.username}}" placeholder="Enter your name">
+                                <input type="text" name="username" class="form-control border-light-subtle shadow-sm" value="{{ user.username }}" placeholder="Enter your name" maxlength="100" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold text-secondary">Email Address</label>
-                                <input type="email" class="form-control border-light-subtle shadow-sm" value="{{user.email}}" placeholder="Enter email">
+                                <input type="email" name="email" class="form-control border-light-subtle shadow-sm" value="{{ user.email }}" placeholder="Enter email" required>
                             </div>
                         </div>
 
@@ -623,7 +624,7 @@
                         </div>
 
                         <div class="text-end border-top pt-3">
-                            <button type="button" class="btn btn-save-profile px-4 shadow-sm">Save Changes</button>
+                            <button type="submit" class="btn btn-save-profile px-4 shadow-sm">Save Changes</button>
                         </div>
                     </form>
 

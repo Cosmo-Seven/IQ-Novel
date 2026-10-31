@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
 from helpers.reward_helper import get_active_chapter_reward, get_effective_price
 from helpers.gem_helper import deduct_gems
 from django.contrib.auth.tokens import default_token_generator
@@ -16,6 +17,8 @@ from django.db.models import F, Q, Count, Max, Prefetch
 from decorators.login_decorator import login_required
 from django.contrib.auth import login, logout, authenticate
 from django.core.paginator import Paginator
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from helpers.gem_pricing import gem_unit_price_mmk, gems_to_mmk
 from models.account_deletion_models import AccountDeletionRequestModel
@@ -489,6 +492,55 @@ def profile(request):
     if not request.user.is_authenticated:
         messages.warning(request, "Please login to view your profile.")
         return redirect("website_login")
+
+    if request.method == "POST":
+        username = request.POST.get("username", "").strip()
+        email = request.POST.get("email", "").strip()
+        password = request.POST.get("password", "")
+        confirm_password = request.POST.get("confirm_password", "")
+
+        if not username or not email:
+            messages.error(request, "Username and email are required.")
+            return redirect("website_profile")
+        if (
+            len(username) > UserModel._meta.get_field("username").max_length
+            or len(email) > UserModel._meta.get_field("email").max_length
+        ):
+            messages.error(request, "Username or email is too long.")
+            return redirect("website_profile")
+
+        try:
+            validate_email(email)
+        except ValidationError:
+            messages.error(request, "Please enter a valid email address.")
+            return redirect("website_profile")
+
+        if UserModel.objects.filter(email=email).exclude(pk=request.user.pk).exists():
+            messages.error(request, "Email has already been used!")
+            return redirect("website_profile")
+
+        if password != confirm_password:
+            messages.error(request, "Password does not match! Please check again!")
+            return redirect("website_profile")
+
+        user = request.user
+        previous_profile = user.profile
+        uploaded_profile = request.FILES.get("profile")
+        user.username = username
+        user.email = email
+        if uploaded_profile:
+            user.profile = uploaded_profile
+        if password:
+            user.set_password(password)
+
+        user.save()
+        if uploaded_profile and previous_profile:
+            previous_profile.delete(save=False)
+        if password:
+            update_session_auth_hash(request, user)
+
+        messages.success(request, "Profile updated successfully.")
+        return redirect("website_profile")
 
     bookmarks = request.user.bookmarks.select_related("novel").all()
     gem_orders = request.user.gem_orders.select_related("gem").all().order_by("-created_at")

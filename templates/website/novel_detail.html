@@ -196,7 +196,7 @@
 
           <form action="{% url 'novel_detail' id=novel.id %}" method="POST" class="d-flex gap-3 align-items-start mb-4 theme-comment-box p-3 rounded-3">
             {% csrf_token %}
-            <img src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static 'dashboard/images/no-profile.png' %}{% endif %}"
+            <img src="{% if user.profile %}{{ user.profile.url }}{% else %}{% static 'dashboard/images/no-profile.png' %}{% endif %}"
               alt="User Avatar" class="rounded-circle border" style="width: 40px; height: 40px; object-fit: cover;" loading="lazy">
             <div class="flex-grow-1">
               <textarea name="comment_text" class="form-control border-0 shadow-none bg-transparent theme-textarea" rows="2" placeholder="Write a public review..."></textarea>
@@ -210,7 +210,7 @@
             {% if comments %}
               {% for comment in comments %}
                 <div class="comment-item p-3 border-bottom d-flex gap-3 theme-border">
-                  <img src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static 'dashboard/images/no-profile.png' %}{% endif %}"
+                  <img src="{% if user.profile %}{{ user.profile.url }}{% else %}{% static 'dashboard/images/no-profile.png' %}{% endif %}"
                     alt="User Avatar" class="rounded-circle" style="width: 38px; height: 38px; object-fit: cover;" loading="lazy">
                   <div class="flex-grow-1">
                     <div class="d-flex align-items-start gap-2">
