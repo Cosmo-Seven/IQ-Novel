@@ -14,7 +14,7 @@ from helpers.filters import filter_querysets
 from decorators.role_decorator import role_permission_required
 from decorators.login_decorator import login_required
 from django.db import transaction
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Q
 from django.db.models.functions import Coalesce
 from django.utils.timezone import now
 from constants.message import CREATE, UPDATE, DELETE
@@ -28,7 +28,12 @@ def _author_for_user(user):
 @login_required("dashboard_login")
 @role_permission_required("view_novelmodel")
 def novel_list(request):
-    novels = NovelModel.objects.select_related("author").filter(is_deleted=False,).order_by("-created_at")
+    novels = (
+        NovelModel.objects.select_related("author")
+        .filter(is_deleted=False,)
+        .annotate(chapter_count=Count("chapters", filter=Q(chapters__is_deleted=False), distinct=True))
+        .order_by("-created_at")
+    )
     author = _author_for_user(request.user)
     if not request.user.is_superuser:
         novels = novels.filter(author__user=request.user)

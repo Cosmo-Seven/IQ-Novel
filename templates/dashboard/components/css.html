@@ -41,3 +41,40 @@
 
 <!-- Map CSS -->
 <link rel="stylesheet" href="{% static 'dashboard/css/jquery-jvectormap-2.0.5.css' %}">
+
+<!-- Slim left/right draggable scrollbar for all dashboard tables -->
+<style>
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: #c1c5cd transparent;
+    }
+
+    .table-responsive::-webkit-scrollbar {
+        display: block;
+        height: 8px;
+    }
+
+    .table-responsive::-webkit-scrollbar-track {
+        background: rgba(128, 128, 128, 0.18);
+        border-radius: 50px;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb {
+        background: #c1c5cd;
+        border-radius: 50px;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb:hover {
+        background: #9aa0aa;
+    }
+
+    [data-theme="dark"] .table-responsive::-webkit-scrollbar-thumb {
+        background: #4c525e;
+    }
+
+    [data-theme="dark"] .table-responsive::-webkit-scrollbar-thumb:hover {
+        background: #6b7280;
+    }
+</style>

@@ -14,7 +14,7 @@ class RewardModel(BaseModel):
     end_date = models.DateTimeField()
     amount     = models.PositiveIntegerField(default=0, help_text="Coupons အတွက်သာ သုံး၊ free_read/discount_read မှာ 0 ထားပါ")
     reward_type = models.CharField(max_length=20,choices=RewardType.choices,default=RewardType.GEM_GIFT,)
-    user = models.ForeignKey("core.UserModel",on_delete=models.CASCADE,blank=True,null=True,related_name="rewards",help_text="None ဆိုရင် user အားလုံးအတွက်")
+    users = models.ManyToManyField("core.UserModel",blank=True,related_name="rewards",help_text="ချန်ထားရင် user အားလုံးအတွက်")
 
     class Meta:
         app_label = "core"

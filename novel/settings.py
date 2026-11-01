@@ -183,7 +183,9 @@ CKEDITOR_CONFIGS = {
             ['NumberedList', 'BulletedList'],
             ['Link', 'Unlink'],
             ['RemoveFormat']
+            
         ],
+        "format_tags": "p;h1;h2;h3;h4;h5;h6;pre",
         'removePlugins': 'elementspath,resize',
         'extraPlugins': 'justify',
         'allowedContent': True,

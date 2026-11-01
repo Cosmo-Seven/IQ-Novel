@@ -45,18 +45,26 @@
                             <img class="card-img-top novel-cover"
                                 src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}"
                                 alt="{{ novel.title }}" loading="lazy" />
+                            {% if novel.is_completed %}
+                            <span class="novel-status-badge bg-success">Complete</span>
+                            {% else %}
+                            <span class="novel-status-badge bg-warning text-dark">Ongoing</span>
+                            {% endif %}
                         </a>
 
                         <div class="card-body p-2 d-flex flex-column justify-content-between">
                             <div>
-                                <p class="novel-title mb-0 text-truncate theme-text-main" title="{{ novel.title }}">{{ novel.title }}</p>
+                                <p class="novel-title mb-0 text-truncate theme-text-main" title="{{ novel.title }}">{{
+                                    novel.title }}</p>
                                 <p class="novel-author mb-2 theme-text-muted small text-truncate">
-                                    <i class="bi bi-person me-1"></i>{% if novel.author %}{{ novel.author.display_name }}{% else %}Unknown{% endif %}
+                                    <i class="bi bi-person me-1"></i>{% if novel.author %}{{ novel.author.display_name
+                                    }}{% else %}Unknown{% endif %}
                                 </p>
                             </div>
                             <div
                                 class="novel-meta d-flex justify-content-between align-items-center theme-text-muted border-top theme-border pt-2">
-                                <span class="small"><i class="bi bi-book me-1"></i>Ch: {{ novel.public_chapters|length }}</span>
+                                <span class="small"><i class="bi bi-book me-1"></i>Ch: {{ novel.public_chapters|length
+                                    }}</span>
                                 <span class="small"><i class="bi bi-eye me-1"></i>{{ novel.views|intcomma }}</span>
                             </div>
                         </div>
@@ -84,18 +92,26 @@
                             <img class="card-img-top novel-cover"
                                 src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}"
                                 alt="{{ novel.title }}" loading="lazy" />
+                            {% if novel.is_completed %}
+                            <span class="novel-status-badge bg-success">Complete</span>
+                            {% else %}
+                            <span class="novel-status-badge bg-warning text-dark">Ongoing</span>
+                            {% endif %}
                         </a>
 
                         <div class="card-body p-2 d-flex flex-column justify-content-between">
                             <div>
-                                <p class="novel-title mb-0 text-truncate theme-text-main" title="{{ novel.title }}">{{ novel.title }}</p>
+                                <p class="novel-title mb-0 text-truncate theme-text-main" title="{{ novel.title }}">{{
+                                    novel.title }}</p>
                                 <p class="novel-author mb-2 theme-text-muted small text-truncate">
-                                    <i class="bi bi-person me-1"></i>{% if novel.author %}{{ novel.author.display_name }}{% else %}Unknown{% endif %}
+                                    <i class="bi bi-person me-1"></i>{% if novel.author %}{{ novel.author.display_name
+                                    }}{% else %}Unknown{% endif %}
                                 </p>
                             </div>
                             <div
                                 class="novel-meta d-flex justify-content-between align-items-center theme-text-muted border-top theme-border pt-2">
-                                <span class="small"><i class="bi bi-book me-1"></i>Ch: {{ novel.public_chapters|length }}</span>
+                                <span class="small"><i class="bi bi-book me-1"></i>Ch: {{ novel.public_chapters|length
+                                    }}</span>
                                 <span class="small"><i class="bi bi-eye me-1"></i>{{ novel.views|intcomma }}</span>
                             </div>
                         </div>
@@ -123,17 +139,26 @@
                             <img class="card-img-top novel-cover"
                                 src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}"
                                 alt="{{ novel.title }}" loading="lazy" />
+                            {% if novel.is_completed %}
+                            <span class="novel-status-badge bg-success">Complete</span>
+                            {% else %}
+                            <span class="novel-status-badge bg-warning text-dark">Ongoing</span>
+                            {% endif %}
                         </a>
 
                         <div class="card-body p-2 d-flex flex-column justify-content-between">
                             <div>
-                                <p class="novel-title mb-0 text-truncate theme-text-main" title="{{ novel.title }}">{{ novel.title }}</p>
+                                <p class="novel-title mb-0 text-truncate theme-text-main" title="{{ novel.title }}">{{
+                                    novel.title }}</p>
                                 <p class="novel-author mb-2 theme-text-muted small text-truncate">
-                                    <i class="bi bi-person me-1"></i>{% if novel.author %}{{ novel.author.display_name }}{% else %}Unknown{% endif %}
+                                    <i class="bi bi-person me-1"></i>{% if novel.author %}{{ novel.author.display_name
+                                    }}{% else %}Unknown{% endif %}
                                 </p>
                             </div>
-                            <div class="novel-meta d-flex justify-content-between align-items-center theme-text-muted border-top theme-border pt-2">
-                                <span class="small"><i class="bi bi-book me-1"></i>Ch: {{ novel.public_chapters|length }}</span>
+                            <div
+                                class="novel-meta d-flex justify-content-between align-items-center theme-text-muted border-top theme-border pt-2">
+                                <span class="small"><i class="bi bi-book me-1"></i>Ch: {{ novel.public_chapters|length
+                                    }}</span>
                                 <span class="small"><i class="bi bi-eye me-1"></i>{{ novel.views|intcomma }}</span>
                             </div>
                         </div>
@@ -146,7 +171,7 @@
     </section>
     {% endif %}
 
-    
+
 
     {% if fanfic_novels %}
     <section class="novel-feed-section mb-5">
@@ -164,18 +189,26 @@
                             <img class="card-img-top novel-cover"
                                 src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}"
                                 alt="{{ novel.title }}" loading="lazy" />
+                            {% if novel.is_completed %}
+                            <span class="novel-status-badge bg-success">Complete</span>
+                            {% else %}
+                            <span class="novel-status-badge bg-warning text-dark">Ongoing</span>
+                            {% endif %}
                         </a>
 
                         <div class="card-body p-2 d-flex flex-column justify-content-between">
                             <div>
-                                <p class="novel-title mb-0 text-truncate theme-text-main" title="{{ novel.title }}">{{ novel.title }}</p>
+                                <p class="novel-title mb-0 text-truncate theme-text-main" title="{{ novel.title }}">{{
+                                    novel.title }}</p>
                                 <p class="novel-author mb-2 theme-text-muted small text-truncate">
-                                    <i class="bi bi-person me-1"></i>{% if novel.author %}{{ novel.author.display_name }}{% else %}Unknown{% endif %}
+                                    <i class="bi bi-person me-1"></i>{% if novel.author %}{{ novel.author.display_name
+                                    }}{% else %}Unknown{% endif %}
                                 </p>
                             </div>
                             <div
                                 class="novel-meta d-flex justify-content-between align-items-center theme-text-muted border-top theme-border pt-2">
-                                <span class="small"><i class="bi bi-book me-1"></i>Ch: {{ novel.public_chapters|length }}</span>
+                                <span class="small"><i class="bi bi-book me-1"></i>Ch: {{ novel.public_chapters|length
+                                    }}</span>
                                 <span class="small"><i class="bi bi-eye me-1"></i>{{ novel.views|intcomma }}</span>
                             </div>
                         </div>
@@ -204,17 +237,26 @@
                             <img class="card-img-top novel-cover"
                                 src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}"
                                 alt="{{ novel.title }}" loading="lazy" />
+                            {% if novel.is_completed %}
+                            <span class="novel-status-badge bg-success">Complete</span>
+                            {% else %}
+                            <span class="novel-status-badge bg-warning text-dark">Ongoing</span>
+                            {% endif %}
                         </a>
 
                         <div class="card-body p-2 d-flex flex-column justify-content-between">
                             <div>
-                                <p class="novel-title mb-0 text-truncate theme-text-main" title="{{ novel.title }}">{{ novel.title }}</p>
+                                <p class="novel-title mb-0 text-truncate theme-text-main" title="{{ novel.title }}">{{
+                                    novel.title }}</p>
                                 <p class="novel-author mb-2 theme-text-muted small text-truncate">
-                                    <i class="bi bi-person me-1"></i>{% if novel.author %}{{ novel.author.display_name }}{% else %}Unknown{% endif %}
+                                    <i class="bi bi-person me-1"></i>{% if novel.author %}{{ novel.author.display_name
+                                    }}{% else %}Unknown{% endif %}
                                 </p>
                             </div>
-                            <div class="novel-meta d-flex justify-content-between align-items-center theme-text-muted border-top theme-border pt-2">
-                                <span class="small"><i class="bi bi-book me-1"></i>Ch: {{ novel.public_chapters|length }}</span>
+                            <div
+                                class="novel-meta d-flex justify-content-between align-items-center theme-text-muted border-top theme-border pt-2">
+                                <span class="small"><i class="bi bi-book me-1"></i>Ch: {{ novel.public_chapters|length
+                                    }}</span>
                                 <span class="small"><i class="bi bi-eye me-1"></i>{{ novel.views|intcomma }}</span>
                             </div>
                         </div>
@@ -243,18 +285,26 @@
                             <img class="card-img-top novel-cover"
                                 src="{% if novel.cover_image %}{{novel.cover_image.url}}{% else %}{% static 'website/images/agent-1.jpg' %}{% endif %}"
                                 alt="{{ novel.title }}" loading="lazy" />
+                            {% if novel.is_completed %}
+                            <span class="novel-status-badge bg-success">Complete</span>
+                            {% else %}
+                            <span class="novel-status-badge bg-warning text-dark">Ongoing</span>
+                            {% endif %}
                         </a>
 
                         <div class="card-body p-2 d-flex flex-column justify-content-between">
                             <div>
-                                <p class="novel-title mb-0 text-truncate theme-text-main" title="{{ novel.title }}">{{ novel.title }}</p>
+                                <p class="novel-title mb-0 text-truncate theme-text-main" title="{{ novel.title }}">{{
+                                    novel.title }}</p>
                                 <p class="novel-author mb-2 theme-text-muted small text-truncate">
-                                    <i class="bi bi-person me-1"></i>{% if novel.author %}{{ novel.author.display_name }}{% else %}Unknown{% endif %}
+                                    <i class="bi bi-person me-1"></i>{% if novel.author %}{{ novel.author.display_name
+                                    }}{% else %}Unknown{% endif %}
                                 </p>
                             </div>
                             <div
                                 class="novel-meta d-flex justify-content-between align-items-center theme-text-muted border-top theme-border pt-2">
-                                <span class="small"><i class="bi bi-book me-1"></i>Ch: {{ novel.public_chapters|length }}</span>
+                                <span class="small"><i class="bi bi-book me-1"></i>Ch: {{ novel.public_chapters|length
+                                    }}</span>
                                 <span class="small"><i class="bi bi-eye me-1"></i>{{ novel.views|intcomma }}</span>
                             </div>
                         </div>
@@ -455,11 +505,27 @@
     }
 
     .novel-img-wrapper {
+        position: relative;
         display: block;
         width: 100%;
         aspect-ratio: 2 / 3;
         overflow: hidden;
         background-color: var(--border-color, #f3f4f6);
+    }
+
+    /* Status badge overlaid on the novel cover */
+    .novel-status-badge {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        z-index: 3;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+        padding: 4px 10px;
+        border-radius: 30px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
     }
 
     .novel-cover {

@@ -6,6 +6,39 @@
 {% block body %}
 {% load humanize %}
 {% load myanmar_number %}
+<style>
+    /* Horizontal (left/right) draggable scrollbar for the user table */
+    .user-table-scroll {
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: thin;
+        scrollbar-color: #b9bdc7 #f1f3f5;
+    }
+
+    .user-table-scroll table {
+        min-width: 1200px;
+        white-space: nowrap;
+    }
+
+    .user-table-scroll::-webkit-scrollbar {
+        height: 10px;
+    }
+
+    .user-table-scroll::-webkit-scrollbar-track {
+        background: #f1f3f5;
+        border-radius: 10px;
+    }
+
+    .user-table-scroll::-webkit-scrollbar-thumb {
+        background: #b9bdc7;
+        border-radius: 10px;
+        border: 2px solid #f1f3f5;
+    }
+
+    .user-table-scroll::-webkit-scrollbar-thumb:hover {
+        background: #8f95a3;
+    }
+</style>
 <div class="page-wrapper">
     <div class="content">
         <div class="page-header">
@@ -49,7 +82,7 @@
                 </div>
             </div>
             <div class="p-0 card-body">
-                <div class="table-responsive">
+                <div class="table-responsive user-table-scroll">
                     <table class="table">
                         <thead class="thead-light">
                             <tr>
@@ -78,7 +111,8 @@
                                             <img src="{% if user.profile %}{{user.profile.url}}{% else %}{% static 'dashboard/images/no-profile.png' %}{% endif %}"
                                                 alt="{{user.username}}">
                                         </a>
-                                        <a href="javascript:void(0);">{% translate user.translation_key request.session.language %}</a>
+                                        <a href="javascript:void(0);">{% translate user.translation_key
+                                            request.session.language %}</a>
                                     </div>
                                 </td>
                                 <td>
@@ -89,7 +123,8 @@
                                     {% endif %}
                                 </td>
                                 <td><a href="mailto:{{user.email}}">{{user.email}}</a></td>
-                                <td><button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#gemfillModal_{{user.id}}">Fill</button></td>
+                                <td><button class="btn btn-sm btn-success" data-bs-toggle="modal"
+                                        data-bs-target="#gemfillModal_{{user.id}}">Fill</button></td>
                                 <td>{{user.created_at}}</td>
                                 <td>{{user.gem}}</td>
                                 <td>{{user.free_gem}}</td>
@@ -98,21 +133,24 @@
                                     <span
                                         class="d-inline-flex align-items-center p-1 pe-2 rounded-1 text-white bg-{% if user.is_active %}success{% else %}danger{% endif %} fs-10">
                                         <i class="ti ti-point-filled me-1 fs-11"></i>
-                                        {% if user.is_active %}{% translate 'active' request.session.language %}{% else %}{% translate 'inactive' request.session.language %}{% endif %}
+                                        {% if user.is_active %}{% translate 'active' request.session.language %}{% else
+                                        %}{% translate 'inactive' request.session.language %}{% endif %}
                                     </span>
                                 </td>
                                 <td>
                                     <span
                                         class="d-inline-flex align-items-center p-1 pe-2 rounded-1 text-white bg-{% if user.is_staff %}success{% else %}danger{% endif %} fs-10">
                                         <i class="ti ti-point-filled me-1 fs-11"></i>
-                                        {% if user.is_staff %}{% translate 'active' request.session.language %}{% else %}{% translate 'inactive' request.session.language %}{% endif %}
+                                        {% if user.is_staff %}{% translate 'active' request.session.language %}{% else
+                                        %}{% translate 'inactive' request.session.language %}{% endif %}
                                     </span>
                                 </td>
                                 <td>
                                     <span
                                         class="d-inline-flex align-items-center p-1 pe-2 rounded-1 text-white bg-{% if user.is_superuser %}success{% else %}danger{% endif %} fs-10">
                                         <i class="ti ti-point-filled me-1 fs-11"></i>
-                                        {% if user.is_superuser %}{% translate 'active' request.session.language %}{% else %}{% translate 'inactive' request.session.language %}{% endif %}
+                                        {% if user.is_superuser %}{% translate 'active' request.session.language %}{%
+                                        else %}{% translate 'inactive' request.session.language %}{% endif %}
                                     </span>
                                 </td>
                                 <td class="action-table-data">
@@ -157,8 +195,10 @@
                         {% csrf_token %}
                         {% include 'dashboard/forms/user_form.html' %}
                         <div class="modal-footer">
-                            <button type="button" class="btn me-2 btn-secondary" data-bs-dismiss="modal">{% translate 'close' request.session.language %}</button>
-                            <button type="submit" class="btn btn-primary">{% translate 'save' request.session.language %}</button>
+                            <button type="button" class="btn me-2 btn-secondary" data-bs-dismiss="modal">{% translate
+                                'close' request.session.language %}</button>
+                            <button type="submit" class="btn btn-primary">{% translate 'save' request.session.language
+                                %}</button>
                         </div>
                     </form>
                 </div>
@@ -186,8 +226,10 @@
                         {% csrf_token %}
                         {% include 'dashboard/forms/user_form.html' %}
                         <div class="modal-footer">
-                            <button type="button" class="btn me-2 btn-secondary" data-bs-dismiss="modal">{% translate 'close' request.session.language %}</button>
-                            <button type="submit" class="btn btn-primary">{% translate 'save' request.session.language %}</button>
+                            <button type="button" class="btn me-2 btn-secondary" data-bs-dismiss="modal">{% translate
+                                'close' request.session.language %}</button>
+                            <button type="submit" class="btn btn-primary">{% translate 'save' request.session.language
+                                %}</button>
                         </div>
                     </form>
                 </div>
@@ -214,7 +256,8 @@
                         {% csrf_token %}
                         <button type="button" class="p-2 px-3 shadow-none btn me-2 btn-secondary fs-13 fw-medium"
                             data-bs-dismiss="modal">{% translate 'no' request.session.language %}</button>
-                        <button type="submit" class="p-2 px-3 btn btn-primary fs-13 fw-medium">{% translate 'yes' request.session.language %}</button>
+                        <button type="submit" class="p-2 px-3 btn btn-primary fs-13 fw-medium">{% translate 'yes'
+                            request.session.language %}</button>
                     </form>
                 </div>
             </div>
@@ -225,32 +268,33 @@
 
 <!-- Gem Fill -->
 {% for n_user in users %}
-<div class="modal fade" id="gemfillModal_{{n_user.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <div class="page-title">
-            <h4>{% translate 'gem_fill' request.session.language %}</h4>
+<div class="modal fade" id="gemfillModal_{{n_user.id}}" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="page-title">
+                    <h4>{% translate 'gem_fill' request.session.language %}</h4>
+                </div>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <form action="{% url 'gem_fill' n_user.id %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div>
+                        <label class="form-label" for="gem_fill">gem_amount</label>
+                        <input class="form-control" type="number" name="gem">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
         </div>
-        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">×</span>
-        </button>
-      </div>
-      <form action="{% url 'gem_fill' n_user.id %}" method="POST">
-        {% csrf_token %}
-        <div class="modal-body">
-          <div>
-            <label class="form-label" for="gem_fill">gem_amount</label>
-            <input class="form-control" type="number" name="gem">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
-      </form>
     </div>
-  </div>
 </div>
 {% endfor %}
 {% endblock %}

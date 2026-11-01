@@ -17,11 +17,12 @@
             </div>
             <ul class="table-top-head">
                 <li>
-                    <a data-bs-toggle="tooltip" href="{{novel_list_url}}" data-bs-placement="top" title="{% translate 'refresh' request.session.language %}"><i
-                            class="ti ti-refresh"></i></a>
+                    <a data-bs-toggle="tooltip" href="{{novel_list_url}}" data-bs-placement="top"
+                        title="{% translate 'refresh' request.session.language %}"><i class="ti ti-refresh"></i></a>
                 </li>
                 <li>
-                    <a data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate 'collapse' request.session.language %}" id="collapse-header"><i
+                    <a data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="{% translate 'collapse' request.session.language %}" id="collapse-header"><i
                             class="ti ti-chevron-up"></i></a>
                 </li>
             </ul>
@@ -32,8 +33,8 @@
                     <i class="ti ti-trash me-1"></i>Pending deletions
                 </a>
                 {% endif %}
-                <a href="{{novel_create_url}}" class="btn btn-primary"><i
-                        class="ti ti-circle-plus me-1"></i>{% translate 'add_new_novel' request.session.language %}</a>
+                <a href="{{novel_create_url}}" class="btn btn-primary"><i class="ti ti-circle-plus me-1"></i>
+                    {% translate 'add_new_novel' request.session.language %}</a>
             </div>
         </div>
 
@@ -56,6 +57,8 @@
                                 <th>{% translate 'author' request.session.language %}</th>
                                 <th>{% translate 'genre' request.session.language %}</th>
                                 <th>{% translate 'summary' request.session.language %}</th>
+                                <th class="text-center">{% translate 'status' request.session.language %}</th>
+                                <th class="text-center">{% translate 'chapter' request.session.language %}</th>
                                 <th>{% translate 'created_date' request.session.language %}</th>
                                 <th class="text-center">{% translate 'action' request.session.language %}</th>
                             </tr>
@@ -81,16 +84,24 @@
                                 <td>
                                     {{ novel.title }}
                                     {% if novel.delete_pending_approval %}
-                                        <span class="badge bg-warning text-dark ms-2">Pending approval</span>
+                                    <span class="badge bg-warning text-dark ms-2">Pending approval</span>
                                     {% endif %}
                                 </td>
                                 <td>{{ novel.author }}</td>
                                 <td>
                                     {% for genre in novel.genres.all %}
-                                        {{genre.name}}
+                                    {{genre.name}}
                                     {% endfor %}
                                 </td>
                                 <td>{{ novel.summary|striptags|truncatechars:"20" }}</td>
+                                <td class="text-center">
+                                    {% if novel.is_completed %}
+                                    <span class="badge bg-success">Complete</span>
+                                    {% else %}
+                                    <span class="badge bg-warning text-dark">Ongoing</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">{{ novel.chapter_count }}</td>
                                 <td>{{ novel.created_at|date:'d M Y' }}</td>
                                 <td class="action-table-data">
                                     <div class="edit-delete-action">
@@ -125,7 +136,8 @@
                     <span class="rounded-circle d-inline-flex p-2 bg-danger-transparent mb-2"><i
                             class="ti ti-trash fs-24 text-danger"></i></span>
                     <h4 class="fs-20 fw-bold mb-2 mt-1">{% translate 'delete' request.session.language %}!</h4>
-                    <p class="mb-0 fs-16">{% translate 'are_you_sure_you_want_to_delete' request.session.language %}?</p>
+                    <p class="mb-0 fs-16">{% translate 'are_you_sure_you_want_to_delete' request.session.language %}?
+                    </p>
                     <form method="POST" action="{% url 'novel_delete' novel.id %}"
                         class="modal-footer-btn mt-3 d-flex justify-content-center">
                         {% csrf_token %}

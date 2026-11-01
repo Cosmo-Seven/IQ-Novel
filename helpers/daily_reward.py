@@ -15,14 +15,14 @@ def process_daily_reward(user):
 
     # Get all applicable rewards for this user
     # Rewards can be:
-    # 1. Specific to this user (user_id matches)
-    # 2. Global rewards (user_id is NULL)
+    # 1. Specific to this user (user in users)
+    # 2. Global rewards (no users assigned)
     applicable_rewards = RewardModel.objects.filter(
         start_date__date__lte=today,
         end_date__date__gte=today,
     ).filter(
-        models.Q(user__isnull=True) | models.Q(user=user)
-    )
+        models.Q(users__isnull=True) | models.Q(users=user)
+    ).distinct()
 
     for reward in applicable_rewards:
         # Check if this reward was already claimed today by this user

@@ -4,64 +4,116 @@
 <div class="col-lg-12">
     <div class="mb-3">
         <label class="form-label">Reward Type <span class="text-danger">*</span></label>
-        <select name="reward_type" class="form-select" id="rewardTypeSelect" required>
-            <option value="gem_gift"
-                {% if reward and reward.reward_type == "gem_gift" %}selected{% endif %}>
-                🎟️ Coupons (Login Reward)
-            </option>
-            <option value="free_read"
-                {% if reward and reward.reward_type == "free_read" %}selected{% endif %}>
-                📖 Free Read (All Chapters Free)
-            </option>
-            <option value="discount_read"
-                {% if reward and reward.reward_type == "discount_read" %}selected{% endif %}>
-                🏷️ Discount Read (All Chapters for Coupons or Gems)
-            </option>
+        <select name="reward_type" class="form-select reward-type-select" required>
+            {% if reward and reward.reward_type == "gem_gift" %}
+            <option value="gem_gift" selected>🎟️ Coupons (Login Reward)</option>
+            {% else %}
+            <option value="gem_gift">🎟️ Coupons (Login Reward)</option>
+            {% endif %}
+            {% if reward and reward.reward_type == "free_read" %}
+            <option value="free_read" selected>📖 Free Read (All Chapters Free)</option>
+            {% else %}
+            <option value="free_read">📖 Free Read (All Chapters Free)</option>
+            {% endif %}
+            {% if reward and reward.reward_type == "discount_read" %}
+            <option value="discount_read" selected>🏷️ Discount Read (All Chapters for Coupons or Gems)</option>
+            {% else %}
+            <option value="discount_read">🏷️ Discount Read (All Chapters for Coupons or Gems)</option>
+            {% endif %}
         </select>
     </div>
 </div>
 
-<div class="col-lg-12" id="amountField">
+<div class="col-lg-12 amount-field">
     <div class="mb-3">
         <label class="form-label">Number of Coupons <span class="text-danger">*</span></label>
-        <input type="number" name="amount" class="form-control" min="1"
-            value="{{ reward.amount|default:'' }}"
+        <input type="number" name="amount" class="form-control" min="1" value="{{ reward.amount|default:'' }}"
             placeholder="Coupons အရေအတွက် ထည့်ပါ">
         <small class="text-muted">Coupons reward အတွက်သာ သုံးသည်</small>
     </div>
 </div>
 
-<!-- User (specific user သို့မဟုတ် all users) -->
+<!-- Users (အများအပြား ရွေးနိုင်သည်) -->
 <div class="col-lg-12">
     <div class="mb-3">
         <label class="form-label">Apply To User
             <small class="text-muted">(ချန်ထားရင် user အားလုံးအတွက်)</small>
         </label>
-        <select name="user" class="form-select">
-            <option value="">— All Users —</option>
+        <select name="users" class="form-select select2-users" multiple="multiple"
+            data-placeholder="Search user by name or email...">
+            {% if reward and reward.users.all %}
+            <option value="all">— All Users —</option>
+            {% else %}
+            <option value="all" selected>— All Users —</option>
+            {% endif %}
             {% for u in users %}
-            <option value="{{ u.id }}"
-                {% if reward and reward.user_id == u.id %}selected{% endif %}>
+            <option value="{{ u.id }}" {% if reward and u in reward.users.all %}selected{% endif %}>
                 {{ u.username }} ({{ u.email }})
             </option>
             {% endfor %}
         </select>
+        <small class="text-muted">User အများအပြား ရွေးနိုင်သည်။ ဘယ်သူမှ မရွေးရင် user အားလုံးအတွက် ဖြစ်သည်။</small>
     </div>
 </div>
 
 <script>
-    (function () {
-        const select      = document.getElementById("rewardTypeSelect");
-        const amountField = document.getElementById("amountField");
-        const amountInput = amountField.querySelector("input");
+    // Select2 multi-select + real-time search (modal ဖွင့်ချိန်တွင် initialize လုပ်သည်)
+    document.addEventListener("DOMContentLoaded", function () {
+        if (!window.jQuery || !jQuery.fn.select2 || window.__rewardUserSelectBound) return;
+        window.__rewardUserSelectBound = true;
 
-        function toggleAmount() {
-            const isGemGift = select.value === "gem_gift";
+        jQuery(document).on("shown.bs.modal", function (e) {
+            jQuery(e.target).find(".select2-users").each(function () {
+                if (jQuery(this).hasClass("select2-hidden-accessible")) return;
+                jQuery(this).select2({
+                    width: "100%",
+                    allowClear: true,
+                    closeOnSelect: false,
+                    dropdownParent: jQuery(this).closest(".modal"),
+                    placeholder: jQuery(this).data("placeholder") || "Search user...",
+                });
+            });
+        });
+
+        // "All Users" ရွေးရင် ကျန်တာ ဖြုတ်၊ တစ်ဦးချင်း ရွေးရင် "All Users" ကို ဖြုတ်
+        jQuery(document).on("select2:select", ".select2-users", function (e) {
+            var $el = jQuery(this);
+            if (e.params.data.id === "all") {
+                $el.val(["all"]);
+            } else {
+                var vals = jQuery.grep($el.val() || [], function (v) {
+                    return v !== "all";
+                });
+                $el.val(vals);
+            }
+            $el.trigger("change.select2");
+        });
+    });
+</script>
+
+<script>
+    (function () {
+        if (window.__rewardTypeToggleBound) return;
+        window.__rewardTypeToggleBound = true;
+
+        function applyRewardType(select) {
+            var form = select.closest("form");
+            var amountField = form ? form.querySelector(".amount-field") : null;
+            if (!amountField) return;
+
+            var isGemGift = select.value === "gem_gift";
             amountField.style.display = isGemGift ? "block" : "none";
-            amountInput.required      = isGemGift;
+            amountField.querySelector("input").required = isGemGift;
         }
 
-        select.addEventListener("change", toggleAmount);
-        toggleAmount(); // page load မှာ run
+        document.addEventListener("change", function (e) {
+            if (e.target.classList && e.target.classList.contains("reward-type-select")) {
+                applyRewardType(e.target);
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".reward-type-select").forEach(applyRewardType);
+        });
     })();
 </script>

@@ -12,11 +12,16 @@ from constants.message import CREATE, UPDATE, DELETE
 @login_required("dashboard_login")
 @role_permission_required("view_rewardmodel")
 def reward_list(request):
-    rewards = RewardModel.objects.all().order_by("-created_at")
+    rewards = (
+        RewardModel.objects.all()
+        .prefetch_related("users")
+        .distinct()
+        .order_by("-created_at")
+    )
     filters = filter_querysets(
         request,
         rewards,
-        search_fields=["user__username", "user__email"],
+        search_fields=["users__username", "users__email"],
         date_field="created_at",
         order="-created_at",
     )
@@ -26,6 +31,7 @@ def reward_list(request):
         "dashboard/reward_list.html",
         {
             "rewards": filters["page_obj"],
+            "users": UserModel.objects.all().order_by("username"),
             **filters,
         },
     )
@@ -46,7 +52,7 @@ def reward_create(request):
     if request.method == "POST":
         start_date  = request.POST.get("start_date")
         end_date    = request.POST.get("end_date")
-        user_id     = request.POST.get("user")
+        user_ids    = [u for u in request.POST.getlist("users") if u and u != "all"]
         reward_type = request.POST.get("reward_type", "gem_gift")
 
         # date validation အရင်
@@ -67,17 +73,14 @@ def reward_create(request):
         else:
             amount = 0  # free_read / discount_read မှာ amount မလို
 
-        user = None
-        if user_id:
-            user = get_object_or_404(UserModel, id=user_id)
-
-        RewardModel.objects.create(
+        reward = RewardModel.objects.create(
             start_date=start_date,
             end_date=end_date,
             amount=amount,
             reward_type=reward_type,
-            user=user,
         )
+        if user_ids:
+            reward.users.set(UserModel.objects.filter(id__in=user_ids))
         messages.success(request, CREATE)
         return redirect("reward_list")
 
@@ -100,7 +103,7 @@ def reward_update(request, pk):
         start_date = request.POST.get("start_date")
         end_date = request.POST.get("end_date")
         amount = request.POST.get("amount")
-        user_id = request.POST.get("user")
+        user_ids = [u for u in request.POST.getlist("users") if u and u != "all"]
         reward_type = request.POST.get("reward_type", "gem_gift")
 
         if reward_type == "gem_gift":
@@ -132,14 +135,10 @@ def reward_update(request, pk):
         reward.end_date = end_date
         reward.reward_type = reward_type
         reward.amount = amount
-
-        if user_id:
-            user = get_object_or_404(UserModel, id=user_id)
-            reward.user = user
-        else:
-            reward.user = None
-
         reward.save()
+
+        reward.users.set(UserModel.objects.filter(id__in=user_ids))
+
         messages.success(request, UPDATE)
         return redirect("reward_list")
 

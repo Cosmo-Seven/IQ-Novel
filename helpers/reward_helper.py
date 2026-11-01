@@ -22,12 +22,12 @@ def get_active_chapter_reward(user=None):
 
     # user specific reward ဦးစားပေး
     if user and user.is_authenticated:
-        reward = base_qs.filter(user=user).first()
+        reward = base_qs.filter(users=user).distinct().first()
         if reward:
             return reward
 
-    # global reward (user=None)
-    return base_qs.filter(user=None).first()
+    # global reward (user မရွေးထားသော)
+    return base_qs.filter(users__isnull=True).first()
 
 
 def get_effective_price(chapter, user=None):

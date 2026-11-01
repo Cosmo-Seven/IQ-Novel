@@ -18,24 +18,34 @@
         color: var(--main-text, #212529) !important;
         transition: color 0.4s ease;
     }
-    .text-muted, .text-secondary {
+
+    .text-muted,
+    .text-secondary {
         color: var(--text-muted-dark, #6c757d) !important;
         transition: color 0.4s ease;
     }
+
     .bg-light {
         background-color: var(--border-color, #f8f9fa) !important;
         transition: background-color 0.4s ease;
     }
-    .border, .border-top, .border-light-subtle, .border-danger {
+
+    .border,
+    .border-top,
+    .border-light-subtle,
+    .border-danger {
         border-color: var(--border-color, #dee2e6) !important;
         transition: border-color 0.4s ease;
     }
-    .form-control, .form-control-sm {
+
+    .form-control,
+    .form-control-sm {
         background-color: var(--card-bg, #fff) !important;
         color: var(--main-text, #212529) !important;
         border-color: var(--border-color, #dee2e6) !important;
         transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
     }
+
     .form-control:focus {
         background-color: var(--card-bg, #fff) !important;
         color: var(--main-text, #212529) !important;
@@ -53,6 +63,7 @@
         color: #433422;
         opacity: 0.6;
     }
+
     .modal-content {
         background-color: var(--card-bg, #fff) !important;
         transition: background-color 0.4s ease;
@@ -73,7 +84,7 @@
         border-radius: 50%;
         object-fit: cover;
         border: 4px solid var(--card-bg, #fff);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         transition: border-color 0.4s ease;
     }
 
@@ -139,14 +150,14 @@
         border: none;
         border-radius: 12px;
         overflow: hidden;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
         transition: var(--transition-smooth), background-color 0.4s ease;
         background: var(--card-bg, #fff);
     }
 
     .novel-mini-card:hover {
         transform: translateY(-4px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
     }
 
     .novel-mini-img {
@@ -166,7 +177,7 @@
         border-color: var(--border-color, #dee2e6) !important;
         transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
     }
-    
+
     .table-custom td {
         padding: 14px;
         color: var(--main-text, #334155) !important;
@@ -174,6 +185,7 @@
         background-color: var(--card-bg, #fff) !important;
         transition: color 0.4s ease, border-color 0.4s ease, background-color 0.4s ease;
     }
+
     .table-custom tr:hover td {
         background-color: var(--border-color, #f1f5f9) !important;
     }
@@ -227,7 +239,7 @@
         border: 1px solid var(--border-color, #e2e8f0);
         border-radius: 16px;
         padding: 1rem;
-        background: rgba(255,255,255,0.4);
+        background: rgba(255, 255, 255, 0.4);
         height: 100%;
     }
 
@@ -243,7 +255,7 @@
         font-weight: 700;
         margin-bottom: 0.75rem;
     }
-    
+
     /* Account Deletion Card */
     .card.border-danger .card-header {
         background-color: var(--card-bg, #dc3545) !important;
@@ -251,6 +263,7 @@
         color: var(--main-text, #fff) !important;
         transition: background-color 0.4s ease, color 0.4s ease;
     }
+
     .card.border-danger .card-body {
         background-color: var(--card-bg, #fff) !important;
         transition: background-color 0.4s ease;
@@ -279,9 +292,9 @@
                             <div class="fw-bold">{{ request.user.gem|intcomma }}</div>
                         </div>
                     </div>
-                
+
                     <div class="vr"></div>
-                
+
                     <!-- Free Gem -->
                     <div class="gem-balance-card d-flex align-items-center gap-2 shadow-sm">
                         <i class="bi bi-gem-fill text-success fs-5"></i>
@@ -290,18 +303,24 @@
                             <div class="fw-bold">{{ request.user.free_gem|intcomma }}</div>
                         </div>
                     </div>
-                
+
                 </div>
 
                 {% if author_profile %}
                 <div class="d-flex justify-content-center gap-3 mb-4">
-                    <div class="text-center px-3 py-2 rounded-3" style="background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); border: 1px solid #c4b5fd; min-width: 90px;">
+                    <div class="text-center px-3 py-2 rounded-3"
+                        style="background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); border: 1px solid #c4b5fd; min-width: 90px;">
                         <div class="fw-bold text-dark fs-5">{{ follower_count|intcomma }}</div>
-                        <div class="text-muted" style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Followers</div>
+                        <div class="text-muted"
+                            style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                            Followers</div>
                     </div>
-                    <div class="text-center px-3 py-2 rounded-3" style="background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); border: 1px solid #7dd3fc; min-width: 90px;">
+                    <div class="text-center px-3 py-2 rounded-3"
+                        style="background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); border: 1px solid #7dd3fc; min-width: 90px;">
                         <div class="fw-bold text-dark fs-5">{{ novel_count|intcomma }}</div>
-                        <div class="text-muted" style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Novels</div>
+                        <div class="text-muted"
+                            style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                            Novels</div>
                     </div>
                 </div>
                 {% endif %}
@@ -318,19 +337,26 @@
                     <button class="list-group-item list-group-item-action" id="tab-following-btn" data-bs-toggle="list"
                         data-bs-target="#panel-following" type="button" role="tab">
                         <i class="bi bi-person-heart me-2"></i> Following
-                        {% if following_authors %}<span class="badge bg-primary rounded-pill float-end">{{ following_authors|length }}</span>{% endif %}
+                        {% if following_authors %}
+                        <span class="badge bg-primary rounded-pill float-end">{{ following_authors|length }}</span>
+                        {% endif %}
                     </button>
                     <button class="list-group-item list-group-item-action" id="tab-edit-btn" data-bs-toggle="list"
                         data-bs-target="#panel-edit" type="button" role="tab">
                         <i class="bi bi-person-gear me-2"></i> Edit Profile
                     </button>
-                    <button class="list-group-item list-group-item-action text-danger" id="tab-logout-btn" data-bs-toggle="modal"
-                        data-bs-target="#logoutModal" type="button" role="tab">
+                    <button class="list-group-item list-group-item-action" id="tab-delete-btn" data-bs-toggle="list"
+                        data-bs-target="#panel-delete" type="button" role="tab">
+                        <i class="bi bi-trash me-2"></i> Request delete
+                    </button>
+                    <button class="list-group-item list-group-item-action text-danger" id="tab-logout-btn"
+                        data-bs-toggle="modal" data-bs-target="#logoutModal" type="button" role="tab">
                         <i class="bi bi-box-arrow-right me-2"></i> Logout
                     </button>
                 </div>
 
-                <button type="button" class="btn manual-help-btn w-100 mt-3" data-bs-toggle="modal" data-bs-target="#userManualModal">
+                <button type="button" class="btn manual-help-btn w-100 mt-3" data-bs-toggle="modal"
+                    data-bs-target="#userManualModal">
                     <i class="bi bi-question-circle me-2"></i> User Manual / အသုံးပြုနည်း
                 </button>
             </div>
@@ -339,7 +365,8 @@
         <div class="col-lg-8 col-xl-9">
             <div class="card modern-card p-4 p-md-5 tab-content" id="nav-tabContent">
 
-                <div class="tab-pane fade show active" id="panel-library" role="tabpanel" aria-labelledby="tab-library-btn">
+                <div class="tab-pane fade show active" id="panel-library" role="tabpanel"
+                    aria-labelledby="tab-library-btn">
                     <h3 class="fw-bold mb-4 text-dark">My Library</h3>
 
                     <ul class="nav nav-tabs library-tabs mb-4" id="librarySubTabs" role="tablist">
@@ -349,7 +376,12 @@
                         </li>
                         <li class="nav-item">
                             <button class="nav-link" id="sub-reading-list-tab" data-bs-toggle="tab"
-                                data-bs-target="#sub-reading-list" type="button" role="tab">Reading List{% if reading_list %} <span class="badge bg-primary rounded-pill ms-1">{{ reading_list|length }}</span>{% endif %}</button>
+                                data-bs-target="#sub-reading-list" type="button" role="tab">
+                                Reading List
+                                {% if reading_list %}
+                                <span class="badge bg-primary rounded-pill ms-1">{{ reading_list|length }}</span>
+                                {% endif %}
+                            </button>
                         </li>
                         <li class="nav-item">
                             <button class="nav-link" id="sub-purchased-tab" data-bs-toggle="tab"
@@ -388,7 +420,8 @@
 
                         <div class="tab-pane fade" id="sub-reading-list" role="tabpanel">
                             {% if reading_list %}
-                            <p class="text-muted small mb-3">You've started reading {{ reading_list|length }} novel{{ reading_list|length|pluralize }}.</p>
+                            <p class="text-muted small mb-3">You've started reading {{ reading_list|length }} novel{{
+                                reading_list|length|pluralize }}.</p>
                             <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3">
                                 {% for novel in reading_list %}
                                 <div class="col">
@@ -407,14 +440,16 @@
                             <div class="text-center py-5 text-muted">
                                 <i class="bi bi-journal-text fs-1 mb-2 d-block text-secondary"></i>
                                 <span>No novels in your reading list yet.</span>
-                                <br><small class="text-muted">Start reading a chapter and it will appear here automatically.</small>
+                                <br><small class="text-muted">Start reading a chapter and it will appear here
+                                    automatically.</small>
                             </div>
                             {% endif %}
                         </div>
 
                         <div class="tab-pane fade" id="sub-purchased" role="tabpanel">
                             {% if purchased_novels %}
-                            <p class="text-muted small mb-3">You purchased chapters from {{ purchased_novels.count }} novel{{ purchased_novels.count|pluralize }}.</p>
+                            <p class="text-muted small mb-3">You purchased chapters from {{ purchased_novels.count }}
+                                novel{{ purchased_novels.count|pluralize }}.</p>
                             <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3">
                                 {% for novel in purchased_novels %}
                                 <div class="col">
@@ -466,7 +501,8 @@
                 <div class="tab-pane fade" id="panel-history" role="tabpanel" aria-labelledby="tab-history-btn">
                     <h3 class="fw-bold mb-4 text-dark">Order History</h3>
 
-                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-journal-check me-2 text-primary"></i>Novel Orders</h5>
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-journal-check me-2 text-primary"></i>Novel Orders
+                    </h5>
                     <div class="table-responsive mb-5 border rounded-3">
                         <table class="table table-hover table-custom align-middle mb-0">
                             <thead>
@@ -483,12 +519,17 @@
                                 <tr>
                                     <td>{{ purchase.created_at|date:'d M Y' }}</td>
                                     <td>
-                                        <a href="{% url 'chapter_detail' purchase.chapter.id %}" class="text-decoration-none text-dark fw-semibold">
-                                            {{ purchase.chapter.novel.title }} <span class="text-muted font-monospace small">({{ purchase.chapter.chapter_title }})</span>
+                                        <a href="{% url 'chapter_detail' purchase.chapter.id %}"
+                                            class="text-decoration-none text-dark fw-semibold">
+                                            {{ purchase.chapter.novel.title }} <span
+                                                class="text-muted font-monospace small">({{ purchase.chapter.chapter_title }})</span>
                                         </a>
                                     </td>
-                                    <td class="fw-medium text-amber-700"><i class="bi bi-gem-fill text-warning me-1"></i>{{ purchase.chapter.gem_price|intcomma }} Gems</td>
-                                    <td><span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1">primary</span></td>
+                                    <td class="fw-medium text-amber-700"><i
+                                            class="bi bi-gem-fill text-warning me-1"></i>{{ purchase.chapter.gem_price|intcomma }} Gems</td>
+                                    <td><span
+                                            class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1">primary</span>
+                                    </td>
                                 </tr>
                                 {% endfor %}
                                 {% else %}
@@ -500,7 +541,8 @@
                         </table>
                     </div>
 
-                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-plus-circle me-2 text-primary"></i>Gem Orders (Top up)</h5>
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-plus-circle me-2 text-primary"></i>Gem Orders
+                        (Top up)</h5>
                     <div class="table-responsive border rounded-3">
                         <table class="table table-hover table-custom align-middle mb-0">
                             <thead>
@@ -521,7 +563,8 @@
                                     <td class="fw-medium"><i class="bi bi-gem-fill text-warning me-1"></i>{{ order.gem_amount|intcomma }} Gems</td>
                                     <td class="fw-bold text-dark">{{ order.price|intcomma }} MMK</td>
                                     <td>
-                                        <span class="badge rounded-pill px-2 py-1 {% if order.status == 'approved' %}bg-primary-subtle text-primary border border-primary-subtle{% elif order.status == 'pending' %}bg-warning-subtle text-warning-emphasis border border-warning-subtle{% else %}bg-danger-subtle text-danger border border-danger-subtle{% endif %}">
+                                        <span
+                                            class="badge rounded-pill px-2 py-1 {% if order.status == 'approved' %}bg-primary-subtle text-primary border border-primary-subtle{% elif order.status == 'pending' %}bg-warning-subtle text-warning-emphasis border border-warning-subtle{% else %}bg-danger-subtle text-danger border border-danger-subtle{% endif %}">
                                             {{ order.status|capfirst }}
                                         </span>
                                     </td>
@@ -543,14 +586,16 @@
                     <div class="row g-3">
                         {% for follow in following_authors %}
                         <div class="col-12 col-md-6">
-                            <div class="d-flex align-items-center gap-3 p-3 rounded-3 border" style="transition: var(--transition-smooth);">
+                            <div class="d-flex align-items-center gap-3 p-3 rounded-3 border"
+                                style="transition: var(--transition-smooth);">
                                 <a href="{% url 'author_profile' follow.author.id %}">
                                     <img src="{% if follow.author.profile %}{{ follow.author.profile.url }}{% else %}{% static 'dashboard/images/no-profile.png' %}{% endif %}"
                                         alt="{{ follow.author.display_name }}" class="rounded-circle shadow-sm"
                                         style="width: 50px; height: 50px; object-fit: cover;">
                                 </a>
                                 <div class="flex-grow-1">
-                                    <a href="{% url 'author_profile' follow.author.id %}" class="fw-semibold text-dark text-decoration-none">{{ follow.author.display_name }}</a>
+                                    <a href="{% url 'author_profile' follow.author.id %}"
+                                        class="fw-semibold text-dark text-decoration-none">{{ follow.author.display_name }}</a>
                                     <div class="text-muted small">{{ follow.author.novels.count }} novel{{ follow.author.novels.count|pluralize }}</div>
                                 </div>
                                 <form method="post" action="{% url 'follow_author' follow.author.id %}">
@@ -568,9 +613,62 @@
                     <div class="text-center py-5 text-muted">
                         <i class="bi bi-person-heart fs-1 mb-2 d-block text-secondary"></i>
                         <span>You're not following any authors yet.</span>
-                        <br><a href="{% url 'home' %}" class="btn btn-sm btn-primary mt-3 rounded-pill px-4">Discover Novels</a>
+                        <br><a href="{% url 'home' %}" class="btn btn-sm btn-primary mt-3 rounded-pill px-4">Discover
+                            Novels</a>
                     </div>
                     {% endif %}
+                </div>
+                <div class="tab-pane fade" id="panel-delete" role="tabpanel" aria-labelledby="tab-delete-btn">
+
+                    <div class="card border-danger mt-5">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="mb-0"><i class="bi bi-trash me-2"></i>Account Deletion</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-3">
+                                <i class="bi bi-exclamation-triangle text-warning me-1"></i>
+                                Request to delete your account. Once approved by admin, your account will be permanently
+                                deactivated.
+                            </p>
+
+                            <form method="post" action="{% url 'request_account_deletion' %}">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="reason" class="form-label">Reason for deletion (optional)</label>
+                                    <textarea name="reason" id="reason" class="form-control" rows="3"
+                                        placeholder="Tell us why you want to delete your account..."></textarea>
+                                </div>
+
+                                <div class="alert alert-warning">
+                                    <div class="d-flex">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        <div>
+                                            <strong>Important:</strong>
+                                            <ul class="mb-0 mt-1">
+                                                <li>Your deletion request will be reviewed by admin</li>
+                                                <li>Once approved, your account will be deactivated</li>
+                                                <li>All your data will be marked as deleted but may be retained for
+                                                    legal purposes</li>
+                                                <li>You can cancel the request anytime before admin approval</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-danger"
+                                        onclick="return confirm('Are you sure you want to request account deletion?')">
+                                        <i class="bi bi-trash me-1"></i> Request Account Deletion
+                                    </button>
+                                    <a href="{% url 'cancel_account_deletion_request' %}"
+                                        class="btn btn-outline-secondary"
+                                        onclick="return confirm('Cancel your deletion request?')">
+                                        Cancel Request
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="tab-pane fade" id="panel-edit" role="tabpanel" aria-labelledby="tab-edit-btn">
@@ -585,19 +683,23 @@
                                     style="width: 75px; height: 75px; object-fit: cover;">
                             </div>
                             <div class="col">
-                                <label class="form-label small fw-bold text-secondary mb-1">Change Profile Picture</label>
-                                <input class="form-control form-control-sm w-100 w-sm-50" type="file" name="profile" id="profileImageInput" accept="image/*">
+                                <label class="form-label small fw-bold text-secondary mb-1">Change Profile
+                                    Picture</label>
+                                <input class="form-control form-control-sm w-100 w-sm-50" type="file" name="profile"
+                                    id="profileImageInput" accept="image/*">
                             </div>
                         </div>
 
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold text-secondary">Full Name</label>
-                                <input type="text" name="username" class="form-control border-light-subtle shadow-sm" value="{{ user.username }}" placeholder="Enter your name" maxlength="100" required>
+                                <input type="text" name="username" class="form-control border-light-subtle shadow-sm"
+                                    value="{{ user.username }}" placeholder="Enter your name" maxlength="100" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold text-secondary">Email Address</label>
-                                <input type="email" name="email" class="form-control border-light-subtle shadow-sm" value="{{ user.email }}" placeholder="Enter email" required>
+                                <input type="email" name="email" class="form-control border-light-subtle shadow-sm"
+                                    value="{{ user.email }}" placeholder="Enter email" required>
                             </div>
                         </div>
 
@@ -605,8 +707,10 @@
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold text-secondary">New Password</label>
                                 <div class="input-group shadow-sm">
-                                    <input type="password" name="password" class="form-control border-light-subtle" id="newPassword" placeholder="••••••••">
-                                    <button class="btn btn-outline-secondary border-light-subtle" type="button" onclick="togglePassword('newPassword', 'toggleNewPassIcon')">
+                                    <input type="password" name="password" class="form-control border-light-subtle"
+                                        id="newPassword" placeholder="••••••••">
+                                    <button class="btn btn-outline-secondary border-light-subtle" type="button"
+                                        onclick="togglePassword('newPassword', 'toggleNewPassIcon')">
                                         <i class="bi bi-eye-slash" id="toggleNewPassIcon"></i>
                                     </button>
                                 </div>
@@ -615,8 +719,10 @@
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold text-secondary">Confirm New Password</label>
                                 <div class="input-group shadow-sm">
-                                    <input type="password" class="form-control border-light-subtle" name="confirm_password" id="confirmPassword" placeholder="••••••••">
-                                    <button class="btn btn-outline-secondary border-light-subtle" type="button" onclick="togglePassword('confirmPassword', 'toggleConfirmPassIcon')">
+                                    <input type="password" class="form-control border-light-subtle"
+                                        name="confirm_password" id="confirmPassword" placeholder="••••••••">
+                                    <button class="btn btn-outline-secondary border-light-subtle" type="button"
+                                        onclick="togglePassword('confirmPassword', 'toggleConfirmPassIcon')">
                                         <i class="bi bi-eye-slash" id="toggleConfirmPassIcon"></i>
                                     </button>
                                 </div>
@@ -628,7 +734,7 @@
                         </div>
                     </form>
 
-                    <!-- Account Deletion Section -->
+                    <!-- Account Deletion Section
                     <div class="card border-danger mt-5">
                         <div class="card-header bg-danger text-white">
                             <h5 class="mb-0"><i class="bi bi-trash me-2"></i>Account Deletion</h5>
@@ -636,16 +742,18 @@
                         <div class="card-body">
                             <p class="text-muted mb-3">
                                 <i class="bi bi-exclamation-triangle text-warning me-1"></i>
-                                Request to delete your account. Once approved by admin, your account will be permanently deactivated.
+                                Request to delete your account. Once approved by admin, your account will be permanently
+                                deactivated.
                             </p>
-                            
+
                             <form method="post" action="{% url 'request_account_deletion' %}">
                                 {% csrf_token %}
                                 <div class="mb-3">
                                     <label for="reason" class="form-label">Reason for deletion (optional)</label>
-                                    <textarea name="reason" id="reason" class="form-control" rows="3" placeholder="Tell us why you want to delete your account..."></textarea>
+                                    <textarea name="reason" id="reason" class="form-control" rows="3"
+                                        placeholder="Tell us why you want to delete your account..."></textarea>
                                 </div>
-                                
+
                                 <div class="alert alert-warning">
                                     <div class="d-flex">
                                         <i class="bi bi-info-circle me-2"></i>
@@ -654,24 +762,28 @@
                                             <ul class="mb-0 mt-1">
                                                 <li>Your deletion request will be reviewed by admin</li>
                                                 <li>Once approved, your account will be deactivated</li>
-                                                <li>All your data will be marked as deleted but may be retained for legal purposes</li>
+                                                <li>All your data will be marked as deleted but may be retained for
+                                                    legal purposes</li>
                                                 <li>You can cancel the request anytime before admin approval</li>
                                             </ul>
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="d-flex gap-2">
-                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to request account deletion?')">
+                                    <button type="submit" class="btn btn-danger"
+                                        onclick="return confirm('Are you sure you want to request account deletion?')">
                                         <i class="bi bi-trash me-1"></i> Request Account Deletion
                                     </button>
-                                    <a href="{% url 'cancel_account_deletion_request' %}" class="btn btn-outline-secondary" onclick="return confirm('Cancel your deletion request?')">
+                                    <a href="{% url 'cancel_account_deletion_request' %}"
+                                        class="btn btn-outline-secondary"
+                                        onclick="return confirm('Cancel your deletion request?')">
                                         Cancel Request
                                     </a>
                                 </div>
                             </form>
                         </div>
-                    </div>
+                    </div> -->
 
                     <div class="d-flex justify-content-end mt-5">
                         <button class="btn btn-danger" onclick="clearCache()">Clear Cache</button>
@@ -679,17 +791,17 @@
                         <script>
                             async function clearCache() {
                                 const cacheNames = await caches.keys();
-                            
+
                                 await Promise.all(
                                     cacheNames.map(name => caches.delete(name))
                                 );
-                            
+
                                 const registrations = await navigator.serviceWorker.getRegistrations();
-                            
+
                                 for (const registration of registrations) {
                                     await registration.unregister();
                                 }
-                            
+
                                 window.location.reload();
                             }
                         </script>
@@ -707,8 +819,8 @@
         <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
             <div class="modal-header border-0 pb-0">
                 <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span>
-                        </button>
+                    <span aria-hidden="true">×</span>
+                </button>
             </div>
             <form action="{% url 'website_logout' %}" method="POST">
                 {% csrf_token %}
@@ -718,8 +830,10 @@
                     <p class="text-muted small px-2">Are you sure you want to sign out of your account?</p>
                 </div>
                 <div class="modal-footer border-0 pt-0 d-flex justify-content-center gap-2 pb-4">
-                    <button type="button" class="btn btn-sm btn-light px-3 rounded-pill fw-medium" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-sm btn-danger px-3 rounded-pill fw-medium shadow-sm">Logout</button>
+                    <button type="button" class="btn btn-sm btn-light px-3 rounded-pill fw-medium"
+                        data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit"
+                        class="btn btn-sm btn-danger px-3 rounded-pill fw-medium shadow-sm">Logout</button>
                 </div>
             </form>
         </div>
