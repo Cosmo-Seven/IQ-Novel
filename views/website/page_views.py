@@ -13,7 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.conf import settings
 from helpers.chapter_access import adjacent_chapters, chapter_has_access, novel_chapters_ordered
-from django.db.models import F, Q, Count, Max, Prefetch
+from django.db.models import Exists, F, OuterRef, Q, Count, Max, Prefetch
 from decorators.login_decorator import login_required
 from django.contrib.auth import login, logout, authenticate
 from django.core.paginator import Paginator
@@ -44,7 +44,7 @@ from core.models import (
 
 
 # ========================
-# Helpers (approved only)
+# Public content helpers
 # ========================
 def public_chapters_qs():
     """User တွေကို ပြလို့ရတဲ့ chapter (approved + active + not deleted)"""
@@ -55,16 +55,25 @@ def public_chapters_qs():
     )
 
 
-def approved_novels_qs():
-    """Approved chapter အနည်းဆုံး တစ်ခုပါတဲ့ novel များ"""
+def public_novels_qs():
+    """Public chapters ရှိသော novel များနှင့် chapter မထည့်ရသေးသော novel များ"""
+    public_chapters = ChapterModel.objects.filter(
+        novel_id=OuterRef("pk"),
+        is_deleted=False,
+        is_active=True,
+        approval_status=ChapterModel.ApprovalStatus.APPROVED,
+    )
+    existing_chapters = ChapterModel.objects.filter(
+        novel_id=OuterRef("pk"),
+        is_deleted=False,
+    )
+
     return (
         NovelModel.objects
         .select_related("author")
+        .filter(is_deleted=False)
         .filter(
-            is_deleted=False,
-            chapters__is_deleted=False,
-            chapters__is_active=True,
-            chapters__approval_status=ChapterModel.ApprovalStatus.APPROVED,
+            Exists(public_chapters) | ~Exists(existing_chapters)
         )
         .prefetch_related(
             Prefetch("chapters", queryset=public_chapters_qs(), to_attr="public_chapters")
@@ -87,17 +96,17 @@ def chapter_is_public(chapter):
 def index(request):
     sliders = SliderModel.objects.filter(status=True).order_by("-created_at")
 
-    approved_novels = approved_novels_qs()
+    public_novels = public_novels_qs()
 
-    novels = approved_novels.order_by("-created_at")
+    novels = public_novels.order_by("-created_at")
 
-    completed_novels = approved_novels.filter(is_completed=True).order_by("-created_at")
+    completed_novels = public_novels.filter(is_completed=True).order_by("-created_at")
 
-    translation_novels = approved_novels.filter(novel_type="translate").order_by("-created_at")
+    translation_novels = public_novels.filter(novel_type="translate").order_by("-created_at")
 
-    fanfic_novels = approved_novels.filter(novel_type="fanfic").order_by("-created_at")
+    fanfic_novels = public_novels.filter(novel_type="fanfic").order_by("-created_at")
 
-    popular_novels = approved_novels.order_by("-views")[:10]
+    popular_novels = public_novels.order_by("-views")[:10]
 
     # Approved ဖြစ်ပြီး free ဖြစ်တဲ့ chapter ပါတဲ့ novel
     # filter တစ်ခုတည်းထဲမှာ ပေါင်းရေးမှ chapter တစ်ခုတည်းကို စစ်မှာဖြစ်တယ်
@@ -143,7 +152,7 @@ def gem(request):
 
 
 def novel(request):
-    novels = approved_novels_qs().order_by("-created_at")
+    novels = public_novels_qs().order_by("-created_at")
     genres = GenreModel.objects.annotate(novel_count=Count('novels'))
 
     search_query = request.GET.get('search', '')
@@ -281,7 +290,7 @@ def novel_detail(request, id):
     ).select_related("user").order_by("-created_at")
 
     related_novels = (
-        approved_novels_qs()
+        public_novels_qs()
         .filter(genres__in=novel.genres.all())
         .exclude(id=novel.id)
         .order_by("-views")[:6]
@@ -289,7 +298,7 @@ def novel_detail(request, id):
 
     if not related_novels:
         related_novels = (
-            approved_novels_qs()
+            public_novels_qs()
             .filter(author=novel.author)
             .exclude(id=novel.id)
             .order_by("-views")[:6]

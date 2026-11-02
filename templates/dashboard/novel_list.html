@@ -27,7 +27,14 @@
                 </li>
             </ul>
             <div class="page-btn d-flex gap-2">
-                <!-- <a href="{{ novel_sales_list_url }}" class="btn btn-outline-primary"><i class="ti ti-chart-bar me-1"></i>ရောင်းအား</a> -->
+                {% if can_export_chapter_purchases %}
+                <a href="{% url 'chapter_purchase_export_excel' %}" class="btn btn-success">
+                    <i class="ti ti-file-spreadsheet me-1"></i>Sales Excel
+                </a>
+                {% endif %}
+                <a href="{{ novel_sales_list_url }}" class="btn btn-outline-primary">
+                    <i class="ti ti-chart-bar me-1"></i>Sales
+                </a>
                 {% if request.user.is_staff or request.user.is_superuser %}
                 <a href="{% url 'pending_deletion_requests' %}" class="btn btn-outline-danger">
                     <i class="ti ti-trash me-1"></i>Pending deletions

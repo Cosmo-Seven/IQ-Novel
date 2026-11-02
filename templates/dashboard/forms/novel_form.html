@@ -1447,6 +1447,19 @@
                 removePlugins: 'elementspath,resize',
                 allowedContent: true
             };
+            const chapterCkeditorConfig = {
+                ...ckeditorConfig,
+                toolbar: [
+                    ['Bold', 'Italic', 'Underline', 'Strike', 'FontSize'],
+                    ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+                    ['NumberedList', 'BulletedList'],
+                    ['Link', 'Unlink'],
+                    ['RemoveFormat']
+                ],
+                extraPlugins: 'justify,font',
+                fontSize_defaultLabel: '16px',
+                fontSize_sizes: '12/12px;14/14px;16/16px;18/18px;20/20px;24/24px;28/28px;32/32px'
+            };
 
             const summaryEl = document.getElementById('id_summary');
             if (summaryEl) {
@@ -1455,13 +1468,13 @@
 
             const createContentEl = document.getElementById('id_create_content');
             if (createContentEl) {
-                CKEDITOR.replace('id_create_content', ckeditorConfig);
+                CKEDITOR.replace('id_create_content', chapterCkeditorConfig);
             }
 
             {% if novel %}
             {% for item in novel_chapters %}
             if (document.getElementById('id_update_content_{{ item.id }}')) {
-                CKEDITOR.replace('id_update_content_{{ item.id }}', ckeditorConfig);
+                CKEDITOR.replace('id_update_content_{{ item.id }}', chapterCkeditorConfig);
             }
             {% endfor %}
             {% endif %}

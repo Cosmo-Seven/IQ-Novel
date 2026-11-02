@@ -19,7 +19,12 @@
                         title="{% translate 'refresh' request.session.language %}"><i class="ti ti-refresh"></i></a>
                 </li>
             </ul>
-            <div class="page-btn">
+            <div class="page-btn d-flex gap-2">
+                {% if can_export_chapter_purchases %}
+                <a href="{% url 'chapter_purchase_export_excel' %}" class="btn btn-success">
+                    <i class="ti ti-file-spreadsheet me-1"></i>Sales Excel
+                </a>
+                {% endif %}
                 <a href="{{ novel_list_url }}" class="btn btn-secondary"><i class="ti ti-arrow-left me-1"></i>Novels</a>
             </div>
         </div>

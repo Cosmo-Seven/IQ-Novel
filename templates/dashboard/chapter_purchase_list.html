@@ -15,6 +15,12 @@
                     <h6>{% translate 'manage_chapter_purchases' request.session.language %}</h6>
                 </div>
             </div>
+            <div class="page-btn">
+                <a href="{% url 'chapter_purchase_export_excel' %}?{{ request.GET.urlencode }}"
+                    class="btn btn-success">
+                    <i class="ti ti-file-spreadsheet me-1"></i>Export Excel
+                </a>
+            </div>
         </div>
 
         <!-- Summary Cards -->

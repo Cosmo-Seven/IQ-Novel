@@ -1,4 +1,7 @@
+from datetime import datetime
+
 from django.contrib import messages
+from django.db import IntegrityError, transaction
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.http import JsonResponse
@@ -11,6 +14,7 @@ from core.models import (
     SiteModel,
 )
 from helpers.filters import filter_querysets
+from helpers.exports import export_to_excel, filter_queryset_for_export
 from decorators.role_decorator import role_permission_required
 from decorators.login_decorator import login_required
 from django.db import transaction
@@ -22,6 +26,13 @@ from constants.message import CREATE, UPDATE, DELETE
 
 def _author_for_user(user):
     return AuthorModel.objects.filter(user=user).first()
+
+
+def _chapter_title_exists(novel, chapter_title, exclude_id=None):
+    chapters = ChapterModel.objects.filter(novel=novel, chapter_title=chapter_title)
+    if exclude_id is not None:
+        chapters = chapters.exclude(id=exclude_id)
+    return chapters.exists()
 
 
 # // Novel List ------------------------------------------------------
@@ -51,6 +62,9 @@ def novel_list(request):
         "dashboard/novel_list.html",
         {
             "novels": filters["page_obj"],
+            "can_export_chapter_purchases": request.user.has_permission(
+                "view_chapterpurchasemodel"
+            ),
             **filters,
         },
     )
@@ -94,6 +108,9 @@ def novel_sales_list(request):
         {
             "novels": filters["page_obj"],
             "totals": totals,
+            "can_export_chapter_purchases": request.user.has_permission(
+                "view_chapterpurchasemodel"
+            ),
             **filters,
         },
     )
@@ -349,7 +366,7 @@ def novel_chapter_create(request, novel_id):
 
     if request.method != "POST":
         return redirect("novel_update", novel.id)
-    chapter_title = request.POST.get("chapters_title")
+    chapter_title = request.POST.get("chapters_title", "").strip()
     content = request.POST.get("content")
     is_free = request.POST.get("is_free") == "on"
     gem_price = request.POST.get("gem_price", 0)
@@ -358,6 +375,10 @@ def novel_chapter_create(request, novel_id):
     # validation
     if not chapter_title:
         messages.error(request, "Chapter title is required")
+        return redirect("novel_update", novel.id)
+
+    if _chapter_title_exists(novel, chapter_title):
+        messages.error(request, "A chapter with this title already exists in this novel.")
         return redirect("novel_update", novel.id)
 
     if not content:
@@ -380,20 +401,27 @@ def novel_chapter_create(request, novel_id):
     require_approval = site_setting.require_chapter_approval
     should_approve = is_admin or (not require_approval)
 
-    with transaction.atomic():
-        ChapterModel.objects.create(
-            novel=novel,
-            chapter_title=chapter_title,
-            content=content,
-            is_free=is_free,
-            is_active=should_approve,
-            gem_price=0 if is_free else gem_price,
-            approval_status=(
-                ChapterModel.ApprovalStatus.APPROVED
-                if should_approve
-                else ChapterModel.ApprovalStatus.PENDING
-            ),
-        )
+    try:
+        with transaction.atomic():
+            ChapterModel.objects.create(
+                novel=novel,
+                chapter_title=chapter_title,
+                content=content,
+                is_free=is_free,
+                is_active=should_approve,
+                gem_price=0 if is_free else gem_price,
+                approval_status=(
+                    ChapterModel.ApprovalStatus.APPROVED
+                    if should_approve
+                    else ChapterModel.ApprovalStatus.PENDING
+                ),
+            )
+    except IntegrityError:
+        if not _chapter_title_exists(novel, chapter_title):
+            raise
+        messages.error(request, "A chapter with this title already exists in this novel.")
+        return redirect("novel_update", novel.id)
+
     if should_approve:
         messages.success(request, 'Chapter created and published successfully.')
     else:
@@ -435,14 +463,25 @@ def novel_chapter_update(request, pk):
         messages.error(request, "Paid chapter must have gem price")
         return redirect("novel_update", novel.id)
 
-    with transaction.atomic():
-        chapter.chapter_title = chapter_title
-        chapter.content = content
-        chapter.is_free = is_free
-        chapter.gem_price = 0 if is_free else gem_price
+    if _chapter_title_exists(novel, chapter_title, exclude_id=chapter.id):
+        messages.error(request, "A chapter with this title already exists in this novel.")
+        return redirect("novel_update", novel.id)
 
-        chapter.save()
-        messages.success(request,'Update is successfully.')
+    try:
+        with transaction.atomic():
+            chapter.chapter_title = chapter_title
+            chapter.content = content
+            chapter.is_free = is_free
+            chapter.gem_price = 0 if is_free else gem_price
+
+            chapter.save()
+    except IntegrityError:
+        if not _chapter_title_exists(novel, chapter_title, exclude_id=chapter.id):
+            raise
+        messages.error(request, "A chapter with this title already exists in this novel.")
+        return redirect("novel_update", novel.id)
+
+    messages.success(request,'Update is successfully.')
     return redirect("novel_update", novel.id)
 
 
@@ -474,21 +513,9 @@ def novel_chapter_delete(request, pk):
 @login_required("dashboard_login")
 @role_permission_required("view_chapterpurchasemodel")
 def chapter_purchase_list(request):
-    purchases = (
-        ChapterPurchaseModel.objects
-        .select_related("user", "chapter", "chapter__novel")
-        .order_by("-created_at")
-    )
-
     novel_id = request.GET.get("novel")
-    if novel_id:
-        purchases = purchases.filter(chapter__novel__id=novel_id)
-
     gem_type = request.GET.get("gem_type")
-    if gem_type == "free":
-        purchases = purchases.filter(free_gems_used__gt=0)
-    elif gem_type == "paid":
-        purchases = purchases.filter(paid_gems_used__gt=0)
+    purchases = _chapter_purchase_queryset(request)
 
     filters = filter_querysets(
         request,
@@ -516,6 +543,102 @@ def chapter_purchase_list(request):
         "selected_gem_type" : gem_type,
         **filters,
     })
+
+
+def _chapter_purchase_queryset(request):
+    purchases = ChapterPurchaseModel.objects.select_related(
+        "user",
+        "chapter",
+        "chapter__novel",
+        "chapter__novel__author",
+    )
+
+    novel_id = request.GET.get("novel")
+    if novel_id:
+        purchases = purchases.filter(chapter__novel__id=novel_id)
+
+    gem_type = request.GET.get("gem_type")
+    if gem_type == "free":
+        purchases = purchases.filter(free_gems_used__gt=0)
+    elif gem_type == "paid":
+        purchases = purchases.filter(paid_gems_used__gt=0)
+
+    return purchases.order_by("-created_at")
+
+
+@login_required("dashboard_login")
+@role_permission_required("view_chapterpurchasemodel")
+def chapter_purchase_export_excel(request):
+    purchases = filter_queryset_for_export(
+        _chapter_purchase_queryset(request),
+        search=request.GET.get("search", ""),
+        date=request.GET.get("date", ""),
+        date_range=request.GET.get("date_range", ""),
+        search_fields=[
+            "user__username",
+            "user__email",
+            "chapter__chapter_title",
+            "chapter__novel__title",
+        ],
+        date_field="created_at",
+    )
+
+    columns = [
+        "No",
+        "Novel",
+        "Chapter",
+        "Author",
+        "Customer",
+        "Customer Gmail",
+        "Customer ID",
+        "Coupon",
+        "Gems",
+        "Cost(MMK)",
+        "Author(%)",
+        "Admin(%)",
+        "Remarks",
+        "Ordered Date",
+    ]
+    rows = []
+    cell_fills = []
+    for index, purchase in enumerate(purchases, start=1):
+        author_percentage = purchase.revenue_share_percent
+        admin_percentage = 100 - author_percentage
+        coupon_fill = "FFFFFF00" if purchase.free_gems_used > 0 else None
+        gem_fill = "FF92D050" if purchase.paid_gems_used > 0 else None
+        row_fills = {}
+        if coupon_fill:
+            row_fills[8] = coupon_fill
+        if gem_fill:
+            row_fills[9] = gem_fill
+
+        rows.append(
+            [
+                index,
+                purchase.chapter.novel.title,
+                purchase.chapter.chapter_title,
+                (
+                    purchase.chapter.novel.author.display_name
+                    if purchase.chapter.novel.author
+                    else ""
+                ),
+                purchase.user.username,
+                purchase.user.email,
+                str(purchase.user_id),
+                purchase.free_gems_used or "-",
+                purchase.paid_gems_used or "-",
+                purchase.sale_price_mmk,
+                author_percentage,
+                admin_percentage,
+                f"{author_percentage}% for Author and {admin_percentage}% for Admin",
+                purchase.created_at.strftime("%b %d, %Y"),
+            ]
+        )
+        cell_fills.append(row_fills)
+
+    filename = f"chapter_purchases_{datetime.now().strftime('%b-%d-%Y')}.xlsx"
+    return export_to_excel(filename, columns, rows, cell_fills=cell_fills)
+
 
 #// Chapter Approval list
 @login_required('dashboard_login')

@@ -133,6 +133,7 @@ urlpatterns = (
         path('dashboard/chapter/approval/bulk-approve/', novel_views.chapter_bulk_approve, name='chapter_bulk_approve'),
         path('dashboard/chapter/approve/<uuid:pk>/',novel_views.chapter_approve,name='chapter_approve'),
         path("dashboard/chapter/approval/reject/<uuid:pk>/", novel_views.chapter_reject,name="chapter_approval_reject"),
+        path("dashboard/chapter/purchases/export/excel/", novel_views.chapter_purchase_export_excel, name="chapter_purchase_export_excel"),
         path("dashboard/chapter/purchases/", novel_views.chapter_purchase_list, name="chapter_purchase_list"),
 
 

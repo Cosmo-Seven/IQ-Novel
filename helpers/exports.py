@@ -3,6 +3,7 @@ from datetime import datetime
 from django.http import HttpResponse
 from django.db.models import Q, DateField, DateTimeField
 import openpyxl
+from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib import colors
@@ -148,15 +149,26 @@ def export_to_pdf(
     return response
 
 
-def export_to_excel(filename, columns, rows):
+def export_to_excel(filename, columns, rows, cell_fills=None):
     workbook = openpyxl.Workbook()
     sheet = workbook.active
     sheet.title = "Sheet1"
 
     sheet.append(columns)
 
-    for row in rows:
+    if cell_fills is not None:
+        rows = list(rows)
+        if len(cell_fills) != len(rows):
+            raise ValueError("cell_fills must contain one entry per exported row.")
+
+    for row_index, row in enumerate(rows, start=2):
         sheet.append(row)
+        if cell_fills is not None:
+            for column_index, color in cell_fills[row_index - 2].items():
+                sheet.cell(row=row_index, column=column_index).fill = PatternFill(
+                    fill_type="solid",
+                    fgColor=color,
+                )
 
     for col in range(1, len(columns) + 1):
         sheet.column_dimensions[get_column_letter(col)].width = 20

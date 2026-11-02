@@ -393,6 +393,7 @@
   </div>
 </div>
 
+{% if related_novels %}
 <!-- Related Novels Section -->
 <section class="py-5">
   <div style="max-width: 950px;" class="container">
@@ -423,26 +424,11 @@
           </div>
         </div>
       </div>
-      {% empty %}
-      <div class="col">
-        <div class="card novel-card position-relative h-100 border-0 shadow-sm overflow-hidden theme-card">
-          <div class="novel-img-wrapper">
-            <img class="card-img-top novel-cover" src="https://html.vecurosoft.com/ebukz/demo/assets/img/product/product-img-4-1.jpg" loading="lazy" />
-          </div>
-          <span class="badge position-absolute bg-success top-0 start-0 m-2" style="font-size:0.65rem; z-index:2;">COMPLETED</span>
-          <div class="card-body p-2 d-flex flex-column justify-content-between">
-            <p class="novel-title mb-1 text-truncate fw-bold theme-text-main" style="font-size:0.9rem;">လျှို့ဝှက်ချက်များပေါက်ကြားသွားတဲ့အခါ</p>
-            <div class="novel-meta d-flex justify-content-between pt-2 border-top theme-border" style="font-size:0.75rem;">
-              <span>Chapter: 220</span>
-              <span><i class="bi bi-eye"></i> 34k</span>
-            </div>
-          </div>
-        </div>
-      </div>
       {% endfor %}
     </div>
   </div>
 </section>
+{% endif %}
 
 <!-- CSS Styles Extension -->
 <style>
