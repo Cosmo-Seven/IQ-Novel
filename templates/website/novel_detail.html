@@ -1,5 +1,5 @@
 {% extends 'website/components/base.html' %}
-{% block title %} {{novel.title}} - Detail {% endblock %}
+{% block title %} {{ novel.title }} - Detail {% endblock %}
 {% block body %}
 {% load static %}
 {% load humanize %}
@@ -28,7 +28,7 @@
             {% endif %}
           </div>
 
-          <h1 class="novel-main-title h3 mb-3 fw-bold theme-text-main">{{novel.title}}</h1>
+          <h1 class="novel-main-title h3 mb-3 fw-bold theme-text-main">{{ novel.title }}</h1>
 
           <button id="subscribe-btn" class="btn btn-sm btn-primary mb-3 rounded-pill" data-novel-id="{{ novel.id }}">Subscribe</button>
 
