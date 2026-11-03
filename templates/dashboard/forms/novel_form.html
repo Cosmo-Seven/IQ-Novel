@@ -890,7 +890,7 @@
                                     <div class="chapter-toolbar">
                                         <div class="d-flex align-items-center gap-2">
                                             <div class="form-check m-0">
-                                                <input class="form-check-input" type="checkbox" id="selectAllChapters" style="cursor: pointer;">
+                                                <input class="form-check-input" type="checkbox" id="selectAllChapters" style="cursor: pointer; border: black solid 1px;">
                                                 <label class="form-check-label fw-semibold text-dark small" for="selectAllChapters" style="cursor: pointer;">
                                                     Select All Chapters
                                                 </label>
@@ -936,8 +936,8 @@
                                                     {% for item in novel_chapters %}
                                                     <tr class="chapter-row">
                                                         <td class="text-center">
-                                                            <input class="form-check-input chapter-select" type="checkbox"
-                                                                   name="selected_chapters" value="{{ item.id }}" style="cursor: pointer;">
+                                                            <input class="form-check-input chapter-select " type="checkbox" 
+                                                                   name="selected_chapters" value="{{ item.id }}" style="cursor: pointer; border: black solid 1px;">
                                                         </td>
                                                         <td>
                                                             <div class="fw-semibold text-dark chapter-title-text">{{ item.chapter_title }}</div>
