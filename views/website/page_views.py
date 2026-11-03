@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth import update_session_auth_hash
 from helpers.reward_helper import get_active_chapter_reward, get_effective_price
 from helpers.gem_helper import deduct_gems
 from django.contrib.auth.tokens import default_token_generator
@@ -41,6 +40,7 @@ from core.models import (
     NovelPushSubscriptionModel,
     DownloadModel,
 )
+from views.website.auth_views import change_password_step
 
 
 # ========================
@@ -505,8 +505,6 @@ def profile(request):
     if request.method == "POST":
         username = request.POST.get("username", "").strip()
         email = request.POST.get("email", "").strip()
-        password = request.POST.get("password", "")
-        confirm_password = request.POST.get("confirm_password", "")
 
         if not username or not email:
             messages.error(request, "Username and email are required.")
@@ -528,10 +526,6 @@ def profile(request):
             messages.error(request, "Email has already been used!")
             return redirect("website_profile")
 
-        if password != confirm_password:
-            messages.error(request, "Password does not match! Please check again!")
-            return redirect("website_profile")
-
         user = request.user
         previous_profile = user.profile
         uploaded_profile = request.FILES.get("profile")
@@ -539,14 +533,10 @@ def profile(request):
         user.email = email
         if uploaded_profile:
             user.profile = uploaded_profile
-        if password:
-            user.set_password(password)
 
         user.save()
         if uploaded_profile and previous_profile:
             previous_profile.delete(save=False)
-        if password:
-            update_session_auth_hash(request, user)
 
         messages.success(request, "Profile updated successfully.")
         return redirect("website_profile")
@@ -605,6 +595,8 @@ def profile(request):
             "follower_count": follower_count,
             "novel_count": novel_count,
             "following_authors": following_authors,
+            "change_password_step": change_password_step(request),
+            "active_tab": request.GET.get("tab", "library"),
         },
     )
 

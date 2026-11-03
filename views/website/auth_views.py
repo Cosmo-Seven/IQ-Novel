@@ -1,13 +1,17 @@
+import secrets
+from datetime import timedelta
+
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.tokens import default_token_generator
+from django.utils import timezone
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.urls import reverse
-from django.contrib.auth.hashers import check_password
+from django.contrib.auth.hashers import check_password, make_password
 from decorators.login_decorator import login_required
-from django.contrib.auth import login, logout, authenticate
-from helpers.mail import send_verification_email, send_reset_email
+from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
+from helpers.mail import send_verification_email, send_reset_email, send_otp_email
 from helpers.daily_reward import process_daily_reward
 from core.models import (
     UserModel,
@@ -201,3 +205,128 @@ def reset_password(request, uidb64, token):
         return redirect("/")
 
     return render(request, "website/reset_password.html")
+
+
+# =========================
+# Change Password (OTP Flow) — Profile Page
+# =========================
+# 1. confirm email -> 2. send OTP to email -> 3. verify OTP -> 4. set new password
+CHANGE_PWD_SESSION_KEY = "website_change_pwd"
+OTP_TTL_MINUTES = 10
+OTP_MAX_ATTEMPTS = 5
+
+
+def _change_pwd_redirect():
+    return redirect(f"{reverse('website_profile')}?tab=password")
+
+
+def _generate_otp():
+    return f"{secrets.randbelow(1_000_000):06d}"
+
+
+def _clear_change_pwd_state(request):
+    request.session.pop(CHANGE_PWD_SESSION_KEY, None)
+
+
+def change_password_step(request):
+    """Current step of the change password flow shown on the profile page."""
+    state = request.session.get(CHANGE_PWD_SESSION_KEY)
+    if not state:
+        return 1
+    return 3 if state.get("verified") else 2
+
+
+def change_password(request):
+    if not request.user.is_authenticated:
+        messages.warning(request, "Please login to change your password.")
+        return redirect("website_login")
+
+    if request.method != "POST":
+        return redirect("website_profile")
+
+    state = request.session.get(CHANGE_PWD_SESSION_KEY)
+    action = request.POST.get("action")
+
+    # Step 1 -> send a fresh OTP to the logged-in user's email
+    if action == "send_otp":
+        otp = _generate_otp()
+        request.session[CHANGE_PWD_SESSION_KEY] = {
+            "otp": make_password(otp),
+            "expires": (timezone.now() + timedelta(minutes=OTP_TTL_MINUTES)).timestamp(),
+            "attempts": 0,
+            "verified": False,
+        }
+        send_otp_email(request.user.email, otp, OTP_TTL_MINUTES)
+        messages.success(request, f"OTP code has been sent to {request.user.email}.")
+        return _change_pwd_redirect()
+
+    if not state:
+        messages.error(request, "Please request an OTP code first.")
+        return _change_pwd_redirect()
+
+    # Resend a new OTP to the same email
+    if action == "resend_otp":
+        otp = _generate_otp()
+        state["otp"] = make_password(otp)
+        state["expires"] = (
+            timezone.now() + timedelta(minutes=OTP_TTL_MINUTES)
+        ).timestamp()
+        state["attempts"] = 0
+        state["verified"] = False
+        request.session[CHANGE_PWD_SESSION_KEY] = state
+        send_otp_email(request.user.email, otp, OTP_TTL_MINUTES)
+        messages.success(request, "A new OTP code has been sent.")
+        return _change_pwd_redirect()
+
+    # Step 2 -> verify the OTP
+    if action == "verify_otp":
+        if timezone.now().timestamp() > state["expires"]:
+            _clear_change_pwd_state(request)
+            messages.error(request, "The OTP has expired. Please request a new one.")
+            return _change_pwd_redirect()
+
+        if state["attempts"] >= OTP_MAX_ATTEMPTS:
+            _clear_change_pwd_state(request)
+            messages.error(request, "Too many attempts. Please request a new OTP.")
+            return _change_pwd_redirect()
+
+        otp = (request.POST.get("otp") or "").strip()
+        if not check_password(otp, state["otp"]):
+            state["attempts"] += 1
+            request.session[CHANGE_PWD_SESSION_KEY] = state
+            messages.error(request, "Invalid OTP code.")
+            return _change_pwd_redirect()
+
+        state["verified"] = True
+        state.pop("otp", None)
+        request.session[CHANGE_PWD_SESSION_KEY] = state
+        messages.success(request, "Code verified. Please set your new password.")
+        return _change_pwd_redirect()
+
+    # Step 3 -> set the new password
+    if action == "reset":
+        if not state.get("verified"):
+            messages.error(request, "Please verify your identity first.")
+            return _change_pwd_redirect()
+
+        password = request.POST.get("password") or ""
+        confirm_password = request.POST.get("confirm_password") or ""
+
+        if len(password) < 8:
+            messages.error(request, "Password must be at least 8 characters.")
+            return _change_pwd_redirect()
+
+        if password != confirm_password:
+            messages.error(request, "Passwords do not match.")
+            return _change_pwd_redirect()
+
+        user = request.user
+        user.set_password(password)
+        user.save()
+        update_session_auth_hash(request, user)
+        _clear_change_pwd_state(request)
+
+        messages.success(request, "Password changed successfully.")
+        return redirect("website_profile")
+
+    return _change_pwd_redirect()

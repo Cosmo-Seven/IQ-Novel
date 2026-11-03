@@ -105,6 +105,62 @@ def send_verification_email(request, user):
 
 
 # =========================
+# OTP EMAIL (Forgot Password)
+# =========================
+def send_otp_email(user_email, otp, expire_minutes=10):
+    digits = "".join(
+        f"""
+        <td style="
+            width:44px;height:52px;
+            background:#1B1B1B;
+            border:1px solid #2A2A2A;
+            border-radius:10px;
+            text-align:center;
+            vertical-align:middle;
+            color:#fff;
+            font-size:22px;
+            font-weight:bold;
+            letter-spacing:2px;
+        ">{d}</td>
+        """
+        for d in str(otp)
+    )
+
+    content = f"""
+        <h1 style="color:#1563df;font-size:22px;margin:0;">
+            Password Reset Code
+        </h1>
+
+        <p style="color:#aaa;font-size:14px;line-height:1.6;margin-top:10px;">
+            Use the OTP code below to reset your password.
+        </p>
+
+        <table role="presentation" cellpadding="0" cellspacing="6" style="margin:20px auto 0;">
+            <tr>{digits}</tr>
+        </table>
+
+        <p style="color:#888;font-size:13px;margin-top:20px;text-align:center;">
+            The code expires in {expire_minutes} minutes.
+        </p>
+
+        <p style="color:#666;font-size:12px;margin-top:20px;">
+            Never share this code with anyone. If you didn't request this, you can safely ignore this email.
+        </p>
+    """
+
+    html = base_email(content)
+
+    msg = EmailMultiAlternatives(
+        "Password Reset OTP",
+        "",
+        settings.DEFAULT_FROM_EMAIL,
+        [user_email],
+    )
+    msg.attach_alternative(html, "text/html")
+    _send_in_background(msg)
+
+
+# =========================
 # RESET PASSWORD EMAIL
 # =========================
 def send_reset_email(user_email, reset_url):

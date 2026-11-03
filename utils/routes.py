@@ -9,6 +9,9 @@ def routes(request):
         # ======================================== Auth ========================================
         "dashboard_login_url": reverse_lazy("dashboard_login"),
         "dashboard_logout_url": reverse_lazy("dashboard_logout"),
+        "forgot_password_url": reverse_lazy("dashboard_forgot_password"),
+        "verify_otp_url": reverse_lazy("dashboard_verify_otp"),
+        "reset_password_url": reverse_lazy("dashboard_reset_password"),
         "dashboard_profile_url": reverse_lazy("dashboard_profile"),
         "admin_url": reverse_lazy("admin"),
         "site_settings_url": reverse_lazy("site_settings"),

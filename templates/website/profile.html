@@ -268,6 +268,115 @@
         background-color: var(--card-bg, #fff) !important;
         transition: background-color 0.4s ease;
     }
+
+    /* Change Password — OTP flow */
+    .cp-steps {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        max-width: 420px;
+        margin: 0 auto 28px;
+    }
+
+    .cp-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        flex: 0 0 auto;
+    }
+
+    .cp-step span {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.95rem;
+        background: var(--border-color, #eef2f7);
+        color: var(--text-muted-dark, #94a3b8);
+        border: 2px solid transparent;
+        transition: var(--transition-smooth), background-color 0.4s ease, color 0.4s ease;
+    }
+
+    .cp-step span::before {
+        content: attr(data-step);
+    }
+
+    .cp-step.done span::before {
+        content: "\2713";
+    }
+
+    .cp-step small {
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted-dark, #94a3b8);
+        transition: color 0.4s ease;
+    }
+
+    .cp-step.active span {
+        background: linear-gradient(135deg, #c9184a, #f43f5e);
+        color: #fff;
+        box-shadow: 0 6px 16px rgba(201, 24, 74, 0.28);
+    }
+
+    .cp-step.active small {
+        color: var(--profile-primary);
+    }
+
+    .cp-step.done span {
+        background: #dcfce7;
+        color: #16a34a;
+        border-color: #bbf7d0;
+    }
+
+    .cp-line {
+        flex: 1 1 auto;
+        height: 2px;
+        border-radius: 2px;
+        background: var(--border-color, #e2e8f0);
+        transition: background-color 0.4s ease;
+    }
+
+    .cp-icon {
+        width: 66px;
+        height: 66px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        margin: 0 auto 16px;
+        background: linear-gradient(135deg, rgba(201, 24, 74, 0.12), rgba(255, 201, 61, 0.18));
+        color: var(--profile-primary);
+    }
+
+    .cp-email-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 999px;
+        background: var(--border-color, #f1f5f9);
+        color: var(--main-text, #1e293b);
+        font-weight: 600;
+        font-size: 0.88rem;
+        transition: background-color 0.4s ease, color 0.4s ease;
+    }
+
+    .cp-otp-input {
+        text-align: center;
+        font-size: 1.6rem;
+        font-weight: 700;
+        letter-spacing: 12px;
+        padding: 14px 10px 14px 22px;
+        font-family: "Courier New", monospace;
+    }
 </style>
 
 <div class="container py-5">
@@ -326,8 +435,10 @@
                 {% endif %}
 
                 <div class="list-group profile-menu text-start" id="profileDashboardTabs" role="tablist">
-                    <button class="list-group-item list-group-item-action active" id="tab-library-btn"
-                        data-bs-toggle="list" data-bs-target="#panel-library" type="button" role="tab">
+                    <button
+                        class="list-group-item list-group-item-action {% if active_tab != 'password' %}active{% endif %}"
+                        id="tab-library-btn" data-bs-toggle="list" data-bs-target="#panel-library" type="button"
+                        role="tab">
                         <i class="bi bi-book-half me-2"></i> My Library
                     </button>
                     <button class="list-group-item list-group-item-action" id="tab-history-btn" data-bs-toggle="list"
@@ -345,6 +456,12 @@
                         data-bs-target="#panel-edit" type="button" role="tab">
                         <i class="bi bi-person-gear me-2"></i> Edit Profile
                     </button>
+                    <button
+                        class="list-group-item list-group-item-action {% if active_tab == 'password' %}active{% endif %}"
+                        id="tab-password-btn" data-bs-toggle="list" data-bs-target="#panel-password" type="button"
+                        role="tab">
+                        <i class="bi bi-shield-lock me-2"></i> Change Password
+                    </button>
                     <button class="list-group-item list-group-item-action" id="tab-delete-btn" data-bs-toggle="list"
                         data-bs-target="#panel-delete" type="button" role="tab">
                         <i class="bi bi-trash me-2"></i> Request delete
@@ -357,7 +474,7 @@
 
                 <button type="button" class="btn manual-help-btn w-100 mt-3" data-bs-toggle="modal"
                     data-bs-target="#userManualModal">
-                    <i class="bi bi-question-circle me-2"></i> User Manual / အသုံးပြုနည်း
+                    <i class="bi bi-question-circle me-2"></i> User Manual
                 </button>
             </div>
         </div>
@@ -365,8 +482,8 @@
         <div class="col-lg-8 col-xl-9">
             <div class="card modern-card p-4 p-md-5 tab-content" id="nav-tabContent">
 
-                <div class="tab-pane fade show active" id="panel-library" role="tabpanel"
-                    aria-labelledby="tab-library-btn">
+                <div class="tab-pane fade {% if active_tab != 'password' %}show active{% endif %}" id="panel-library"
+                    role="tabpanel" aria-labelledby="tab-library-btn">
                     <h3 class="fw-bold mb-4 text-dark">My Library</h3>
 
                     <ul class="nav nav-tabs library-tabs mb-4" id="librarySubTabs" role="tablist">
@@ -702,32 +819,6 @@
                             </div>
                         </div>
 
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold text-secondary">New Password</label>
-                                <div class="input-group shadow-sm">
-                                    <input type="password" name="password" class="form-control border-light-subtle"
-                                        id="newPassword" placeholder="••••••••">
-                                    <button class="btn btn-outline-secondary border-light-subtle" type="button"
-                                        onclick="togglePassword('newPassword', 'toggleNewPassIcon')">
-                                        <i class="bi bi-eye-slash" id="toggleNewPassIcon"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold text-secondary">Confirm New Password</label>
-                                <div class="input-group shadow-sm">
-                                    <input type="password" class="form-control border-light-subtle"
-                                        name="confirm_password" id="confirmPassword" placeholder="••••••••">
-                                    <button class="btn btn-outline-secondary border-light-subtle" type="button"
-                                        onclick="togglePassword('confirmPassword', 'toggleConfirmPassIcon')">
-                                        <i class="bi bi-eye-slash" id="toggleConfirmPassIcon"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="text-end border-top pt-3">
                             <button type="submit" class="btn btn-save-profile px-4 shadow-sm">Save Changes</button>
                         </div>
@@ -805,6 +896,127 @@
                             }
                         </script>
                     </div>
+                </div>
+
+                <div class="tab-pane fade {% if active_tab == 'password' %}show active{% endif %}" id="panel-password"
+                    role="tabpanel" aria-labelledby="tab-password-btn">
+                    <h3 class="fw-bold mb-2 text-dark">Change Password</h3>
+                    <p class="text-muted small mb-4">For your security, we'll send a one-time code to your registered
+                        email to verify it's really you.</p>
+
+                    <div class="cp-steps">
+                        <div class="cp-step {% if change_password_step == 1 %}active{% else %}done{% endif %}">
+                            <span data-step="1"></span>
+                            <small>Email</small>
+                        </div>
+                        <div class="cp-line"></div>
+                        <div
+                            class="cp-step {% if change_password_step == 2 %}active{% elif change_password_step > 2 %}done{% endif %}">
+                            <span data-step="2"></span>
+                            <small>Verify</small>
+                        </div>
+                        <div class="cp-line"></div>
+                        <div class="cp-step {% if change_password_step == 3 %}active{% endif %}">
+                            <span data-step="3"></span>
+                            <small>Reset</small>
+                        </div>
+                    </div>
+
+                    {% if change_password_step == 1 %}
+                    <div class="mx-auto" style="max-width: 440px;">
+                        <div class="text-center">
+                            <div class="cp-icon"><i class="bi bi-shield-lock"></i></div>
+                            <p class="text-muted mb-2">We'll send a 6-digit verification code to</p>
+                            <div class="mb-4">
+                                <span class="cp-email-chip"><i class="bi bi-envelope-fill"></i>{{ request.user.email  }}</span>
+                            </div>
+                        </div>
+                        <form method="post" action="{% url 'website_change_password' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="send_otp">
+                            <button type="submit" class="btn btn-save-profile w-100"><i class="bi bi-send me-1"></i>
+                                Send OTP</button>
+                        </form>
+                    </div>
+                    {% elif change_password_step == 2 %}
+                    <div class="mx-auto" style="max-width: 440px;">
+                        <div class="text-center">
+                            <div class="cp-icon"><i class="bi bi-shield-check"></i></div>
+                            <p class="text-muted mb-2">Enter the 6-digit code we sent to</p>
+                            <div class="mb-4">
+                                <span class="cp-email-chip"><i class="bi bi-envelope-fill"></i>{{ request.user.email }}</span>
+                            </div>
+                        </div>
+                        <form method="post" action="{% url 'website_change_password' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="verify_otp">
+                            <input required name="otp" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6"
+                                autocomplete="one-time-code" class="form-control cp-otp-input mb-3" placeholder="------"
+                                autofocus>
+                            <button type="submit" class="btn btn-save-profile w-100"><i
+                                    class="bi bi-check2-circle me-1"></i> Verify Code</button>
+                        </form>
+                        <div class="text-center mt-3">
+                            <form method="post" action="{% url 'website_change_password' %}" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="resend_otp">
+                                <button type="submit" class="btn btn-link p-0 text-decoration-none fw-semibold"
+                                    style="color: var(--profile-primary);">
+                                    <i class="bi bi-arrow-clockwise me-1"></i> Resend code
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="mx-auto" style="max-width: 440px;">
+                        <div class="text-center">
+                            <div class="cp-icon"><i class="bi bi-key"></i></div>
+                            <h5 class="fw-bold text-dark mb-4">Set your new password</h5>
+                        </div>
+                        <form method="post" action="{% url 'website_change_password' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="reset">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-secondary">New Password</label>
+                                <div class="input-group shadow-sm">
+                                    <input required type="password" name="password" minlength="8"
+                                        class="form-control border-light-subtle" id="cpNewPassword"
+                                        placeholder="At least 8 characters">
+                                    <button class="btn btn-outline-secondary border-light-subtle" type="button"
+                                        onclick="togglePassword('cpNewPassword', 'cpEyeNew')">
+                                        <i class="bi bi-eye-slash" id="cpEyeNew"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold text-secondary">Confirm New Password</label>
+                                <div class="input-group shadow-sm">
+                                    <input required type="password" name="confirm_password" minlength="8"
+                                        class="form-control border-light-subtle" id="cpConfirmPassword"
+                                        placeholder="Re-enter your password">
+                                    <button class="btn btn-outline-secondary border-light-subtle" type="button"
+                                        onclick="togglePassword('cpConfirmPassword', 'cpEyeConfirm')">
+                                        <i class="bi bi-eye-slash" id="cpEyeConfirm"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-save-profile w-100"><i class="bi bi-check2 me-1"></i>
+                                Update Password</button>
+                        </form>
+                    </div>
+                    {% endif %}
+
+                    <script>
+                        function togglePassword(inputId, iconId) {
+                            const input = document.getElementById(inputId);
+                            const icon = document.getElementById(iconId);
+                            if (!input || !icon) return;
+                            const show = input.type === "password";
+                            input.type = show ? "text" : "password";
+                            icon.classList.toggle("bi-eye-slash", !show);
+                            icon.classList.toggle("bi-eye", show);
+                        }
+                    </script>
                 </div>
 
             </div>

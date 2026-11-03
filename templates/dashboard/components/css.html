@@ -78,3 +78,106 @@
         background: #6b7280;
     }
 </style>
+
+<!-- Forgot Password / OTP flow (auth pages) -->
+<style>
+    .af-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 16px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+        color: #1563df;
+        background: rgba(21, 99, 223, 0.12);
+    }
+
+    .af-steps {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 24px;
+    }
+
+    .af-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #9aa0aa;
+        min-width: 56px;
+        transition: color 0.25s ease;
+    }
+
+    .af-step span {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        background: #eef0f4;
+        color: #9aa0aa;
+        transition: all 0.25s ease;
+    }
+
+    .af-step.active {
+        color: #1563df;
+    }
+
+    .af-step.active span {
+        background: #1563df;
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(21, 99, 223, 0.35);
+    }
+
+    .af-step.done {
+        color: #12b76a;
+    }
+
+    .af-step.done span {
+        background: #12b76a;
+        color: #fff;
+    }
+
+    .af-line {
+        flex: 1;
+        height: 2px;
+        margin: 14px 8px 0;
+        border-radius: 2px;
+        background: #eef0f4;
+    }
+
+    .af-otp-input {
+        height: 60px;
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: 12px;
+        text-indent: 12px;
+        text-align: center;
+    }
+
+    .af-email {
+        font-weight: 600;
+        color: #1563df;
+        word-break: break-all;
+    }
+
+    [data-theme="dark"] .af-step span,
+    [data-theme="dark"] .af-line {
+        background: #2a2f39;
+    }
+
+    [data-theme="dark"] .af-step.active span {
+        background: #1563df;
+    }
+
+    [data-theme="dark"] .af-step.done span {
+        background: #12b76a;
+    }
+</style>

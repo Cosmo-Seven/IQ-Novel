@@ -33,6 +33,9 @@ urlpatterns = (
         path("under-maintenance/",dashboard_page_views.under_maintenance,name="under_maintenance",),
         path(settings.DASHBOARD_LOGIN_URL,auth_views.dashboard_login,name="dashboard_login",),
         path(settings.DASHBOARD_LOGOUT_URL,auth_views.dashboard_logout,name="dashboard_logout",),
+        path("dashboard/forgot-password/",auth_views.forgot_password,name="dashboard_forgot_password",),
+        path("dashboard/verify-otp/",auth_views.verify_otp,name="dashboard_verify_otp",),
+        path("dashboard/reset-password/",auth_views.reset_password,name="dashboard_reset_password",),
         path("dashboard/profile/", auth_views.profile, name="dashboard_profile"),
         path("dashboard/site-settings/",dashboard_page_views.site_settings,name="site_settings",),
 
@@ -178,6 +181,7 @@ urlpatterns = (
         path("gem", website_page_views.gem, name="gem"),
         path('contact/', website_page_views.contact_page, name='contact'),
         path("website/profile/", website_page_views.profile, name="website_profile"),
+        path("website/change-password/", website_auth_views.change_password, name="website_change_password"),
 
         path("campaign/", website_campaign_views.campaign_list, name="campaign_list_website"),
         path("campaign/<uuid:id>/", website_campaign_views.campaign_detail, name="campaign_detail"),
