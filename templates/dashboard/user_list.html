@@ -132,24 +132,21 @@
                                     <span
                                         class="d-inline-flex align-items-center p-1 pe-2 rounded-1 text-white bg-{% if user.is_active %}success{% else %}danger{% endif %} fs-10">
                                         <i class="ti ti-point-filled me-1 fs-11"></i>
-                                        {% if user.is_active %}{% translate 'active' request.session.language %}{% else
-                                        %}{% translate 'inactive' request.session.language %}{% endif %}
+                                        {% if user.is_active %}{% translate 'active' request.session.language %}{% else %}{% translate 'inactive' request.session.language %}{% endif %}
                                     </span>
                                 </td>
                                 <td>
                                     <span
                                         class="d-inline-flex align-items-center p-1 pe-2 rounded-1 text-white bg-{% if user.is_staff %}success{% else %}danger{% endif %} fs-10">
                                         <i class="ti ti-point-filled me-1 fs-11"></i>
-                                        {% if user.is_staff %}{% translate 'active' request.session.language %}{% else
-                                        %}{% translate 'inactive' request.session.language %}{% endif %}
+                                        {% if user.is_staff %}{% translate 'active' request.session.language %}{% else %}{% translate 'inactive' request.session.language %}{% endif %}
                                     </span>
                                 </td>
                                 <td>
                                     <span
                                         class="d-inline-flex align-items-center p-1 pe-2 rounded-1 text-white bg-{% if user.is_superuser %}success{% else %}danger{% endif %} fs-10">
                                         <i class="ti ti-point-filled me-1 fs-11"></i>
-                                        {% if user.is_superuser %}{% translate 'active' request.session.language %}{%
-                                        else %}{% translate 'inactive' request.session.language %}{% endif %}
+                                        {% if user.is_superuser %}{% translate 'active' request.session.language %}{% else %}{% translate 'inactive' request.session.language %}{% endif %}
                                     </span>
                                 </td>
                                 <td class="action-table-data">
@@ -194,10 +191,8 @@
                         {% csrf_token %}
                         {% include 'dashboard/forms/user_form.html' %}
                         <div class="modal-footer">
-                            <button type="button" class="btn me-2 btn-secondary" data-bs-dismiss="modal">{% translate
-                                'close' request.session.language %}</button>
-                            <button type="submit" class="btn btn-primary">{% translate 'save' request.session.language
-                                %}</button>
+                            <button type="button" class="btn me-2 btn-secondary" data-bs-dismiss="modal">{% translate 'close' request.session.language %}</button>
+                            <button type="submit" class="btn btn-primary">{% translate 'save' request.session.language  %}</button>
                         </div>
                     </form>
                 </div>
@@ -225,10 +220,8 @@
                         {% csrf_token %}
                         {% include 'dashboard/forms/user_form.html' %}
                         <div class="modal-footer">
-                            <button type="button" class="btn me-2 btn-secondary" data-bs-dismiss="modal">{% translate
-                                'close' request.session.language %}</button>
-                            <button type="submit" class="btn btn-primary">{% translate 'save' request.session.language
-                                %}</button>
+                            <button type="button" class="btn me-2 btn-secondary" data-bs-dismiss="modal">{% translate 'close' request.session.language %}</button>
+                            <button type="submit" class="btn btn-primary">{% translate 'save' request.session.language %}</button>
                         </div>
                     </form>
                 </div>
@@ -255,8 +248,7 @@
                         {% csrf_token %}
                         <button type="button" class="p-2 px-3 shadow-none btn me-2 btn-secondary fs-13 fw-medium"
                             data-bs-dismiss="modal">{% translate 'no' request.session.language %}</button>
-                        <button type="submit" class="p-2 px-3 btn btn-primary fs-13 fw-medium">{% translate 'yes'
-                            request.session.language %}</button>
+                        <button type="submit" class="p-2 px-3 btn btn-primary fs-13 fw-medium">{% translate 'yes'  request.session.language %}</button>
                     </form>
                 </div>
             </div>
