@@ -1461,9 +1461,20 @@
                 fontSize_sizes: '12/12px;14/14px;16/16px;18/18px;20/20px;24/24px;28/28px;32/32px'
             };
 
+            const summaryCkeditorConfig = {
+                ...chapterCkeditorConfig,
+                bodyClass: 'novel-summary-editor'
+            };
+            // Summary editor ထဲမှာ စာကြောင်းတွေ အရမ်းမကွာစေရန် (chapter လိုမျိုး)
+            CKEDITOR.addCss(
+                '.novel-summary-editor{line-height:1.6;}' +
+                '.novel-summary-editor p{margin:0 0 0.6em;}' +
+                '.novel-summary-editor p:last-child{margin-bottom:0;}'
+            );
+
             const summaryEl = document.getElementById('id_summary');
             if (summaryEl) {
-                CKEDITOR.replace('id_summary', ckeditorConfig);
+                CKEDITOR.replace('id_summary', summaryCkeditorConfig);
             }
 
             const createContentEl = document.getElementById('id_create_content');

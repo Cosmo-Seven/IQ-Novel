@@ -77,6 +77,45 @@
     [data-theme="dark"] .table-responsive::-webkit-scrollbar-thumb:hover {
         background: #6b7280;
     }
+
+    /* Select2 multi-select: 5 ယောက်ကျော် ရွေးလျှင် box မရှည်ထွက်ဘဲ scroll ဖြစ်စေရန် */
+    .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+        max-height: 160px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-width: thin;
+        scrollbar-color: #c1c5cd transparent;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__rendered::-webkit-scrollbar {
+        display: block;
+        width: 6px;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__rendered::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__rendered::-webkit-scrollbar-thumb {
+        background: #c1c5cd;
+        border-radius: 50px;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__rendered::-webkit-scrollbar-thumb:hover {
+        background: #9aa0aa;
+    }
+
+    [data-theme="dark"] .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+        scrollbar-color: #4c525e transparent;
+    }
+
+    [data-theme="dark"] .select2-container--default .select2-selection--multiple .select2-selection__rendered::-webkit-scrollbar-thumb {
+        background: #4c525e;
+    }
+
+    [data-theme="dark"] .select2-container--default .select2-selection--multiple .select2-selection__rendered::-webkit-scrollbar-thumb:hover {
+        background: #6b7280;
+    }
 </style>
 
 <!-- Forgot Password / OTP flow (auth pages) -->
