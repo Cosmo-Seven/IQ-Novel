@@ -44,6 +44,7 @@ def novel_list(request):
         .filter(is_deleted=False,)
         .annotate(chapter_count=Count("chapters", filter=Q(chapters__is_deleted=False), distinct=True))
         .order_by("-created_at")
+        .distinct()
     )
     author = _author_for_user(request.user)
     if not request.user.is_superuser:
@@ -52,7 +53,7 @@ def novel_list(request):
     filters = filter_querysets(
         request,
         novels,
-        search_fields=[],
+        search_fields=["title", "author__name", "chapters__chapter_title"],
         date_field="created_at",
         order="-created_at",
     )

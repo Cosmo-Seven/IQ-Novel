@@ -7,26 +7,40 @@
   <div class="row justify-content-center">
     <div class="col-12 col-lg-9 col-xl-8">
 
-      <div class="chapter-nav-box theme-card p-2 rounded-pill shadow-sm border mb-4 d-flex justify-content-between align-items-center">
+      <div
+        class="chapter-nav-box theme-card p-2 rounded-pill shadow-sm border mb-4 d-flex justify-content-between align-items-center">
         {% include 'website/components/chapter_nav.html' %}
       </div>
 
       <div class="reader-card theme-card p-4 p-md-5 rounded-3 shadow-sm border">
-        
+
         <div class="text-center mb-4 border-bottom theme-border pb-4">
           <h1 class="chapter-main-title h2 fw-bold theme-text-main mb-2">{{ chapter.chapter_title }}</h1>
-          <a href="{% url 'novel_detail' chapter.novel.id %}?tab=chapters" class="theme-text-muted text-decoration-none small fw-medium">
+          <a href="{% url 'novel_detail' chapter.novel.id %}?tab=chapters"
+            class="theme-text-muted text-decoration-none small fw-medium">
             <i class="bi bi-book me-1"></i>{{ chapter.novel.title }}
           </a>
+          <div class="reader-font-switcher d-inline-flex align-items-center gap-1 p-1 rounded-pill mt-3">
+            <button type="button" class="reader-font-btn" data-size="small" title="Small"
+              aria-label="Small text">Small</button>
+            <button type="button" class="reader-font-btn active" data-size="medium" title="Medium"
+              aria-label="Medium text">Medium</button>
+            <button type="button" class="reader-font-btn" data-size="large" title="Large"
+              aria-label="Large text">Large</button>
+          </div>
+
+         
         </div>
+         
 
         <div class="chapter-reading-content theme-text-reading">
           {{ chapter.content|safe }}
         </div>
-        
+
       </div>
 
-      <div class="chapter-nav-box theme-card p-2 rounded-pill shadow-sm border mt-4 d-flex justify-content-between align-items-center">
+      <div
+        class="chapter-nav-box theme-card p-2 rounded-pill shadow-sm border mt-4 d-flex justify-content-between align-items-center">
         {% include 'website/components/chapter_nav.html' %}
       </div>
 
@@ -41,17 +55,17 @@
     border-color: var(--border-color, #dee2e6) !important;
     transition: background-color 0.3s ease, border-color 0.3s ease;
   }
-  
+
   .theme-text-main {
     color: var(--main-text, #212529) !important;
     transition: color 0.3s ease;
   }
-  
+
   .theme-text-muted {
     color: var(--text-muted-dark, #6c757d) !important;
     transition: color 0.3s ease;
   }
-  
+
   .theme-border {
     border-color: var(--border-color, #dee2e6) !important;
     transition: border-color 0.3s ease;
@@ -59,7 +73,8 @@
 
   /* Optimized typography for seamless, long-form reading comfort */
   .theme-text-reading {
-    color: var(--reading-text, #4b5563) !important; /* Slightly softer contrast than primary headings */
+    color: var(--reading-text, #4b5563) !important;
+    /* Slightly softer contrast than primary headings */
     font-size: 1.15rem;
     line-height: 1.7;
     letter-spacing: 0.2px;
@@ -88,7 +103,7 @@
   [data-theme="eye-care"] .theme-text-reading {
     color: #433422 !important;
   }
-  
+
   .chapter-reading-content p {
     margin-top: 0;
     margin-bottom: 0.9rem;
@@ -98,5 +113,78 @@
   .chapter-reading-content p:has(> br:only-child) {
     display: none;
   }
+
+  /* --- Reader Font Size Switcher --- */
+  .reader-font-switcher {
+    background-color: var(--brand-maroon-light, rgba(88, 24, 37, 0.05));
+    border: 1px solid var(--border-color, #dee2e6);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+
+  .reader-font-btn {
+    border: 0;
+    background: transparent;
+    color: var(--text-muted-dark, #4a4a4a);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    line-height: 1.2;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .reader-font-btn:hover {
+    color: var(--main-text, #212529);
+  }
+
+  .reader-font-btn.active {
+    background-color: var(--brand-maroon, #581825);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(88, 24, 37, 0.25);
+  }
+
+  /* --- Reader Font Size Levels --- */
+  .chapter-reading-content.fs-small {
+    font-size: 1rem;
+  }
+
+  .chapter-reading-content.fs-medium {
+    font-size: 1.15rem;
+  }
+
+  .chapter-reading-content.fs-large {
+    font-size: 1.35rem;
+  }
 </style>
+
+<script>
+  (function () {
+    var STORAGE_KEY = 'chapterFontSize';
+    var SIZES = ['small', 'medium', 'large'];
+    var content = document.querySelector('.chapter-reading-content');
+    var buttons = document.querySelectorAll('.reader-font-btn');
+    if (!content || !buttons.length) return;
+
+    function applyFontSize(size) {
+      SIZES.forEach(function (s) { content.classList.remove('fs-' + s); });
+      content.classList.add('fs-' + size);
+      buttons.forEach(function (btn) {
+        btn.classList.toggle('active', btn.dataset.size === size);
+      });
+    }
+
+    var saved = 'medium';
+    try { saved = localStorage.getItem(STORAGE_KEY) || 'medium'; } catch (e) { }
+    if (SIZES.indexOf(saved) === -1) saved = 'medium';
+    applyFontSize(saved);
+
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        applyFontSize(btn.dataset.size);
+        try { localStorage.setItem(STORAGE_KEY, btn.dataset.size); } catch (e) { }
+      });
+    });
+  })();
+</script>
 {% endblock %}
