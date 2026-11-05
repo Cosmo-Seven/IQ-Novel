@@ -570,8 +570,12 @@ def _chapter_purchase_queryset(request):
 @login_required("dashboard_login")
 @role_permission_required("view_chapterpurchasemodel")
 def chapter_purchase_export_excel(request):
+    purchases = _chapter_purchase_queryset(request)
+    if not request.user.is_superuser:
+        purchases = purchases.filter(chapter__novel__author__user=request.user)
+
     purchases = filter_queryset_for_export(
-        _chapter_purchase_queryset(request),
+        purchases,
         search=request.GET.get("search", ""),
         date=request.GET.get("date", ""),
         date_range=request.GET.get("date_range", ""),

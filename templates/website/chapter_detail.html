@@ -16,22 +16,27 @@
 
         <div class="text-center mb-4 border-bottom theme-border pb-4">
           <h1 class="chapter-main-title h2 fw-bold theme-text-main mb-2">{{ chapter.chapter_title }}</h1>
-          <a href="{% url 'novel_detail' chapter.novel.id %}?tab=chapters"
-            class="theme-text-muted text-decoration-none small fw-medium">
-            <i class="bi bi-book me-1"></i>{{ chapter.novel.title }}
-          </a>
-          <div class="reader-font-switcher d-inline-flex align-items-center gap-1 p-1 rounded-pill mt-3">
-            <button type="button" class="reader-font-btn" data-size="small" title="Small"
-              aria-label="Small text">Small</button>
-            <button type="button" class="reader-font-btn active" data-size="medium" title="Medium"
-              aria-label="Medium text">Medium</button>
-            <button type="button" class="reader-font-btn" data-size="large" title="Large"
-              aria-label="Large text">Large</button>
+
+          <div class="d-flex flex-column align-items-center">
+            <a href="{% url 'novel_detail' chapter.novel.id %}?tab=chapters"
+              class="theme-text-muted text-decoration-none small fw-medium">
+              <i class="bi bi-book me-1"></i>{{ chapter.novel.title }}
+            </a>
+            <div class="reader-font-switcher d-inline-flex align-items-center gap-1 p-1 rounded-pill mt-2">
+              <button type="button" class="reader-font-btn" data-size="small" title="Small"
+                aria-label="Small text">Small</button>
+              <button type="button" class="reader-font-btn active" data-size="medium" title="Medium"
+                aria-label="Medium text">Medium</button>
+              <button type="button" class="reader-font-btn" data-size="large" title="Large"
+                aria-label="Large text">Large</button>
+            </div>
           </div>
 
-         
+
+
+
         </div>
-         
+
 
         <div class="chapter-reading-content theme-text-reading">
           {{ chapter.content|safe }}
