@@ -3,18 +3,15 @@ from django.shortcuts import render, redirect, get_object_or_404
 from decorators.login_decorator import login_required
 from constants.message import UPDATE, DELETE
 
-from helpers.filters import filter_querysets
 from core.models import (
     SiteModel,
     UserModel,
     NovelModel,
     ChapterPurchaseModel,
     AuthorModel,
-    GenreModel,
+    GemOrderModel,
 )
 from django.contrib.auth.hashers import check_password
-from django.db.models import Count, Sum
-from django.db.models.functions import Coalesce
 from decorators.role_decorator import role_permission_required
 
 def _author_for_user(user):
@@ -25,29 +22,45 @@ def _author_for_user(user):
 # ========================
 @login_required("dashboard_login")
 def dashboard(request):
-    
-    genres = GenreModel.objects.all()
-    
-    if request.GET.get("genre_id"):
-        novels = NovelModel.objects.filter(genre_id=request.GET.get("genre_id")).all()
+    is_superuser = request.user.is_superuser
+    author = None if is_superuser else _author_for_user(request.user)
+
+    if is_superuser:
+        user_count = UserModel.objects.filter(is_deleted=False).count()
+        gem_purchase = GemOrderModel.objects.filter(is_deleted=False).count()
+        chapter_purchase = ChapterPurchaseModel.objects.filter(
+            is_deleted=False
+        ).count()
+        author_count = AuthorModel.objects.filter(is_deleted=False).count()
+        novel_count = NovelModel.objects.filter(is_deleted=False).count()
     else:
-        novels = NovelModel.objects.all()
-
-    filters = filter_querysets(
-        request,
-        novels,
-        search_fields=["title"],
-        date_field="created_at",
-    )
-
+        if author:
+            novel_count = NovelModel.objects.filter(
+                is_deleted=False, author=author
+            ).count()
+            purchases = ChapterPurchaseModel.objects.filter(
+                is_deleted=False, chapter__novel__author=author
+            )
+            chapter_purchase = purchases.count()
+            buyer_ids = purchases.values_list("user_id", flat=True).distinct()
+            user_count = buyer_ids.count()
+            gem_purchase = GemOrderModel.objects.filter(
+                is_deleted=False, user_id__in=buyer_ids
+            ).count()
+        else:
+            user_count = gem_purchase = chapter_purchase = novel_count = 0
+        author_count = None
 
     return render(
         request,
         "dashboard/index.html",
         {
-            "genres": genres,
-            "novels": filters["page_obj"],
-            **filters,
+            "is_superuser": is_superuser,
+            "user_count": user_count,
+            "gem_purchase": gem_purchase,
+            "chapter_purchase": chapter_purchase,
+            "author_count": author_count,
+            "novel_count": novel_count,
         },
     )
 

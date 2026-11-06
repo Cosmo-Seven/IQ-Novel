@@ -12,17 +12,30 @@
         {% include 'website/components/chapter_nav.html' %}
       </div>
 
-      <div class="reader-card theme-card p-4 p-md-5 rounded-3 shadow-sm border">
+      <div class="reader-card d theme-card p-4 p-md-5 rounded-3 shadow-sm border">
 
         <div class="text-center mb-4 border-bottom theme-border pb-4">
           <h1 class="chapter-main-title h2 fw-bold theme-text-main mb-2">{{ chapter.chapter_title }}</h1>
+          <a href="{% url 'novel_detail' chapter.novel.id %}?tab=chapters"
+            class="theme-text-muted text-decoration-none small fw-medium">
+            <i class="bi bi-book me-1"></i>{{ chapter.novel.title }}
+          </a>
+          <div class="reader-toolbar d-flex flex-wrap align-items-center justify-content-center gap-2 mt-3">
+            <div class="reader-style-switcher d-inline-flex align-items-center gap-1 p-1 rounded-pill" role="group"
+              aria-label="Reading style">
+              <button type="button" class="reader-style-btn active" data-mode="vertical"
+                title="အပေါ်အောက် scroll ဖတ်မယ်">
+                <i class="bi bi-arrows-vertical"></i><span class="d-none d-sm-inline">Scroll</span>
+              </button>
+              <button type="button" class="reader-style-btn" data-mode="horizontal" title="ဘယ်ညာ page လှန်ဖတ်မယ်">
+                <i class="bi bi-arrows-horizontal"></i><span class="d-none d-sm-inline">Page</span>
+              </button>
+              <button type="button" class="reader-style-btn" data-mode="slide" title="ဘယ်ညာ တွန်းဖတ်မယ် (slide)">
+                <i class="bi bi-arrow-left-right"></i><span class="d-none d-sm-inline">Slide</span>
+              </button>
+            </div>
 
-          <div class="d-flex flex-column align-items-center">
-            <a href="{% url 'novel_detail' chapter.novel.id %}?tab=chapters"
-              class="theme-text-muted text-decoration-none small fw-medium">
-              <i class="bi bi-book me-1"></i>{{ chapter.novel.title }}
-            </a>
-            <div class="reader-font-switcher d-inline-flex align-items-center gap-1 p-1 rounded-pill mt-2">
+            <div class="reader-font-switcher d-inline-flex align-items-center gap-1 p-1 rounded-pill">
               <button type="button" class="reader-font-btn" data-size="small" title="Small"
                 aria-label="Small text">Small</button>
               <button type="button" class="reader-font-btn active" data-size="medium" title="Medium"
@@ -31,15 +44,28 @@
                 aria-label="Large text">Large</button>
             </div>
           </div>
-
-
-
-
         </div>
 
+        <div class="chapter-reading-wrap">
+          <div class="chapter-reading-stage">
+            <div class="chapter-reading-viewport" id="chapterViewport">
+              <div class="chapter-reading-content theme-text-reading" id="chapterContent">
+                {{ chapter.content|safe }}
+              </div>
+            </div>
+          </div>
 
-        <div class="chapter-reading-content theme-text-reading">
-          {{ chapter.content|safe }}
+          <div class="reader-page-bar" id="readerPageBar">
+            <button type="button" class="reader-page-btn reader-page-prev" aria-label="Previous page"
+              title="ရှေ့စာမျက်နှာ">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <span class="reader-page-indicator" id="readerPageIndicator">1 / 1</span>
+            <button type="button" class="reader-page-btn reader-page-next" aria-label="Next page"
+              title="နောက်စာမျက်နှာ">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+          </div>
         </div>
 
       </div>
@@ -161,35 +187,627 @@
   .chapter-reading-content.fs-large {
     font-size: 1.35rem;
   }
+
+  /* --- Reading Style Switcher (Scroll / Page) --- */
+  .reader-style-switcher {
+    background-color: var(--brand-maroon-light, rgba(88, 24, 37, 0.05));
+    border: 1px solid var(--border-color, #dee2e6);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+
+  .reader-style-btn {
+    border: 0;
+    background: transparent;
+    color: var(--text-muted-dark, #4a4a4a);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    line-height: 1.2;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .reader-style-btn:hover {
+    color: var(--main-text, #212529);
+  }
+
+  .reader-style-btn.active {
+    background-color: var(--brand-maroon, #581825);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(88, 24, 37, 0.25);
+  }
+
+  /* --- Reading Area (Scroll mode: inner scroll with side scrollbar) --- */
+  .chapter-reading-wrap {
+    position: relative;
+  }
+
+  .chapter-reading-stage {
+    position: relative;
+    perspective: 1600px;
+  }
+
+  .chapter-reading-viewport {
+    height: 70vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 0.25rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(88, 24, 37, 0.32) transparent;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .chapter-reading-viewport::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .chapter-reading-viewport::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .chapter-reading-viewport::-webkit-scrollbar-thumb {
+    background: rgba(88, 24, 37, 0.32);
+    border-radius: 50px;
+  }
+
+  .chapter-reading-viewport::-webkit-scrollbar-thumb:hover {
+    background: rgba(88, 24, 37, 0.55);
+  }
+
+  [data-theme="dark"] .chapter-reading-viewport {
+    scrollbar-color: rgba(233, 69, 96, 0.42) transparent;
+  }
+
+  [data-theme="dark"] .chapter-reading-viewport::-webkit-scrollbar-thumb {
+    background: rgba(233, 69, 96, 0.42);
+  }
+
+  .reader-card:not(.reading-horizontal) .chapter-reading-content {
+    padding-right: 0.75rem;
+  }
+
+  /* --- Page (Horizontal) Reading Mode --- */
+  .reader-page-bar {
+    display: none;
+  }
+
+  .reading-horizontal .chapter-reading-viewport {
+    height: 70vh;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-right: 0;
+    /* Page mode uses on-screen buttons, so hide the ugly native scrollbar */
+    scrollbar-width: none;
+  }
+
+  .reading-horizontal .chapter-reading-viewport::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+
+  .reading-horizontal .chapter-reading-content {
+    height: 100%;
+    column-fill: auto;
+    column-gap: 48px;
+  }
+
+  .reading-horizontal .reader-page-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.85rem;
+    margin-top: 1.1rem;
+    animation: readerBarIn 0.35s ease;
+  }
+
+  /* --- Real Physical Page-Turn (flipping sheet) --- */
+  .chapter-reading-sheet {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    overflow: hidden;
+    border-radius: 0.35rem;
+    background-color: var(--card-bg, #ffffff);
+    backface-visibility: hidden;
+    will-change: transform;
+    opacity: 0;
+    visibility: hidden;
+    box-shadow: 0 16px 38px rgba(0, 0, 0, 0.22), 0 2px 6px rgba(0, 0, 0, 0.12);
+  }
+
+  .chapter-reading-sheet-scroll {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  /* Light/shadow that gives the flapping paper a curved, physical feel */
+  .chapter-reading-sheet-shade {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .chapter-reading-sheet.flip-next .chapter-reading-sheet-shade {
+    background: linear-gradient(90deg,
+        rgba(0, 0, 0, 0.42) 0%,
+        rgba(0, 0, 0, 0.12) 18%,
+        rgba(255, 255, 255, 0) 55%,
+        rgba(255, 255, 255, 0.14) 100%);
+  }
+
+  .chapter-reading-sheet.flip-prev .chapter-reading-sheet-shade {
+    background: linear-gradient(270deg,
+        rgba(0, 0, 0, 0.42) 0%,
+        rgba(0, 0, 0, 0.12) 18%,
+        rgba(255, 255, 255, 0) 55%,
+        rgba(255, 255, 255, 0.14) 100%);
+  }
+
+  /* --- Slide (Push) Reading Mode ---
+     ဘယ်ညာ တွန်းလှန်တဲ့အခါ စာမျက်နှာ ၂ ရွက် ကြားချိုင့် (seam) မှာ အရိပ်ထည့်ပြီး
+     အတိမ်အနက် (depth) ဖြစ်စေတယ်။ */
+  .chapter-reading-sheet.slide-seam-left .chapter-reading-sheet-shade {
+    background: linear-gradient(90deg,
+        rgba(0, 0, 0, 0.30) 0%,
+        rgba(0, 0, 0, 0.08) 9%,
+        rgba(0, 0, 0, 0) 20%);
+  }
+
+  .chapter-reading-sheet.slide-seam-right .chapter-reading-sheet-shade {
+    background: linear-gradient(270deg,
+        rgba(0, 0, 0, 0.30) 0%,
+        rgba(0, 0, 0, 0.08) 9%,
+        rgba(0, 0, 0, 0) 20%);
+  }
+
+  .reader-flipping .chapter-reading-stage {
+    perspective: 2600px;
+  }
+
+  @keyframes readerBarIn {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes readerFade {
+    from {
+      opacity: 0.35;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  .reader-fade {
+    animation: readerFade 0.35s ease;
+  }
+
+  .reader-page-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color, #dee2e6);
+    background-color: var(--card-bg, #ffffff);
+    color: var(--main-text, #212529);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: background-color 0.25s ease, color 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+  }
+
+  .reader-page-btn:hover:not(:disabled) {
+    background-color: var(--brand-maroon, #581825);
+    color: #ffffff;
+    transform: scale(1.08);
+    box-shadow: 0 6px 18px rgba(88, 24, 37, 0.3);
+  }
+
+  .reader-page-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+    box-shadow: none;
+  }
+
+  .reader-page-indicator {
+    min-width: 58px;
+    text-align: center;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    background-color: var(--brand-maroon-light, rgba(88, 24, 37, 0.06));
+    border: 1px solid var(--border-color, #dee2e6);
+    color: var(--brand-maroon, #581825);
+  }
+
+  @media (max-width: 575.98px) {
+
+    .chapter-reading-viewport,
+    .reading-horizontal .chapter-reading-viewport {
+      height: 62vh;
+    }
+
+    .reader-page-btn {
+      width: 34px;
+      height: 34px;
+      font-size: 0.9rem;
+    }
+  }
 </style>
 
 <script>
   (function () {
-    var STORAGE_KEY = 'chapterFontSize';
+    var FONT_KEY = 'chapterFontSize';
+    var MODE_KEY = 'chapterReadingMode';
     var SIZES = ['small', 'medium', 'large'];
-    var content = document.querySelector('.chapter-reading-content');
-    var buttons = document.querySelectorAll('.reader-font-btn');
-    if (!content || !buttons.length) return;
+    var COLUMN_GAP = 48;
 
+    var readerCard = document.querySelector('.reader-card');
+    var readingWrap = document.querySelector('.chapter-reading-wrap');
+    var stage = document.querySelector('.chapter-reading-stage');
+    var viewport = document.getElementById('chapterViewport');
+    var content = document.getElementById('chapterContent');
+    var fontButtons = document.querySelectorAll('.reader-font-btn');
+    var styleButtons = document.querySelectorAll('.reader-style-btn');
+    var prevBtn = document.querySelector('.reader-page-prev');
+    var nextBtn = document.querySelector('.reader-page-next');
+    var indicator = document.getElementById('readerPageIndicator');
+
+    if (!readerCard || !stage || !viewport || !content || !fontButtons.length) return;
+
+    /* ---------- Font size ---------- */
     function applyFontSize(size) {
       SIZES.forEach(function (s) { content.classList.remove('fs-' + s); });
       content.classList.add('fs-' + size);
-      buttons.forEach(function (btn) {
+      fontButtons.forEach(function (btn) {
         btn.classList.toggle('active', btn.dataset.size === size);
       });
     }
 
-    var saved = 'medium';
-    try { saved = localStorage.getItem(STORAGE_KEY) || 'medium'; } catch (e) { }
-    if (SIZES.indexOf(saved) === -1) saved = 'medium';
-    applyFontSize(saved);
+    var savedSize = 'medium';
+    try { savedSize = localStorage.getItem(FONT_KEY) || 'medium'; } catch (e) { }
+    if (SIZES.indexOf(savedSize) === -1) savedSize = 'medium';
+    applyFontSize(savedSize);
 
-    buttons.forEach(function (btn) {
+    fontButtons.forEach(function (btn) {
       btn.addEventListener('click', function () {
         applyFontSize(btn.dataset.size);
-        try { localStorage.setItem(STORAGE_KEY, btn.dataset.size); } catch (e) { }
+        try { localStorage.setItem(FONT_KEY, btn.dataset.size); } catch (e) { }
+        if (isPaged()) relayout();
       });
     });
+
+    /* ---------- Reading mode (vertical / horizontal / slide) ---------- */
+    var mode = 'vertical';
+
+    /* Page ခွဲဖတ်တဲ့ mode များ (flip + slide) */
+    function isPaged() { return mode === 'horizontal' || mode === 'slide'; }
+
+    function pageWidth() { return viewport.clientWidth; }
+
+    function pageStep() { return pageWidth() + COLUMN_GAP; }
+
+    function maxScrollLeft() { return Math.max(0, viewport.scrollWidth - viewport.clientWidth); }
+
+    function layoutColumns() {
+      if (!isPaged()) { content.style.columnWidth = ''; return; }
+      var pw = pageWidth();
+      if (pw <= 0) return;
+      content.style.columnWidth = pw + 'px';
+    }
+
+    function pageCount() {
+      var step = pageStep();
+      if (step <= 0) return 1;
+      return Math.max(1, Math.round((viewport.scrollWidth + COLUMN_GAP) / step));
+    }
+
+    var currentIndex = 0;
+
+    function pageOffset(index) {
+      return Math.min(index * pageStep(), maxScrollLeft());
+    }
+
+    function syncIndexFromScroll() {
+      var step = pageStep();
+      if (step <= 0) return;
+      var total = pageCount();
+      var idx = Math.round(viewport.scrollLeft / step);
+      currentIndex = Math.max(0, Math.min(idx, total - 1));
+    }
+
+    function updatePaging() {
+      if (!isPaged()) return;
+      var total = pageCount();
+      currentIndex = Math.max(0, Math.min(currentIndex, total - 1));
+      if (prevBtn) prevBtn.disabled = currentIndex <= 0;
+      if (nextBtn) nextBtn.disabled = currentIndex >= total - 1;
+      if (indicator) indicator.textContent = (currentIndex + 1) + ' / ' + total;
+    }
+
+    var flipping = false;
+
+    /* ---------- Page overlays ----------
+       Page (flip) mode: လက်ရှိစာမျက်နှာကို sheet တစ်ရွက်အနေဖြင့် spine ပတ်ပြီး လှန်တယ်။
+       Slide mode: စာမျက်နှာ ၂ ရွက် (အထွက် + အဝင်) ကို ဘယ်ညာ တွန်းရွှေ့တယ်။ */
+    var sheets = [];
+
+    function buildSheet() {
+      var el = document.createElement('div');
+      el.className = 'chapter-reading-sheet';
+      el.setAttribute('aria-hidden', 'true');
+
+      var scroll = document.createElement('div');
+      scroll.className = 'chapter-reading-sheet-scroll';
+
+      var clone = content.cloneNode(true);
+      clone.removeAttribute('id');
+      var ids = clone.querySelectorAll('[id]');
+      for (var i = 0; i < ids.length; i++) ids[i].removeAttribute('id');
+
+      var shade = document.createElement('div');
+      shade.className = 'chapter-reading-sheet-shade';
+
+      scroll.appendChild(clone);
+      el.appendChild(scroll);
+      el.appendChild(shade);
+      stage.appendChild(el);
+
+      var obj = { el: el, scroll: scroll, content: clone, shade: shade };
+      sheets.push(obj);
+      return obj;
+    }
+
+    function getSheet(i) {
+      while (sheets.length <= i) buildSheet();
+      return sheets[i];
+    }
+
+    /* clone ထားသော sheet ကို လက်ရှိ content/font/column အခြေအနေနှင့် အမြဲ ကိုက်ညီစေရန် */
+    function syncSheet(s) {
+      if (!s) return;
+      s.content.className = content.className;
+      s.content.style.columnWidth = content.style.columnWidth;
+    }
+
+    function resetSheet(s) {
+      if (!s) return;
+      s.el.style.transition = 'none';
+      s.el.style.transformOrigin = '';
+      s.el.style.transform = 'translateX(0) rotateY(0deg)';
+      s.el.style.opacity = '0';
+      s.el.style.visibility = 'hidden';
+      s.shade.style.transition = 'none';
+      s.shade.style.opacity = '0';
+      s.el.classList.remove('flip-next', 'flip-prev', 'slide-seam-left', 'slide-seam-right');
+    }
+
+    function hideSheets() {
+      for (var i = 0; i < sheets.length; i++) resetSheet(sheets[i]);
+    }
+
+    function goPage(dir) {
+      if (!isPaged() || flipping) return;
+      var total = pageCount();
+      var target = Math.max(0, Math.min(currentIndex + dir, total - 1));
+      if (target === currentIndex) return;
+      var offset = pageOffset(target);
+      if (mode === 'slide') slideTo(offset, dir, target);
+      else flipTo(offset, dir, target);
+    }
+
+    /* ---------- Physical page-turn (flip) ---------- */
+    function flipTo(target, dir, index) {
+      flipping = true;
+      if (readingWrap) readingWrap.classList.add('reader-flipping');
+
+      var s = getSheet(0);
+      syncSheet(s);
+
+      /* sheet ပေါ်တွင် လက်ရှိ စာမျက်နှာကို ပုံတူပြထားမယ် */
+      s.scroll.scrollLeft = viewport.scrollLeft;
+      s.scroll.scrollTop = 0;
+
+      s.el.classList.add(dir > 0 ? 'flip-next' : 'flip-prev');
+
+      var origin = dir > 0 ? 'left center' : 'right center';
+      var outAngle = dir > 0 ? -90 : 90;
+      var DURATION = 520;
+      var EASE = 'cubic-bezier(0.42, 0.05, 0.32, 1)';
+
+      /* sheet ကို ပေါ်စေပြီး အောက်က viewport ကို နောက် စာမျက်နှာသို့ ကြိုတင်ရွှေ့ */
+      s.el.style.transition = 'none';
+      s.el.style.transformOrigin = origin;
+      s.el.style.transform = 'translateX(0) rotateY(0deg)';
+      s.el.style.opacity = '1';
+      s.el.style.visibility = 'visible';
+      s.shade.style.transition = 'none';
+      s.shade.style.opacity = '0';
+
+      viewport.scrollLeft = target;
+      if (typeof index === 'number') currentIndex = index;
+
+      void s.el.offsetWidth;
+
+      requestAnimationFrame(function () {
+        s.el.style.transition = 'transform ' + DURATION + 'ms ' + EASE;
+        s.el.style.transform = 'rotateY(' + outAngle + 'deg)';
+        s.shade.style.transition = 'opacity ' + DURATION + 'ms ease-in';
+        s.shade.style.opacity = '1';
+
+        setTimeout(function () {
+          resetSheet(s);
+          if (readingWrap) readingWrap.classList.remove('reader-flipping');
+          flipping = false;
+          updatePaging();
+        }, DURATION + 20);
+      });
+    }
+
+    /* ---------- Left/Right push (slide) ---------- */
+    function slideTo(target, dir, index) {
+      flipping = true;
+      if (readingWrap) readingWrap.classList.add('reader-flipping');
+
+      var out = getSheet(0);
+      var inc = getSheet(1);
+      syncSheet(out);
+      syncSheet(inc);
+
+      /* အထွက် sheet = လက်ရှိ စာမျက်နှာ၊ အဝင် sheet = ရောက်မယ့် စာမျက်နှာ */
+      out.scroll.scrollLeft = viewport.scrollLeft;
+      out.scroll.scrollTop = 0;
+      inc.scroll.scrollLeft = target;
+      inc.scroll.scrollTop = 0;
+
+      var DURATION = 460;
+      var EASE = 'cubic-bezier(0.22, 0.61, 0.36, 1)';
+
+      /* ကြားချိုင့် (seam) မှာ အရိပ်ထည့်ဖို့ အဝင် sheet ရဲ့ ဦးဆုံးအနား ကို သတ်မှတ် */
+      inc.el.classList.remove('slide-seam-left', 'slide-seam-right');
+      inc.el.classList.add(dir > 0 ? 'slide-seam-left' : 'slide-seam-right');
+
+      out.el.style.transition = 'none';
+      out.el.style.transformOrigin = '';
+      out.el.style.transform = 'translateX(0)';
+      out.el.style.opacity = '1';
+      out.el.style.visibility = 'visible';
+      out.shade.style.transition = 'none';
+      out.shade.style.opacity = '0';
+
+      inc.el.style.transition = 'none';
+      inc.el.style.transformOrigin = '';
+      inc.el.style.transform = 'translateX(' + (dir > 0 ? '100%' : '-100%') + ')';
+      inc.el.style.opacity = '1';
+      inc.el.style.visibility = 'visible';
+      inc.shade.style.transition = 'none';
+      inc.shade.style.opacity = '0';
+
+      void inc.el.offsetWidth;
+
+      requestAnimationFrame(function () {
+        out.el.style.transition = 'transform ' + DURATION + 'ms ' + EASE;
+        inc.el.style.transition = 'transform ' + DURATION + 'ms ' + EASE;
+        out.el.style.transform = 'translateX(' + (dir > 0 ? '-100%' : '100%') + ')';
+        inc.el.style.transform = 'translateX(0)';
+        inc.shade.style.transition = 'opacity ' + DURATION + 'ms ' + EASE;
+        inc.shade.style.opacity = '1';
+
+        setTimeout(function () {
+          /* အောက်က viewport ကို ရောက်မယ့် စာမျက်နှာသို့ ပြောင်းပြီး sheet ၂ ရွက် ဖျောက် */
+          viewport.scrollLeft = target;
+          if (typeof index === 'number') currentIndex = index;
+          resetSheet(out);
+          resetSheet(inc);
+          if (readingWrap) readingWrap.classList.remove('reader-flipping');
+          flipping = false;
+          updatePaging();
+        }, DURATION + 20);
+      });
+    }
+
+    function relayout() {
+      layoutColumns();
+      requestAnimationFrame(function () {
+        layoutColumns();
+        if (isPaged()) {
+          var total = pageCount();
+          currentIndex = Math.max(0, Math.min(currentIndex, total - 1));
+          viewport.scrollLeft = pageOffset(currentIndex);
+        }
+        updatePaging();
+      });
+      setTimeout(updatePaging, 80);
+    }
+
+    function setMode(next, persist) {
+      if (flipping) return;
+
+      mode = (next === 'horizontal' || next === 'slide') ? next : 'vertical';
+      var paged = isPaged();
+      readerCard.classList.toggle('reading-horizontal', paged);
+      styleButtons.forEach(function (btn) {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+      });
+
+      hideSheets();
+
+      viewport.classList.remove('reader-fade');
+      void viewport.offsetWidth;
+      viewport.classList.add('reader-fade');
+
+      currentIndex = 0;
+
+      if (paged) {
+        viewport.scrollLeft = 0;
+        relayout();
+      } else {
+        content.style.columnWidth = '';
+        viewport.scrollLeft = 0;
+      }
+      sheets.forEach(syncSheet);
+
+      if (persist) {
+        try { localStorage.setItem(MODE_KEY, mode); } catch (e) { }
+      }
+    }
+
+    styleButtons.forEach(function (btn) {
+      btn.addEventListener('click', function () { setMode(btn.dataset.mode, true); });
+    });
+
+    if (prevBtn) prevBtn.addEventListener('click', function () { goPage(-1); });
+    if (nextBtn) nextBtn.addEventListener('click', function () { goPage(1); });
+
+    viewport.addEventListener('scroll', function () {
+      if (!isPaged() || flipping) return;
+      syncIndexFromScroll();
+      updatePaging();
+    }, { passive: true });
+
+    document.addEventListener('keydown', function (e) {
+      if (!isPaged()) return;
+      if (e.target && e.target.matches && e.target.matches('input, textarea, select')) return;
+      if (e.key === 'ArrowRight') goPage(1);
+      else if (e.key === 'ArrowLeft') goPage(-1);
+    });
+
+    var resizeTimer;
+    window.addEventListener('resize', function () {
+      if (!isPaged()) return;
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        layoutColumns();
+        currentIndex = 0;
+        viewport.scrollLeft = 0;
+        updatePaging();
+      }, 150);
+    });
+
+    var savedMode = 'vertical';
+    try { savedMode = localStorage.getItem(MODE_KEY) || 'vertical'; } catch (e) { }
+    if (savedMode !== 'horizontal' && savedMode !== 'slide') savedMode = 'vertical';
+    setMode(savedMode, false);
   })();
 </script>
 {% endblock %}

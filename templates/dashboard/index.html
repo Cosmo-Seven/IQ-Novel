@@ -1,72 +1,178 @@
 {% extends 'dashboard/components/base.html' %}
 
 {% load translate %}
-{% block title %}{% translate 'users' request.session.language %}{% endblock %}
 {% load static %}
-{% block body %}
 {% load humanize %}
-{% load myanmar_number %}
+{% block title %}Dashboard{% endblock %}
+{% block body %}
 <div class="page-wrapper">
     <div class="content">
-        <div class="page-header">   
+        <div class="page-header">
             <div class="add-item d-flex">
                 <div class="page-title">
-                    <h4 class="fw-bold">{% translate 'users' request.session.language %}</h4>
-                    <h6>{% translate 'manage_your_users' request.session.language %}</h6>
+                    <h4 class="fw-bold">Dashboard</h4>
+                    <h6>{% if is_superuser %}Platform overview{% else %}Overview of your novels{% endif %}</h6>
                 </div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-header">
-                <div class="row">
-                    {% include 'dashboard/components/search.html' %}
-                    {% include 'dashboard/components/date_filter.html' %}
-                    {% include 'dashboard/components/entries.html' %}
+        <style>
+            .stat-card {
+                border: 1px solid rgba(128, 128, 128, 0.12);
+                border-radius: 14px;
+                transition: transform .18s ease, box-shadow .18s ease;
+            }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+            }
+
+            .stat-card .card-body {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding: 1.15rem 1.25rem;
+            }
+
+            .stat-icon {
+                width: 54px;
+                height: 54px;
+                border-radius: 14px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 26px;
+                flex-shrink: 0;
+            }
+
+            .stat-label {
+                color: var(--default-text-color, #6b7280);
+                opacity: .7;
+                font-size: 13px;
+                margin-bottom: 2px;
+            }
+
+            .stat-value {
+                font-size: 26px;
+                font-weight: 700;
+                line-height: 1.1;
+                margin-bottom: 0;
+            }
+
+            .stat-icon-novels {
+                background: #dbeafe;
+                color: #1d4ed8;
+            }
+
+            .stat-icon-users {
+                background: #f4dede;
+                color: #874747;
+            }
+
+            .stat-icon-gems {
+                background: #fdf0d5;
+                color: #b45309;
+            }
+
+            .stat-icon-chapters {
+                background: #d9f2ec;
+                color: #0f766e;
+            }
+
+            .stat-icon-authors {
+                background: #e3e6fb;
+                color: #4338ca;
+            }
+
+            [data-theme="dark"] .stat-icon-novels {
+                background: rgba(29, 78, 216, .25);
+                color: #8fb4f5;
+            }
+
+            [data-theme="dark"] .stat-icon-users {
+                background: rgba(135, 71, 71, .25);
+                color: #e8a8a8;
+            }
+
+            [data-theme="dark"] .stat-icon-gems {
+                background: rgba(180, 83, 9, .25);
+                color: #f0b25f;
+            }
+
+            [data-theme="dark"] .stat-icon-chapters {
+                background: rgba(15, 118, 110, .25);
+                color: #56c4b8;
+            }
+
+            [data-theme="dark"] .stat-icon-authors {
+                background: rgba(67, 56, 202, .28);
+                color: #a5aef5;
+            }
+        </style>
+
+        <div class="row g-3">
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card">
+                    <div class="card-body">
+                        <div class="stat-icon stat-icon-novels"><i class="ti ti-book"></i></div>
+                        <div>
+                            <p class="stat-label">{% if is_superuser %}Total Novels{% else %}My Novels{% endif %}</p>
+                            <h4 class="stat-value">{{ novel_count|intcomma }}</h4>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="p-0 card-body">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>{% translate 'table_no' request.session.language %}</th>
-                                <th>{% translate 'name' request.session.language %}</th>
-                                <th>{% translate 'email' request.session.language %}</th>
-                                <th>{% translate 'transitation_id' request.session.language %}</th>
-                                <th>{% translate 'novel' request.session.language %}</th>
-                                <th>{% translate 'promotion_diamond' request.session.language %}</th>
-                                <th>{% translate 'paid_diamond' request.session.language %}</th>
-                                <th class="text-center">{% translate 'date' request.session.language %}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <a href="javascript:void(0);" class="avatar avatar-md me-2">
-                                            <img src="{% if user.profile %}{{user.profile.url}}{% else %}{% static 'dashboard/images/no-profile.png' %}{% endif %}"
-                                                alt="{{user.username}}">
-                                        </a>
-                                        <a href="javascript:void(0);">{% translate user.translation_key request.session.language %}</a>
-                                    </div>
-                                </td>
-                                <td><a href="mailto:{{user.email}}">{{user.email}}</a></td>
-                                <td>TXN-32D220515777</td>
-                                <td>
-                                    Novel Name
-                                </td>
-                                <td>100</td>
-                                <td>20</td>
-                                
-                                <td>23.7.2026</td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card">
+                    <div class="card-body">
+                        <div class="stat-icon stat-icon-users"><i class="ti ti-users"></i></div>
+                        <div>
+                            <p class="stat-label">{% if is_superuser %}Total Users{% else %}Buying Users{% endif %}</p>
+                            <h4 class="stat-value">{{ user_count|intcomma }}</h4>
+                        </div>
+                    </div>
                 </div>
             </div>
-            {% include 'dashboard/components/pagination.html' %}
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card">
+                    <div class="card-body">
+                        <div class="stat-icon stat-icon-gems"><i class="ti ti-diamond"></i></div>
+                        <div>
+                            <p class="stat-label">Gem Purchases</p>
+                            <h4 class="stat-value">{{ gem_purchase|intcomma }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card">
+                    <div class="card-body">
+                        <div class="stat-icon stat-icon-chapters"><i class="ti ti-book-2"></i></div>
+                        <div>
+                            <p class="stat-label">Chapter Purchases</p>
+                            <h4 class="stat-value">{{ chapter_purchase|intcomma }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if is_superuser %}
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card">
+                    <div class="card-body">
+                        <div class="stat-icon stat-icon-authors"><i class="ti ti-pencil"></i></div>
+                        <div>
+                            <p class="stat-label">Authors</p>
+                            <h4 class="stat-value">{{ author_count|intcomma }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
     {% include 'dashboard/components/footer.html' %}
