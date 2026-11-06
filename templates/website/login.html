@@ -6,7 +6,8 @@
 {% load myanmar_number %}
 
 <!-- Import Kawaii/Anime Style Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@600;800&display=swap"
+    rel="stylesheet">
 
 <style>
     /* Anime Aesthetic Theme Variables */
@@ -66,6 +67,7 @@
         left: 40px;
         transform: rotate(-15deg);
     }
+
     .auth-card::after {
         left: 95px;
         transform: rotate(15deg);
@@ -98,14 +100,21 @@
     .anime-artwork-placeholder {
         max-width: 280px;
         width: 100%;
-        filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
+        filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.1));
         margin-bottom: 20px;
         animation: floatArt 4s ease-in-out infinite;
     }
 
     @keyframes floatArt {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-10px); }
+
+        0%,
+        100% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
     }
 
     .brand-title {
@@ -127,23 +136,23 @@
         background-color: var(--auth-form-bg);
         position: relative;
         /* Subtle Manga Speed Line Pattern Simulation */
-        background-image: radial-gradient(circle at center, transparent 25%, var(--auth-form-bg) 25%), 
-                          linear-gradient(0deg, transparent 49%, #f8f9fa 49%, #f8f9fa 51%, transparent 51%), 
-                          linear-gradient(90deg, transparent 49%, #f8f9fa 49%, #f8f9fa 51%, transparent 51%);
+        background-image: radial-gradient(circle at center, transparent 25%, var(--auth-form-bg) 25%),
+            linear-gradient(0deg, transparent 49%, #f8f9fa 49%, #f8f9fa 51%, transparent 51%),
+            linear-gradient(90deg, transparent 49%, #f8f9fa 49%, #f8f9fa 51%, transparent 51%);
         background-size: 100% 100%, 30px 30px, 30px 30px;
         transition: background-color 0.4s ease;
     }
 
     [data-theme="dark"] .auth-form-container {
-        background-image: radial-gradient(circle at center, transparent 25%, var(--auth-form-bg) 25%), 
-                          linear-gradient(0deg, transparent 49%, #1e1e3f 49%, #1e1e3f 51%, transparent 51%), 
-                          linear-gradient(90deg, transparent 49%, #1e1e3f 49%, #1e1e3f 51%, transparent 51%);
+        background-image: radial-gradient(circle at center, transparent 25%, var(--auth-form-bg) 25%),
+            linear-gradient(0deg, transparent 49%, #1e1e3f 49%, #1e1e3f 51%, transparent 51%),
+            linear-gradient(90deg, transparent 49%, #1e1e3f 49%, #1e1e3f 51%, transparent 51%);
     }
 
     [data-theme="eye-care"] .auth-form-container {
-        background-image: radial-gradient(circle at center, transparent 25%, var(--auth-form-bg) 25%), 
-                          linear-gradient(0deg, transparent 49%, #e5d5b5 49%, #e5d5b5 51%, transparent 51%), 
-                          linear-gradient(90deg, transparent 49%, #e5d5b5 49%, #e5d5b5 51%, transparent 51%);
+        background-image: radial-gradient(circle at center, transparent 25%, var(--auth-form-bg) 25%),
+            linear-gradient(0deg, transparent 49%, #e5d5b5 49%, #e5d5b5 51%, transparent 51%),
+            linear-gradient(90deg, transparent 49%, #e5d5b5 49%, #e5d5b5 51%, transparent 51%);
     }
 
     .form-heading {
@@ -277,25 +286,49 @@
         border-bottom-style: solid;
     }
 
+    /* Forgot password link */
+    .forgot-password-link {
+        font-weight: 800;
+        font-size: 0.9rem;
+        color: var(--anime-purple);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .forgot-password-link:hover {
+        color: var(--anime-pink);
+        text-decoration: underline;
+    }
+
+    [data-theme="dark"] .forgot-password-link {
+        color: #70d6ff;
+    }
+
+    [data-theme="eye-care"] .forgot-password-link {
+        color: #732230;
+    }
+
     /* Responsive Mobile Design overrides */
     @media (max-width: 768px) {
         .auth-split-container {
             flex-direction: column;
         }
+
         .auth-sidebar-banner {
             padding: 30px 20px;
         }
+
         .auth-form-container {
             padding: 35px 20px;
         }
-        
+
     }
 </style>
 
 <div class="auth-wrapper">
     <div class="auth-card" id="authCard">
         <div class="auth-split-container">
-            
+
             <!-- LEFT PANEL: Banner Graphics -->
             <div class="auth-sidebar-banner">
                 <!-- Replace src below with your custom mascot/illustration path if needed -->
@@ -310,12 +343,13 @@
 
                 <form method="POST" action="{{ website_login_url }}">
                     {% csrf_token %}
-                    
+
                     <!-- Email Field Wrapper -->
                     <div class="mb-4">
                         <label class="form-label">Email Address</label>
                         <div class="input-group-anime">
-                            <input type="email" class="form-control" name="email" value="{{ email|default:'' }}" placeholder="Enter your email" required>
+                            <input type="email" class="form-control" name="email" value="{{ email|default:'' }}"
+                                placeholder="Enter your email" required>
                             <i class="fa-solid fa-sparkles input-addon-icon"></i>
                         </div>
                     </div>
@@ -324,9 +358,16 @@
                     <div class="mb-4">
                         <label class="form-label">Password</label>
                         <div class="input-group-anime">
-                            <input type="password" class="form-control" name="password" id="password" placeholder="Enter your password" required>
-                            <i class="fa-regular fa-eye-slash input-addon-icon password-toggle" data-target="password"></i>
+                            <input type="password" class="form-control" name="password" id="password"
+                                placeholder="Enter your password" required>
+                            <i class="fa-regular fa-eye-slash input-addon-icon password-toggle"
+                                data-target="password"></i>
                         </div>
+                    </div>
+
+                    <!-- Forgot Password Link -->
+                    <div class="text-end mb-3" style="margin-top: -12px;">
+                        <a href="{% url 'forgot_password' %}" class="forgot-password-link">Forgot password?</a>
                     </div>
 
                     <!-- CTA Submit Button -->
@@ -335,7 +376,7 @@
 
                 <!-- Footer Redirection Link alternative toggle -->
                 <p class="text-center mt-4 mb-0 register-redirect-text">
-                    Don’t have an account? 
+                    Don’t have an account?
                     <a href="{% url 'website_register' %}" id="showRegister">Register here</a>
                 </p>
             </div>
@@ -345,14 +386,14 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const passwordToggles = document.querySelectorAll('.password-toggle');
-        
-        passwordToggles.forEach(function(toggle) {
-            toggle.addEventListener('click', function() {
+
+        passwordToggles.forEach(function (toggle) {
+            toggle.addEventListener('click', function () {
                 const targetId = this.getAttribute('data-target');
                 const passwordInput = document.getElementById(targetId);
-                
+
                 if (passwordInput) {
                     if (passwordInput.type === 'password') {
                         passwordInput.type = 'text';
