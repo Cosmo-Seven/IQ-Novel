@@ -27,11 +27,6 @@
                 </li>
             </ul>
             <div class="page-btn d-flex gap-2">
-                {% if can_export_chapter_purchases %}
-                <a href="{% url 'chapter_purchase_export_excel' %}" class="btn btn-success">
-                    <i class="ti ti-file-spreadsheet me-1"></i>Sales Excel
-                </a>
-                {% endif %}
                 <a href="{{ novel_sales_list_url }}" class="btn btn-outline-primary">
                     <i class="ti ti-chart-bar me-1"></i>Sales
                 </a>

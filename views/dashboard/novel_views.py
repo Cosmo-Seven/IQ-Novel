@@ -63,9 +63,6 @@ def novel_list(request):
         "dashboard/novel_list.html",
         {
             "novels": filters["page_obj"],
-            "can_export_chapter_purchases": request.user.has_permission(
-                "view_chapterpurchasemodel"
-            ),
             **filters,
         },
     )
@@ -534,7 +531,10 @@ def chapter_purchase_list(request):
         total_mmk        = Coalesce(Sum("sale_price_mmk"), 0),
     )
 
-    novels = NovelModel.objects.all().order_by("title")
+    novels = NovelModel.objects.all()
+    if not (request.user.is_staff or request.user.is_superuser):
+        novels = novels.filter(author__user=request.user)
+    novels = novels.order_by("title")
 
     return render(request, "dashboard/chapter_purchase_list.html", {
         "purchases"  : filters["page_obj"],
@@ -554,6 +554,9 @@ def _chapter_purchase_queryset(request):
         "chapter__novel__author",
     )
 
+    if not (request.user.is_staff or request.user.is_superuser):
+        purchases = purchases.filter(chapter__novel__author__user=request.user)
+
     novel_id = request.GET.get("novel")
     if novel_id:
         purchases = purchases.filter(chapter__novel__id=novel_id)
@@ -571,8 +574,6 @@ def _chapter_purchase_queryset(request):
 @role_permission_required("view_chapterpurchasemodel")
 def chapter_purchase_export_excel(request):
     purchases = _chapter_purchase_queryset(request)
-    if not request.user.is_superuser:
-        purchases = purchases.filter(chapter__novel__author__user=request.user)
 
     purchases = filter_queryset_for_export(
         purchases,
