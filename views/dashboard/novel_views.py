@@ -81,8 +81,12 @@ def novel_sales_list(request):
         .order_by("-revenue_mmk", "-created_at")
     )
     
-    if  not request.user.is_superuser:
-        novels = novels.filter(author__user=request.user)
+    if not request.user.is_superuser:
+        author = _author_for_user(request.user)
+        if author:
+            novels = novels.filter(author=author)
+        else:
+            novels = novels.none()
 
     filters = filter_querysets(
         request,
@@ -531,10 +535,18 @@ def chapter_purchase_list(request):
         total_mmk        = Coalesce(Sum("sale_price_mmk"), 0),
     )
 
-    novels = NovelModel.objects.all()
-    if not (request.user.is_staff or request.user.is_superuser):
-        novels = novels.filter(author__user=request.user)
+    novels = NovelModel.objects.filter(is_deleted=False)
+    if not request.user.is_superuser:
+        author = _author_for_user(request.user)
+        if author:
+            novels = novels.filter(author=author)
+        else:
+            novels = novels.none()
     novels = novels.order_by("title")
+
+    if novel_id and not request.user.is_superuser:
+        if not novels.filter(id=novel_id).exists():
+            novel_id = None
 
     return render(request, "dashboard/chapter_purchase_list.html", {
         "purchases"  : filters["page_obj"],
@@ -554,8 +566,12 @@ def _chapter_purchase_queryset(request):
         "chapter__novel__author",
     )
 
-    if not (request.user.is_staff or request.user.is_superuser):
-        purchases = purchases.filter(chapter__novel__author__user=request.user)
+    if not request.user.is_superuser:
+        author = _author_for_user(request.user)
+        if author:
+            purchases = purchases.filter(chapter__novel__author=author)
+        else:
+            purchases = purchases.none()
 
     novel_id = request.GET.get("novel")
     if novel_id:
