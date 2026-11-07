@@ -17,7 +17,7 @@
 
 </head>
 
-<body class="body">
+<body class="body {% block body_class %}{% endblock %}">
     {% include 'website/components/loader.html' %}
 
     {% include 'website/components/toast.html' %}

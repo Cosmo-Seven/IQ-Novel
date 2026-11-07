@@ -1,937 +1,975 @@
 {% extends 'website/components/base.html' %}
 {% block title %} {{ chapter.chapter_title }} {% endblock %}
+{% block body_class %}is-chapter-reader{% endblock %}
 {% block body %}
 {% load humanize %}
 
-<div class="container pt-4 pb-5">
-  <div class="row justify-content-center">
-    <div class="col-12 col-lg-9 col-xl-8">
+<div class="novel-reader" id="novelReader" data-chapter-id="{{ chapter.id }}">
+  <div class="reader-progress" id="readerProgress" aria-hidden="true">
+    <div class="reader-progress-bar" id="readerProgressBar"></div>
+  </div>
 
-      <div
-        class="chapter-nav-box theme-card p-2 rounded-pill shadow-sm border mb-4 d-flex justify-content-between align-items-center">
-        {% include 'website/components/chapter_nav.html' %}
+  <div class="reader-shell">
+    <header class="reader-chrome reader-top" id="readerTop">
+      <a href="{% url 'novel_detail' chapter.novel.id %}?tab=chapters" class="reader-icon-btn" title="နောက်သို့"
+        aria-label="Back to chapters">
+        <i class="bi bi-chevron-left"></i>
+      </a>
+      <div class="reader-top-meta">
+        <p class="reader-chapter-title">{{ chapter.chapter_title }}</p>
+        <a href="{% url 'novel_detail' chapter.novel.id %}?tab=chapters" class="reader-novel-link">
+          {{ chapter.novel.title }}</a>
       </div>
+      <div class="reader-page-chip" id="readerPageBar" hidden>
+        <button type="button" class="reader-page-btn reader-page-prev" aria-label="Previous page" title="ရှေ့စာမျက်နှာ">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        <span class="reader-page-indicator" id="readerPageIndicator">1 / 1</span>
+        <button type="button" class="reader-page-btn reader-page-next" aria-label="Next page" title="နောက်စာမျက်နှာ">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+      <button type="button" class="reader-icon-btn" id="readerSettingsBtn" title="ဖတ်ရှုမှု ဆက်တင်"
+        aria-label="Reading settings" aria-expanded="false" aria-controls="readerSettings">
+        <i class="bi bi-sliders"></i>
+      </button>
+    </header>
 
-      <div class="reader-card theme-card p-3 p-md-5 rounded-3 shadow-sm border">
+    <div class="reader-page">
+      <main class="reader-surface" id="readerSurface">
+        <header class="reader-masthead">
+          <p class="reader-masthead-kicker">{{ chapter.novel.title }}</p>
+          <h1 class="reader-masthead-title">{{ chapter.chapter_title }}</h1>
+          <p class="reader-masthead-note">ဖတ်ရှုမှု</p>
+        </header>
 
-        <div class="text-center mb-4 border-bottom theme-border pb-4">
-          <h1 class="chapter-main-title h2 fw-bold theme-text-main mb-2">{{ chapter.chapter_title }}</h1>
-          <a href="{% url 'novel_detail' chapter.novel.id %}?tab=chapters"
-            class="theme-text-muted text-decoration-none small fw-medium">
-            <i class="bi bi-book me-1"></i>{{ chapter.novel.title }}
-          </a>
-          <div class="reader-toolbar d-flex flex-wrap align-items-center justify-content-center gap-2 mt-3">
-            <div class="reader-style-switcher d-inline-flex align-items-center gap-1 p-1 rounded-pill" role="group"
-              aria-label="Reading style">
-              <button type="button" class="reader-style-btn active" data-mode="vertical"
-                title="အပေါ်အောက် scroll ဖတ်မယ်">
-                <i class="bi bi-arrows-vertical"></i><span class="d-none d-sm-inline">Scroll</span>
-              </button>
-              <button type="button" class="reader-style-btn" data-mode="horizontal" title="စာအုပ်စာမျက်နှာ လှန်ဖတ်မယ် (3D Flip)">
-                <i class="bi bi-book-half"></i><span class="d-none d-sm-inline">Page</span>
-              </button>
-              <button type="button" class="reader-style-btn" data-mode="slide" title="ဘယ်ညာ တွန်းဖတ်မယ် (Slide)">
-                <i class="bi bi-arrow-left-right"></i><span class="d-none d-sm-inline">Slide</span>
-              </button>
-            </div>
-
-            <div class="reader-font-switcher d-inline-flex align-items-center gap-1 p-1 rounded-pill">
-              <button type="button" class="reader-font-btn" data-size="small" title="Small"
-                aria-label="Small text">Small</button>
-              <button type="button" class="reader-font-btn active" data-size="medium" title="Medium"
-                aria-label="Medium text">Medium</button>
-              <button type="button" class="reader-font-btn" data-size="large" title="Large"
-                aria-label="Large text">Large</button>
-            </div>
-
-            <button type="button" class="reader-tool-btn" id="readerFullscreenBtn" title="မျက်နှာပြင်အပြည့်ဖတ်မယ် (Fullscreen)">
-              <i class="bi bi-arrows-fullscreen"></i><span class="d-none d-sm-inline ms-1">Fullscreen</span>
-            </button>
+        <div class="reader-stage" id="readerStage">
+          <div class="reader-viewport" id="chapterViewport">
+            <article class="reader-content theme-text-reading" id="chapterContent">
+              {{ chapter.content|safe }}
+            </article>
           </div>
         </div>
 
-        <div class="chapter-reading-wrap">
-          <div class="chapter-reading-stage" id="readingStage">
-
-            <!-- Spine crease shadow (gives physical book inner spine feel) -->
-            <div class="reader-spine-crease" aria-hidden="true"></div>
-
-            <!-- Left & Right tap zones for mobile & desktop edge tapping -->
-            <div class="reader-tap-zone reader-tap-prev" aria-label="Previous page" title="ရှေ့စာမျက်နှာသို့ (သို့) ဘယ်ဘက်ပွတ်ပါ">
-              <span class="reader-tap-hint"><i class="bi bi-chevron-compact-left"></i></span>
-            </div>
-            <div class="reader-tap-zone reader-tap-next" aria-label="Next page" title="နောက်စာမျက်နှာသို့ (သို့) ညာဘက်ပွတ်ပါ">
-              <span class="reader-tap-hint"><i class="bi bi-chevron-compact-right"></i></span>
-            </div>
-
-            <!-- Dynamic under-shadow cast on the page below during page turn -->
-            <div class="reader-under-shadow" id="leafUnderShadow" aria-hidden="true"></div>
-
-            <!-- Realistic 3D Double-Sided Book Leaf -->
-            <div class="chapter-page-leaf" id="pageLeaf" aria-hidden="true">
-              <div class="leaf-face leaf-face-front">
-                <div class="leaf-scroll" id="leafFrontScroll"></div>
-                <div class="leaf-crease-shadow"></div>
-                <div class="leaf-curl-highlight" id="leafCurlHighlight"></div>
-              </div>
-              <div class="leaf-face leaf-face-back">
-                <div class="leaf-back-paper">
-                  <div class="leaf-back-ghost"></div>
-                  <div class="leaf-back-crease"></div>
-                  <div class="leaf-back-highlight"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Slide Mode Sheets -->
-            <div class="chapter-slide-sheet" id="slideOutSheet" aria-hidden="true">
-              <div class="slide-sheet-scroll" id="slideOutScroll"></div>
-              <div class="slide-sheet-shade"></div>
-            </div>
-            <div class="chapter-slide-sheet" id="slideInSheet" aria-hidden="true">
-              <div class="slide-sheet-scroll" id="slideInScroll"></div>
-              <div class="slide-sheet-shade"></div>
-            </div>
-
-            <!-- Main viewport with chapter text -->
-            <div class="chapter-reading-viewport" id="chapterViewport">
-              <div class="chapter-reading-content theme-text-reading" id="chapterContent">
-                {{ chapter.content|safe }}
-              </div>
-            </div>
+        <nav class="reader-chapter-nav" id="readerChapterNav" aria-label="Chapter navigation">
+          <div class="reader-chapter-nav-inner">
+            {% include 'website/components/chapter_nav.html' %}
           </div>
-
-          <div class="reader-page-bar" id="readerPageBar">
-            <button type="button" class="reader-page-btn reader-page-prev" aria-label="Previous page"
-              title="ရှေ့စာမျက်နှာ (Swipe Right / Tap Left)">
-              <i class="bi bi-chevron-left"></i>
-            </button>
-            <div class="reader-slider-wrap d-flex align-items-center gap-2 flex-grow-1 mx-2 mx-md-3">
-              <input type="range" class="reader-progress-slider" id="readerPageSlider" min="1" max="1" value="1" title="စာမျက်နှာ ရွှေ့ဖတ်မယ်">
-            </div>
-            <span class="reader-page-indicator" id="readerPageIndicator">1 / 1</span>
-            <button type="button" class="reader-page-btn reader-page-next" aria-label="Next page"
-              title="နောက်စာမျက်နှာ (Swipe Left / Tap Right)">
-              <i class="bi bi-chevron-right"></i>
-            </button>
-          </div>
-        </div>
-
-      </div>
-
-      <div
-        class="chapter-nav-box theme-card p-2 rounded-pill shadow-sm border mt-4 d-flex justify-content-between align-items-center">
-        {% include 'website/components/chapter_nav.html' %}
-      </div>
-
+        </nav>
+      </main>
     </div>
   </div>
+
+  {# Desktop gutter chapter controls #}
+  <div class="reader-rail reader-rail-left" aria-hidden="true">
+    {% if prev_chapter %}
+    {% if prev_chapter.is_free or prev_chapter.id in purchased_chapter_ids %}
+    <a href="{% url 'chapter_detail' prev_chapter.id %}" class="reader-rail-btn" title="Previous chapter"
+      aria-label="Previous chapter" data-reader-rail="prev">
+      <i class="bi bi-chevron-left"></i>
+    </a>
+    {% else %}
+    <a href="{% url 'novel_detail' chapter.novel.id %}?tab=chapters" class="reader-rail-btn"
+      title="Purchase previous chapter" aria-label="Purchase previous chapter" data-reader-rail="prev">
+      <i class="bi bi-chevron-left"></i>
+    </a>
+    {% endif %}
+    {% else %}
+    <span class="reader-rail-btn is-disabled" aria-disabled="true"><i class="bi bi-chevron-left"></i></span>
+    {% endif %}
+  </div>
+
+  <div class="reader-rail reader-rail-right" aria-hidden="true">
+    {% if next_chapter %}
+    {% if next_chapter.is_free or next_chapter.id in purchased_chapter_ids %}
+    <a href="{% url 'chapter_detail' next_chapter.id %}" class="reader-rail-btn" title="Next chapter"
+      aria-label="Next chapter" data-reader-rail="next">
+      <i class="bi bi-chevron-right"></i>
+    </a>
+    {% else %}
+    <a href="{% url 'novel_detail' chapter.novel.id %}?tab=chapters" class="reader-rail-btn"
+      title="Purchase next chapter" aria-label="Purchase next chapter" data-reader-rail="next">
+      <i class="bi bi-chevron-right"></i>
+    </a>
+    {% endif %}
+    {% else %}
+    <span class="reader-rail-btn is-disabled" aria-disabled="true"><i class="bi bi-chevron-right"></i></span>
+    {% endif %}
+  </div>
+
+  <div class="reader-settings-backdrop" id="readerSettingsBackdrop" hidden></div>
+  <aside class="reader-settings" id="readerSettings" hidden aria-label="Reading settings">
+    <div class="reader-settings-head">
+      <strong>ဖတ်ရှုမှု ဆက်တင်</strong>
+      <button type="button" class="reader-icon-btn" id="readerSettingsClose" aria-label="Close settings">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="reader-settings-group">
+      <span class="reader-settings-label">စာလုံးအရွယ်</span>
+      <div class="reader-seg" role="group" aria-label="Font size">
+        <button type="button" class="reader-seg-btn" data-size="small">Small</button>
+        <button type="button" class="reader-seg-btn active" data-size="medium">Medium</button>
+        <button type="button" class="reader-seg-btn" data-size="large">Large</button>
+      </div>
+    </div>
+
+    <div class="reader-settings-group">
+      <span class="reader-settings-label">ဖတ်ပုံစံ</span>
+      <div class="reader-seg" role="group" aria-label="Reading mode">
+        <button type="button" class="reader-seg-btn active" data-mode="vertical">
+          <i class="bi bi-arrows-vertical"></i> Scroll
+        </button>
+        <button type="button" class="reader-seg-btn" data-mode="horizontal">
+          <i class="bi bi-book"></i> Page
+        </button>
+      </div>
+    </div>
+
+    <div class="reader-settings-group">
+      <span class="reader-settings-label">အရောင်</span>
+      <div class="reader-seg" role="group" aria-label="Theme">
+        <button type="button" class="reader-seg-btn active" data-theme-choice="bright">Light</button>
+        <button type="button" class="reader-seg-btn" data-theme-choice="eye-care">Sepia</button>
+        <button type="button" class="reader-seg-btn" data-theme-choice="dark">Dark</button>
+      </div>
+    </div>
+
+    <div class="reader-settings-group">
+      <span class="reader-settings-label">စာကျယ်</span>
+      <div class="reader-seg" role="group" aria-label="Column width">
+        <button type="button" class="reader-seg-btn" data-width="narrow">ကျဉ်း</button>
+        <button type="button" class="reader-seg-btn active" data-width="normal">ပုံမှန်</button>
+        <button type="button" class="reader-seg-btn" data-width="wide">ကျယ်</button>
+      </div>
+    </div>
+  </aside>
 </div>
 
 <style>
-  /* --- Eye Care / Theme Adaptations --- */
-  .theme-card {
-    background-color: var(--card-bg, #ffffff) !important;
-    border-color: var(--border-color, #dee2e6) !important;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
+  body.is-chapter-reader .aesthetic-navbar,
+  body.is-chapter-reader footer.py-5,
+  body.is-chapter-reader .mobile-bottom-nav {
+    display: none !important;
   }
 
-  .theme-text-main {
-    color: var(--main-text, #212529) !important;
-    transition: color 0.3s ease;
+  body.reader-settings-open {
+    overflow: hidden;
   }
 
-  .theme-text-muted {
-    color: var(--text-muted-dark, #6c757d) !important;
-    transition: color 0.3s ease;
+  .reader-settings[hidden],
+  .reader-settings-backdrop[hidden] {
+    display: none !important;
   }
 
-  .theme-border {
-    border-color: var(--border-color, #dee2e6) !important;
-    transition: border-color 0.3s ease;
+  .novel-reader {
+    --reader-pad-x: 1.15rem;
+    --reader-max: 40rem;
+    --reader-chrome-h: 3.35rem;
+    --reader-stage-bg: #f7f4ef;
+    --reader-ink: #3f3a36;
+    min-height: 100vh;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, rgba(88, 24, 37, 0.05), transparent 60%),
+      linear-gradient(180deg, var(--reader-stage-bg) 0%, color-mix(in srgb, var(--site-bg, #faf8f5) 88%, #ebe6de) 100%);
+    color: var(--main-text, #2a2a2a);
+    position: relative;
   }
 
-  /* Optimized typography for seamless, long-form Burmese novel reading */
+  [data-theme="dark"] .novel-reader {
+    --reader-stage-bg: #12161d;
+    --reader-ink: #c9cdd6;
+    background:
+      radial-gradient(1000px 500px at 50% -8%, rgba(233, 69, 96, 0.08), transparent 55%),
+      linear-gradient(180deg, #12161d 0%, #0e1218 100%);
+  }
+
+  [data-theme="eye-care"] .novel-reader {
+    --reader-stage-bg: #f3ebd8;
+    --reader-ink: #5a4634;
+    background:
+      radial-gradient(1000px 500px at 50% -8%, rgba(115, 34, 48, 0.06), transparent 55%),
+      linear-gradient(180deg, #f3ebd8 0%, #ebe1c8 100%);
+  }
+
+  .reader-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    z-index: 1100;
+    pointer-events: none;
+  }
+
+  .reader-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: var(--brand-maroon, #581825);
+    opacity: 0.9;
+    transition: width 0.12s linear;
+  }
+
+  .reader-shell {
+    width: min(100%, calc(var(--reader-max) + 2 * var(--reader-pad-x)));
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .reader-page {
+    width: 100%;
+  }
+
+  .reader-masthead-note {
+    display: none;
+  }
+
+  .reader-chrome {
+    position: fixed;
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem var(--reader-pad-x);
+    background: color-mix(in srgb, var(--reader-stage-bg, #f7f4ef) 88%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: transform 0.28s ease, opacity 0.28s ease, box-shadow 0.28s ease;
+  }
+
+  .reader-top {
+    top: 0;
+    left: 0;
+    right: 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--border-color, #e5e0d8) 80%, transparent);
+    min-height: var(--reader-chrome-h);
+  }
+
+  .novel-reader.chrome-hidden .reader-top {
+    transform: translateY(-110%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .novel-reader.chrome-hidden .reader-chapter-nav {
+    transform: translateY(110%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .reader-top-meta {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+  }
+
+  .reader-chapter-title {
+    margin: 0;
+    font-size: 0.92rem;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--main-text, #2a2a2a);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .reader-novel-link {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--text-muted-dark, #6b6560);
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .reader-novel-link:hover {
+    color: var(--brand-maroon, #581825);
+  }
+
+  .reader-icon-btn {
+    width: 2.4rem;
+    height: 2.4rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--main-text, #2a2a2a);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .reader-icon-btn:hover {
+    background: color-mix(in srgb, var(--brand-maroon, #581825) 10%, transparent);
+    color: var(--brand-maroon, #581825);
+  }
+
+  .reader-chapter-nav-inner {
+    width: 100%;
+    max-width: 36rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .reader-chapter-nav-inner .btn {
+    font-size: 0.8rem;
+  }
+
+  .reader-surface {
+    max-width: var(--reader-max);
+    margin: 0 auto;
+    padding: calc(var(--reader-chrome-h) + 1.1rem) var(--reader-pad-x) calc(5.75rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .reader-masthead {
+    display: none;
+    text-align: center;
+    margin: 0 0 2.25rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--border-color, #e5e0d8) 70%, transparent);
+  }
+
+  .reader-masthead-kicker {
+    margin: 0 0 0.55rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted-dark, #6b6560);
+  }
+
+  .reader-masthead-title {
+    margin: 0;
+    font-size: clamp(1.55rem, 2.2vw, 2rem);
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--main-text, #2a2a2a);
+  }
+
+  .novel-reader.width-narrow {
+    --reader-max: 34rem;
+  }
+
+  .novel-reader.width-normal {
+    --reader-max: 40rem;
+  }
+
+  .novel-reader.width-wide {
+    --reader-max: 48rem;
+  }
+
+  .reader-content {
+    max-width: 100%;
+    min-width: 0;
+  }
+
   .theme-text-reading {
-    color: var(--reading-text, #4b5563) !important;
-    font-size: 1.15rem;
-    line-height: 1.85;
-    letter-spacing: 0.2px;
-    transition: color 0.3s ease;
+    color: var(--reader-ink, #3f3a36) !important;
+    font-size: 1.125rem;
+    line-height: 1.95;
+    letter-spacing: normal;
+    font-weight: 400;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
-  .chapter-reading-content,
-  .chapter-reading-content p {
+  .reader-content.fs-small {
+    font-size: 1rem;
+  }
+
+  .reader-content.fs-medium {
+    font-size: 1.125rem;
+  }
+
+  .reader-content.fs-large {
+    font-size: 1.35rem;
+  }
+
+  .reader-content p {
+    margin: 0 0 1.15em;
     max-width: 100%;
     min-width: 0;
     overflow-wrap: anywhere;
     word-break: break-word;
   }
 
-  .chapter-reading-content p {
-    margin-top: 0;
-    margin-bottom: 0.95rem;
-  }
-
-  .chapter-reading-content p:empty,
-  .chapter-reading-content p:has(> br:only-child) {
+  .reader-content p:empty,
+  .reader-content p:has(> br:only-child) {
     display: none;
   }
 
-  /* Prevent awkward column cuts in paragraphs and figures */
-  .chapter-reading-content p,
-  .chapter-reading-content h1,
-  .chapter-reading-content h2,
-  .chapter-reading-content h3,
-  .chapter-reading-content blockquote,
-  .chapter-reading-content figure {
-    break-inside: avoid-column;
-    -webkit-column-break-inside: avoid;
-    page-break-inside: avoid;
-  }
-
-  .chapter-reading-content img {
-    max-width: 100%;
-    max-height: 52vh;
-    object-fit: contain;
-    display: block;
-    margin: 0.8rem auto;
-    break-inside: avoid-column;
-    -webkit-column-break-inside: avoid;
-  }
-
-  .reader-card {
-    overflow-x: hidden;
-    max-width: 100%;
-  }
-
-  /* Dark mode reading content */
   [data-theme="dark"] .theme-text-reading {
-    color: #ffffff !important;
+    color: #c9cdd6 !important;
   }
 
-  /* Eye care mode reading content */
   [data-theme="eye-care"] .theme-text-reading {
-    color: #433422 !important;
+    color: #5a4634 !important;
   }
 
-  /* --- Reader Font Size Switcher --- */
-  .reader-font-switcher {
-    background-color: var(--brand-maroon-light, rgba(88, 24, 37, 0.05));
-    border: 1px solid var(--border-color, #dee2e6);
-    transition: background-color 0.3s ease, border-color 0.3s ease;
+  .novel-reader:not(.reading-horizontal) .reader-viewport {
+    overflow: visible;
+    height: auto;
   }
 
-  .reader-font-btn {
-    border: 0;
-    background: transparent;
-    color: var(--text-muted-dark, #4a4a4a);
-    font-size: 0.78rem;
-    font-weight: 600;
-    letter-spacing: 0.2px;
-    line-height: 1.2;
-    padding: 0.35rem 0.85rem;
-    border-radius: 999px;
-    transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+  .novel-reader.reading-horizontal .reader-masthead {
+    display: none !important;
   }
 
-  .reader-font-btn:hover {
-    color: var(--main-text, #212529);
-  }
-
-  .reader-font-btn.active {
-    background-color: var(--brand-maroon, #581825);
-    color: #ffffff;
-    box-shadow: 0 2px 8px rgba(88, 24, 37, 0.25);
-  }
-
-  /* --- Reader Font Size Levels --- */
-  .chapter-reading-content.fs-small {
-    font-size: 1rem;
-    line-height: 1.8;
-  }
-
-  .chapter-reading-content.fs-medium {
-    font-size: 1.15rem;
-    line-height: 1.85;
-  }
-
-  .chapter-reading-content.fs-large {
-    font-size: 1.35rem;
-    line-height: 1.95;
-  }
-
-  /* --- Reading Style Switcher (Scroll / Page / Slide) --- */
-  .reader-style-switcher {
-    background-color: var(--brand-maroon-light, rgba(88, 24, 37, 0.05));
-    border: 1px solid var(--border-color, #dee2e6);
-    transition: background-color 0.3s ease, border-color 0.3s ease;
-  }
-
-  .reader-style-btn {
-    border: 0;
-    background: transparent;
-    color: var(--text-muted-dark, #4a4a4a);
-    font-size: 0.78rem;
-    font-weight: 600;
-    letter-spacing: 0.2px;
-    line-height: 1.2;
-    padding: 0.35rem 0.85rem;
-    border-radius: 999px;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
-  }
-
-  .reader-style-btn:hover {
-    color: var(--main-text, #212529);
-  }
-
-  .reader-style-btn.active {
-    background-color: var(--brand-maroon, #581825);
-    color: #ffffff;
-    box-shadow: 0 2px 8px rgba(88, 24, 37, 0.25);
-  }
-
-  /* --- Reading Stage & Perspective --- */
-  .chapter-reading-wrap {
-    position: relative;
-  }
-
-  .chapter-reading-stage {
-    position: relative;
-    perspective: 2200px;
-    -webkit-perspective: 2200px;
-    perspective-origin: 50% 50%;
-    -webkit-perspective-origin: 50% 50%;
-    transform-style: flat;
-    border-radius: 8px;
-    touch-action: pan-y pinch-zoom;
-    -webkit-user-select: auto;
-    user-select: auto;
-  }
-
-  /* --- Standard Scroll Viewport --- */
-  .chapter-reading-viewport {
-    height: 70vh;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding-right: 0.35rem;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(88, 24, 37, 0.32) transparent;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .chapter-reading-viewport::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  .chapter-reading-viewport::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .chapter-reading-viewport::-webkit-scrollbar-thumb {
-    background: rgba(88, 24, 37, 0.32);
-    border-radius: 50px;
-  }
-
-  .chapter-reading-viewport::-webkit-scrollbar-thumb:hover {
-    background: rgba(88, 24, 37, 0.55);
-  }
-
-  [data-theme="dark"] .chapter-reading-viewport {
-    scrollbar-color: rgba(233, 69, 96, 0.42) transparent;
-  }
-
-  [data-theme="dark"] .chapter-reading-viewport::-webkit-scrollbar-thumb {
-    background: rgba(233, 69, 96, 0.42);
-  }
-
-  .reader-card:not(.reading-horizontal) .chapter-reading-content {
-    padding-right: 0.75rem;
-  }
-
-  /* --- Spine Crease (Book Spine Depth) --- */
-  .reader-spine-crease {
-    display: none;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: 22px;
-    background: linear-gradient(90deg,
-      rgba(0, 0, 0, 0.12) 0%,
-      rgba(0, 0, 0, 0.04) 35%,
-      transparent 100%
-    );
-    z-index: 5;
-    pointer-events: none;
-    border-top-left-radius: 8px;
-    border-bottom-left-radius: 8px;
-  }
-
-  .reading-horizontal .reader-spine-crease {
-    display: block;
-  }
-
-  [data-theme="dark"] .reader-spine-crease {
-    background: linear-gradient(90deg,
-      rgba(0, 0, 0, 0.45) 0%,
-      rgba(0, 0, 0, 0.16) 35%,
-      transparent 100%
-    );
-  }
-
-  [data-theme="eye-care"] .reader-spine-crease {
-    background: linear-gradient(90deg,
-      rgba(67, 52, 34, 0.18) 0%,
-      rgba(67, 52, 34, 0.05) 35%,
-      transparent 100%
-    );
-  }
-
-  /* --- Tap Zones (Mobile & Desktop edge navigation) --- */
-  .reader-tap-zone {
-    display: none;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 22%;
-    z-index: 7;
-    cursor: pointer;
-    align-items: center;
-    pointer-events: auto;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .reading-horizontal .reader-tap-zone {
-    display: flex;
-  }
-
-  .reader-tap-prev {
-    left: 0;
-    justify-content: flex-start;
-    padding-left: 0.5rem;
-  }
-
-  .reader-tap-next {
-    right: 0;
-    justify-content: flex-end;
-    padding-right: 0.5rem;
-  }
-
-  .reader-tap-hint {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: rgba(88, 24, 37, 0.08);
-    color: var(--brand-maroon, #581825);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    opacity: 0;
-    transform: scale(0.85);
-    transition: opacity 0.2s ease, transform 0.2s ease;
-    pointer-events: none;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .reader-tap-zone:hover .reader-tap-hint {
-      opacity: 0.65;
-      transform: scale(1);
-    }
-  }
-
-  [data-theme="dark"] .reader-tap-hint {
-    background: rgba(233, 69, 96, 0.15);
-    color: #e94560;
-  }
-
-  /* --- Under-Shadow (Shadow on next page during flip) --- */
-  .reader-under-shadow {
-    position: absolute;
-    inset: 0;
-    z-index: 6;
-    pointer-events: none;
-    opacity: 0;
-    background: linear-gradient(90deg,
-      rgba(0, 0, 0, 0.38) 0%,
-      rgba(0, 0, 0, 0.15) 12%,
-      rgba(0, 0, 0, 0.03) 26%,
-      transparent 50%
-    );
-  }
-
-  [data-theme="dark"] .reader-under-shadow {
-    background: linear-gradient(90deg,
-      rgba(0, 0, 0, 0.7) 0%,
-      rgba(0, 0, 0, 0.3) 14%,
-      rgba(0, 0, 0, 0.06) 30%,
-      transparent 55%
-    );
-  }
-
-  [data-theme="eye-care"] .reader-under-shadow {
-    background: linear-gradient(90deg,
-      rgba(67, 52, 34, 0.35) 0%,
-      rgba(67, 52, 34, 0.14) 14%,
-      rgba(67, 52, 34, 0.03) 30%,
-      transparent 55%
-    );
-  }
-
-  /* --- Horizontal Paged Reading Mode --- */
-  .reader-page-bar {
-    display: none;
-  }
-
-  .reading-horizontal .chapter-reading-viewport {
-    height: 70vh;
-    overflow: hidden !important;
-    padding-right: 0;
+  .novel-reader.reading-horizontal .reader-viewport {
+    height: calc(100vh - 9.5rem);
+    overflow-x: auto;
+    overflow-y: hidden;
     scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
   }
 
-  .reading-horizontal .chapter-reading-viewport::-webkit-scrollbar {
+  .novel-reader.reading-horizontal .reader-viewport::-webkit-scrollbar {
     display: none;
-    width: 0;
-    height: 0;
   }
 
-  .reading-horizontal .chapter-reading-content {
+  .novel-reader.reading-horizontal .reader-content {
     height: 100%;
     column-fill: auto;
-    column-gap: 40px;
+    column-gap: 48px;
   }
 
-  .reading-horizontal .reader-page-bar {
-    display: flex;
+  /* Quiet page controls live in the top bar — not over the text */
+  .reader-page-chip {
+    display: none;
     align-items: center;
-    justify-content: center;
-    gap: 0.85rem;
-    margin-top: 1.1rem;
-    animation: readerBarIn 0.35s ease;
+    gap: 0.15rem;
+    flex-shrink: 0;
+    padding: 0.15rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--border-color, #dee2e6) 80%, transparent);
+    background: color-mix(in srgb, var(--reader-stage-bg, #fff) 70%, transparent);
   }
 
-  /* --- The 3D Book Page Leaf (Real Paper Flip) --- */
-  .chapter-page-leaf {
-    position: absolute;
-    inset: 0;
-    z-index: 10;
-    transform-origin: left center;
-    -webkit-transform-origin: left center;
-    transform-style: preserve-3d;
-    -webkit-transform-style: preserve-3d;
-    pointer-events: none;
-    will-change: transform;
-    opacity: 0;
-    visibility: hidden;
-  }
-
-  .chapter-page-leaf.is-active {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  .leaf-face {
-    position: absolute;
-    inset: 0;
-    border-radius: 6px;
-    overflow: hidden;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    background-color: var(--card-bg, #ffffff);
-  }
-
-  .leaf-face-front {
-    transform: rotateY(0deg);
-    -webkit-transform: rotateY(0deg);
-    box-shadow: 12px 0 35px rgba(0, 0, 0, 0.22), 4px 0 10px rgba(0, 0, 0, 0.12);
-  }
-
-  .leaf-face-back {
-    transform: rotateY(180deg) translateZ(1px);
-    -webkit-transform: rotateY(180deg) translateZ(1px);
-    box-shadow: -12px 0 35px rgba(0, 0, 0, 0.22), -4px 0 10px rgba(0, 0, 0, 0.12);
-  }
-
-  .leaf-scroll {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    pointer-events: none;
-  }
-
-  /* Front face realistic curl crease and moving specular highlight */
-  .leaf-crease-shadow {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: linear-gradient(90deg,
-      rgba(0, 0, 0, 0.22) 0%,
-      rgba(0, 0, 0, 0.05) 7%,
-      transparent 18%,
-      transparent 80%,
-      rgba(0, 0, 0, 0.06) 92%,
-      rgba(0, 0, 0, 0.2) 100%
-    );
-    opacity: 0.65;
-  }
-
-  .leaf-curl-highlight {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: -25%;
-    width: 150%;
-    pointer-events: none;
-    background: linear-gradient(90deg,
-      transparent 25%,
-      rgba(255, 255, 255, 0.55) 47%,
-      rgba(0, 0, 0, 0.22) 58%,
-      transparent 76%
-    );
-    opacity: 0;
-    transform: translateX(15%);
-    will-change: transform, opacity;
-  }
-
-  [data-theme="dark"] .leaf-curl-highlight {
-    background: linear-gradient(90deg,
-      transparent 25%,
-      rgba(255, 255, 255, 0.18) 47%,
-      rgba(0, 0, 0, 0.5) 58%,
-      transparent 76%
-    );
-  }
-
-  /* Back Face Real Book Paper Styling */
-  .leaf-back-paper {
-    position: absolute;
-    inset: 0;
-    background-color: var(--card-bg, #ffffff);
-    background-image: linear-gradient(135deg, rgba(0,0,0,0.025) 0%, transparent 100%);
-  }
-
-  .leaf-back-ghost {
-    position: absolute;
-    inset: 2.2rem 1.6rem;
-    opacity: 0.07;
-    background: repeating-linear-gradient(
-      to bottom,
-      var(--main-text, #212529) 0px,
-      var(--main-text, #212529) 8px,
-      transparent 8px,
-      transparent 20px
-    );
-    filter: blur(1.2px);
-    pointer-events: none;
-  }
-
-  .leaf-back-crease {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    width: 28px;
-    background: linear-gradient(270deg,
-      rgba(0, 0, 0, 0.22) 0%,
-      rgba(0, 0, 0, 0.05) 30%,
-      transparent 100%
-    );
-    pointer-events: none;
-  }
-
-  .leaf-back-highlight {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(90deg,
-      rgba(255, 255, 255, 0.12) 0%,
-      transparent 40%,
-      rgba(0, 0, 0, 0.08) 100%
-    );
-    pointer-events: none;
-  }
-
-  /* --- Slide Mode Sheets --- */
-  .chapter-slide-sheet {
-    position: absolute;
-    inset: 0;
-    z-index: 9;
-    border-radius: 6px;
-    overflow: hidden;
-    background-color: var(--card-bg, #ffffff);
-    pointer-events: none;
-    will-change: transform;
-    opacity: 0;
-    visibility: hidden;
-  }
-
-  .chapter-slide-sheet.is-active {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  .slide-sheet-scroll {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    pointer-events: none;
-  }
-
-  .slide-sheet-shade {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0;
-  }
-
-  .chapter-slide-sheet.seam-left {
-    box-shadow: -14px 0 28px rgba(0, 0, 0, 0.22);
-  }
-
-  .chapter-slide-sheet.seam-right {
-    box-shadow: 14px 0 28px rgba(0, 0, 0, 0.22);
-  }
-
-  /* --- Animations & Controls --- */
-  @keyframes readerBarIn {
-    from {
-      opacity: 0;
-      transform: translateY(6px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-
-  @keyframes readerFade {
-    from { opacity: 0.35; }
-    to { opacity: 1; }
-  }
-
-  .reader-fade {
-    animation: readerFade 0.35s ease;
+  .novel-reader.reading-horizontal .reader-page-chip:not([hidden]) {
+    display: inline-flex;
   }
 
   .reader-page-btn {
-    width: 40px;
-    height: 40px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    border: 1px solid var(--border-color, #dee2e6);
-    background-color: var(--card-bg, #ffffff);
-    color: var(--main-text, #212529);
+    border: 0;
+    background: transparent;
+    color: var(--text-muted-dark, #6b6560);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
     cursor: pointer;
-    transition: background-color 0.25s ease, color 0.25s ease, transform 0.15s ease, box-shadow 0.25s ease, opacity 0.25s ease;
-    -webkit-tap-highlight-color: transparent;
+    font-size: 0.85rem;
   }
 
   .reader-page-btn:hover:not(:disabled) {
-    background-color: var(--brand-maroon, #581825);
-    color: #ffffff;
-    transform: scale(1.08);
-    box-shadow: 0 6px 18px rgba(88, 24, 37, 0.3);
-  }
-
-  .reader-page-btn:active:not(:disabled) {
-    transform: scale(0.94);
+    background: color-mix(in srgb, var(--brand-maroon, #581825) 12%, transparent);
+    color: var(--brand-maroon, #581825);
   }
 
   .reader-page-btn:disabled {
-    opacity: 0.35;
+    opacity: 0.3;
     cursor: default;
-    box-shadow: none;
   }
 
   .reader-page-indicator {
-    min-width: 62px;
+    min-width: 3.4rem;
     text-align: center;
-    font-size: 0.8rem;
+    font-size: 0.72rem;
     font-weight: 600;
-    padding: 0.35rem 0.85rem;
+    padding: 0.15rem 0.35rem;
+    color: var(--text-muted-dark, #6b6560);
+    letter-spacing: 0.02em;
+    user-select: none;
+  }
+
+  /* Mobile: fixed bottom chapter nav (single instance) */
+  .reader-chapter-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1050;
+    display: flex;
+    justify-content: center;
+    margin: 0;
+    padding: 0.55rem var(--reader-pad-x) calc(0.55rem + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid color-mix(in srgb, var(--border-color, #e5e0d8) 80%, transparent);
+    background: color-mix(in srgb, var(--reader-stage-bg, #f7f4ef) 88%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: transform 0.28s ease, opacity 0.28s ease;
+  }
+
+  .reader-chapter-nav-inner {
+    margin: 0 auto;
+  }
+
+  .reader-rail {
+    display: none;
+  }
+
+  .reader-rail-btn {
+    width: 3rem;
+    height: 3rem;
     border-radius: 999px;
-    background-color: var(--brand-maroon-light, rgba(88, 24, 37, 0.06));
+    border: 1px solid color-mix(in srgb, var(--border-color, #e5e0d8) 85%, transparent);
+    background: color-mix(in srgb, var(--reader-stage-bg, #fff) 82%, transparent);
+    backdrop-filter: blur(8px);
+    color: var(--main-text, #2a2a2a);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 1.25rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .reader-rail-btn:hover {
+    transform: scale(1.05);
+    background: var(--brand-maroon, #581825);
+    border-color: var(--brand-maroon, #581825);
+    color: #fff;
+  }
+
+  .reader-rail-btn.is-disabled {
+    opacity: 0.28;
+    pointer-events: none;
+  }
+
+  .reader-settings-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1190;
+    background: rgba(0, 0, 0, 0.35);
+  }
+
+  .reader-settings {
+    position: fixed;
+    z-index: 1200;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(22rem, calc(100vw - 2rem));
+    background: var(--card-bg, #fff);
+    color: var(--main-text, #212529);
     border: 1px solid var(--border-color, #dee2e6);
-    color: var(--brand-maroon, #581825);
-    letter-spacing: 0.3px;
-    flex-shrink: 0;
+    border-radius: 1rem;
+    padding: 1rem 1.1rem 1.15rem;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
   }
 
-  /* --- Fullscreen Mode --- */
-  .reader-card:fullscreen,
-  .reader-card:-webkit-full-screen {
-    width: 100vw !important;
-    height: 100vh !important;
-    max-width: 100vw !important;
-    border-radius: 0 !important;
-    border: none !important;
-    padding: 1rem 1.5rem 1.5rem !important;
-    margin: 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-    background-color: var(--card-bg, #ffffff) !important;
-    overflow: hidden !important;
+  .reader-settings-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.85rem;
   }
 
-  .reader-card:fullscreen .chapter-reading-viewport,
-  .reader-card:-webkit-full-screen .chapter-reading-viewport {
-    height: calc(100vh - 190px) !important;
+  .reader-settings-group {
+    margin-bottom: 0.9rem;
   }
 
-  .reader-card:fullscreen .reading-horizontal .chapter-reading-viewport,
-  .reader-card:-webkit-full-screen .reading-horizontal .chapter-reading-viewport {
-    height: calc(100vh - 200px) !important;
+  .reader-settings-group:last-child {
+    margin-bottom: 0;
   }
 
-  /* --- Toolbar Tool Buttons (Fullscreen etc.) --- */
-  .reader-tool-btn {
+  .reader-settings-label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--text-muted-dark, #6c757d);
+    margin-bottom: 0.4rem;
+  }
+
+  .reader-seg {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    padding: 0.25rem;
+    border-radius: 999px;
     border: 1px solid var(--border-color, #dee2e6);
-    background-color: var(--brand-maroon-light, rgba(88, 24, 37, 0.05));
+    background: color-mix(in srgb, var(--brand-maroon, #581825) 5%, transparent);
+  }
+
+  .reader-seg-btn {
+    flex: 1;
+    border: 0;
+    background: transparent;
     color: var(--text-muted-dark, #4a4a4a);
     font-size: 0.78rem;
     font-weight: 600;
-    letter-spacing: 0.2px;
     line-height: 1.2;
-    padding: 0.35rem 0.85rem;
+    padding: 0.45rem 0.55rem;
     border-radius: 999px;
+    cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
-    transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
-    cursor: pointer;
+    justify-content: center;
+    gap: 0.3rem;
+    white-space: nowrap;
   }
 
-  .reader-tool-btn:hover {
-    color: var(--main-text, #212529);
-    background-color: rgba(88, 24, 37, 0.12);
+  .reader-seg-btn.active {
+    background: var(--brand-maroon, #581825);
+    color: #fff;
   }
 
-  [data-theme="dark"] .reader-tool-btn {
-    background-color: rgba(233, 69, 96, 0.1);
-    color: #e0e0e0;
-  }
-
-  [data-theme="dark"] .reader-tool-btn:hover {
-    background-color: rgba(233, 69, 96, 0.22);
-    color: #ffffff;
-  }
-
-  /* --- Page Progress Scrubber Slider --- */
-  .reader-slider-wrap {
-    max-width: 320px;
-    min-width: 80px;
-  }
-
-  .reader-progress-slider {
-    width: 100%;
-    height: 6px;
-    border-radius: 999px;
-    outline: none;
-    background: var(--border-color, #dee2e6);
-    -webkit-appearance: none;
-    appearance: none;
-    cursor: pointer;
-    transition: background-color 0.25s ease;
-  }
-
-  .reader-progress-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background-color: var(--brand-maroon, #581825);
-    box-shadow: 0 2px 6px rgba(88, 24, 37, 0.35);
-    cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-  }
-
-  .reader-progress-slider::-webkit-slider-thumb:hover {
-    transform: scale(1.25);
-    box-shadow: 0 3px 10px rgba(88, 24, 37, 0.45);
-  }
-
-  .reader-progress-slider::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    border: none;
-    background-color: var(--brand-maroon, #581825);
-    box-shadow: 0 2px 6px rgba(88, 24, 37, 0.35);
-    cursor: pointer;
-  }
-
-  [data-theme="dark"] .reader-progress-slider {
-    background: #2a2a4a;
-  }
-
-  [data-theme="dark"] .reader-progress-slider::-webkit-slider-thumb {
-    background-color: #e94560;
-    box-shadow: 0 2px 6px rgba(233, 69, 96, 0.4);
-  }
-
-  [data-theme="dark"] .reader-progress-slider::-moz-range-thumb {
-    background-color: #e94560;
-  }
-
-  [data-theme="eye-care"] .reader-progress-slider::-webkit-slider-thumb {
-    background-color: #732230;
-  }
-
-  [data-theme="eye-care"] .reader-progress-slider::-moz-range-thumb {
-    background-color: #732230;
-  }
-
-  /* --- Mobile Optimization --- */
-  @media (max-width: 767.98px) {
-    .reader-card {
-      padding: 1.25rem 0.95rem !important;
-      border-radius: 14px !important;
+  /* ---------- Phone ---------- */
+  @media (max-width: 991.98px) {
+    .reader-rail {
+      display: none !important;
     }
 
-    .chapter-main-title {
-      font-size: 1.35rem;
+    .reader-masthead {
+      display: none !important;
     }
 
-    .chapter-reading-viewport,
-    .reading-horizontal .chapter-reading-viewport {
-      height: 64vh;
+    .novel-reader {
+      --reader-pad-x: 1rem;
+      --reader-bottom-clearance: calc(6.75rem + env(safe-area-inset-bottom, 0px));
     }
 
-    .reader-page-btn {
-      width: 36px;
-      height: 36px;
-      font-size: 0.95rem;
+    .reader-surface {
+      /* Keep last lines clear of the fixed Prev / Chapters / Next bar */
+      padding-bottom: calc(var(--reader-bottom-clearance) + 1.75rem);
     }
 
-    .reader-tap-zone {
-      width: 25%;
+    .reader-content {
+      padding-bottom: 1.25rem;
     }
 
-    .reader-style-btn,
-    .reader-font-btn {
-      padding: 0.28rem 0.65rem;
-      font-size: 0.72rem;
+    .theme-text-reading {
+      line-height: 1.9;
+    }
+
+    .novel-reader.reading-horizontal .reader-viewport {
+      height: calc(100vh - 8.75rem);
+    }
+
+    .novel-reader.reading-horizontal .reader-surface {
+      padding-bottom: calc(var(--reader-bottom-clearance) + 0.75rem);
+    }
+
+    .reader-page-indicator {
+      min-width: 2.8rem;
+      font-size: 0.68rem;
     }
   }
 
-  @media (max-width: 480px) {
-    .chapter-reading-viewport,
-    .reading-horizontal .chapter-reading-viewport {
-      height: 60vh;
+  /* ---------- Desktop / wide: book-on-desk composition ---------- */
+  @media (min-width: 992px) {
+    .novel-reader {
+      --reader-pad-x: 2.5rem;
+      --reader-chrome-h: 3.5rem;
+      --reader-paper: #fffcf7;
+      --reader-desk: #ebe4d8;
+      padding: 1.75rem 0 3.5rem;
+      background:
+        radial-gradient(900px 420px at 50% 0%, rgba(88, 24, 37, 0.07), transparent 55%),
+        linear-gradient(180deg, #e7dfd2 0%, var(--reader-desk) 42%, #e2d8c8 100%);
+    }
+
+    [data-theme="dark"] .novel-reader {
+      --reader-paper: #171c26;
+      --reader-desk: #0c1017;
+      background:
+        radial-gradient(900px 420px at 50% 0%, rgba(233, 69, 96, 0.12), transparent 55%),
+        linear-gradient(180deg, #0b0e14 0%, #121820 100%);
+    }
+
+    [data-theme="eye-care"] .novel-reader {
+      --reader-paper: #f8efd9;
+      --reader-desk: #e6d7b8;
+      background:
+        radial-gradient(900px 420px at 50% 0%, rgba(115, 34, 48, 0.08), transparent 55%),
+        linear-gradient(180deg, #e8dcc0 0%, #dfd0ae 100%);
+    }
+
+    .novel-reader.width-narrow {
+      --reader-max: 40rem;
+    }
+
+    .novel-reader.width-normal {
+      --reader-max: 48rem;
+    }
+
+    .novel-reader.width-wide {
+      --reader-max: 56rem;
+    }
+
+    .reader-progress {
+      left: 50%;
+      right: auto;
+      width: min(100%, calc(var(--reader-max) + 5rem));
+      transform: translateX(-50%);
+      height: 4px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: color-mix(in srgb, var(--brand-maroon, #581825) 12%, transparent);
+      top: 0.35rem;
+    }
+
+    .reader-shell {
+      width: min(100% - 4rem, calc(var(--reader-max) + 5rem));
+      padding-top: 0.35rem;
+    }
+
+    .reader-top {
+      position: sticky;
+      top: 0.75rem;
+      left: auto;
+      right: auto;
+      width: 100%;
+      margin: 0 auto 1.1rem;
+      padding: 0.45rem 0.65rem 0.45rem 0.55rem;
+      border: 1px solid color-mix(in srgb, var(--border-color, #e5e0d8) 70%, transparent);
+      border-radius: 1rem;
+      box-shadow: 0 12px 28px rgba(40, 24, 16, 0.06);
+      background: color-mix(in srgb, var(--reader-paper, #fffcf7) 92%, transparent);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      gap: 0.85rem;
+    }
+
+    .novel-reader.chrome-hidden .reader-top,
+    .novel-reader.chrome-hidden .reader-chapter-nav {
+      transform: none;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .reader-top-meta {
+      text-align: left;
+    }
+
+    .reader-chapter-title {
+      display: none;
+    }
+
+    .reader-novel-link {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--main-text, #2a2a2a);
+    }
+
+    .reader-page {
+      background: var(--reader-paper, #fffcf7);
+      border: 1px solid color-mix(in srgb, var(--border-color, #e5e0d8) 65%, transparent);
+      border-radius: 1.25rem;
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.55) inset,
+        0 18px 50px rgba(40, 24, 16, 0.08),
+        0 2px 8px rgba(40, 24, 16, 0.04);
+      overflow: hidden;
+    }
+
+    [data-theme="dark"] .reader-page {
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.04) inset,
+        0 18px 50px rgba(0, 0, 0, 0.35);
+    }
+
+    .reader-surface {
+      max-width: none;
+      padding: 2.75rem clamp(2rem, 4vw, 3.25rem) 3rem;
+    }
+
+    .reader-masthead {
+      display: block;
+      text-align: left;
+      margin: 0 0 2.5rem;
+      padding: 0 0 1.75rem;
+      border-bottom: 1px solid color-mix(in srgb, var(--border-color, #e5e0d8) 75%, transparent);
+    }
+
+    .reader-masthead-kicker {
+      margin: 0 0 0.65rem;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--brand-maroon, #581825);
+      opacity: 0.85;
+    }
+
+    .reader-masthead-title {
+      margin: 0;
+      font-size: clamp(1.85rem, 2.4vw, 2.35rem);
+      font-weight: 700;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+      max-width: 22ch;
+    }
+
+    .reader-masthead-note {
+      display: inline-block;
+      margin: 0.85rem 0 0;
+      font-size: 0.75rem;
+      color: var(--text-muted-dark, #6b6560);
+      letter-spacing: 0.04em;
+    }
+
+    .novel-reader.reading-horizontal .reader-masthead {
+      display: none !important;
+    }
+
+    .theme-text-reading {
+      font-size: 1.2rem;
+      line-height: 1.92;
+      max-width: 38em;
+    }
+
+    .reader-content.fs-small {
+      font-size: 1.05rem;
+    }
+
+    .reader-content.fs-medium {
+      font-size: 1.2rem;
+    }
+
+    .reader-content.fs-large {
+      font-size: 1.42rem;
+    }
+
+    .reader-content p {
+      margin-bottom: 1.25em;
+    }
+
+    .reader-chapter-nav {
+      position: static;
+      display: block;
+      margin-top: 3rem;
+      padding: 1.35rem 0 0;
+      border-top: 1px solid color-mix(in srgb, var(--border-color, #e5e0d8) 75%, transparent);
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      box-shadow: none;
+    }
+
+    .reader-chapter-nav-inner {
+      max-width: none;
+      gap: 0.75rem;
+    }
+
+    .reader-chapter-nav-inner .btn {
+      font-size: 0.86rem;
+      padding: 0.55rem 1.15rem;
+      border-radius: 0.7rem;
+    }
+
+    .reader-rail {
+      display: flex;
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 1030;
+      align-items: center;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .reader-rail::after {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted-dark, #6b6560);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .reader-rail:hover::after {
+      opacity: 0.9;
+    }
+
+    .reader-rail-left {
+      left: max(1.5rem, calc(50% - (var(--reader-max) / 2) - 6.25rem));
+    }
+
+    .reader-rail-left::after {
+      content: "Prev";
+    }
+
+    .reader-rail-right {
+      right: max(1.5rem, calc(50% - (var(--reader-max) / 2) - 6.25rem));
+    }
+
+    .reader-rail-right::after {
+      content: "Next";
+    }
+
+    .reader-rail-btn {
+      width: 3.25rem;
+      height: 3.25rem;
+      background: var(--reader-paper, #fffcf7);
+      border-radius: 1rem;
+      box-shadow: 0 10px 28px rgba(40, 24, 16, 0.08);
+    }
+
+    .novel-reader.reading-horizontal .reader-viewport {
+      height: calc(100vh - 10rem);
+      border-radius: 0.5rem;
+    }
+
+    .reader-settings {
+      top: 0.85rem;
+      right: 0.85rem;
+      left: auto;
+      bottom: auto;
+      transform: none;
+      width: min(22.5rem, calc(100vw - 2rem));
+      max-height: calc(100vh - 1.7rem);
+      border-radius: 1.1rem;
+      border: 1px solid var(--border-color, #dee2e6);
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.16);
+      padding: 1.15rem 1.2rem 1.3rem;
+      overflow-y: auto;
+    }
+
+    .reader-settings-backdrop {
+      background: rgba(20, 14, 10, 0.28);
+    }
+  }
+
+  @media (min-width: 1400px) {
+    .novel-reader {
+      padding-top: 2.25rem;
+      padding-bottom: 4rem;
+    }
+
+    .novel-reader.width-wide {
+      --reader-max: 64rem;
+    }
+
+    .reader-shell {
+      width: min(100% - 6rem, calc(var(--reader-max) + 6rem));
+    }
+
+    .reader-rail-left {
+      left: max(2.25rem, calc(50% - (var(--reader-max) / 2) - 6.75rem));
+    }
+
+    .reader-rail-right {
+      right: max(2.25rem, calc(50% - (var(--reader-max) / 2) - 6.75rem));
+    }
+
+    .reader-surface {
+      padding-left: 3.5rem;
+      padding-right: 3.5rem;
     }
   }
 </style>
@@ -940,104 +978,97 @@
   (function () {
     var FONT_KEY = 'chapterFontSize';
     var MODE_KEY = 'chapterReadingMode';
+    var WIDTH_KEY = 'chapterReadingWidth';
+    var THEME_KEY = 'siteTheme';
     var SIZES = ['small', 'medium', 'large'];
+    var WIDTHS = ['narrow', 'normal', 'wide'];
+    var COLUMN_GAP = 48;
+    var DESKTOP_MQ = window.matchMedia('(min-width: 992px)');
 
-    var readerCard = document.querySelector('.reader-card');
-    var readingWrap = document.querySelector('.chapter-reading-wrap');
-    var stage = document.getElementById('readingStage');
+    var root = document.getElementById('novelReader');
     var viewport = document.getElementById('chapterViewport');
     var content = document.getElementById('chapterContent');
-
-    var fontButtons = document.querySelectorAll('.reader-font-btn');
-    var styleButtons = document.querySelectorAll('.reader-style-btn');
+    var progressBar = document.getElementById('readerProgressBar');
+    var pageBar = document.getElementById('readerPageBar');
     var prevBtn = document.querySelector('.reader-page-prev');
     var nextBtn = document.querySelector('.reader-page-next');
     var indicator = document.getElementById('readerPageIndicator');
+    var settingsBtn = document.getElementById('readerSettingsBtn');
+    var settingsPanel = document.getElementById('readerSettings');
+    var settingsBackdrop = document.getElementById('readerSettingsBackdrop');
+    var settingsClose = document.getElementById('readerSettingsClose');
+    var fontButtons = document.querySelectorAll('[data-size]');
+    var modeButtons = document.querySelectorAll('[data-mode]');
+    var themeButtons = document.querySelectorAll('[data-theme-choice]');
+    var widthButtons = document.querySelectorAll('[data-width]');
+    var prevChapterLink = document.querySelector('.reader-nav-prev[href]');
+    var nextChapterLink = document.querySelector('.reader-nav-next[href]');
 
-    var tapPrev = document.querySelector('.reader-tap-prev');
-    var tapNext = document.querySelector('.reader-tap-next');
-    var pageSlider = document.getElementById('readerPageSlider');
-    var fullscreenBtn = document.getElementById('readerFullscreenBtn');
+    if (!root || !viewport || !content) return;
 
-    var pageLeaf = document.getElementById('pageLeaf');
-    var leafFrontScroll = document.getElementById('leafFrontScroll');
-    var leafCurlHighlight = document.getElementById('leafCurlHighlight');
-    var leafUnderShadow = document.getElementById('leafUnderShadow');
-
-    var slideOutSheet = document.getElementById('slideOutSheet');
-    var slideOutScroll = document.getElementById('slideOutScroll');
-    var slideInSheet = document.getElementById('slideInSheet');
-    var slideInScroll = document.getElementById('slideInScroll');
-
-    if (!readerCard || !stage || !viewport || !content || !fontButtons.length) return;
-
-    /* ---------- Font size ---------- */
-    function applyFontSize(size) {
-      SIZES.forEach(function (s) { content.classList.remove('fs-' + s); });
-      content.classList.add('fs-' + size);
-      fontButtons.forEach(function (btn) {
-        btn.classList.toggle('active', btn.dataset.size === size);
-      });
-    }
-
-    var savedSize = 'medium';
-    try { savedSize = localStorage.getItem(FONT_KEY) || 'medium'; } catch (e) { }
-    if (SIZES.indexOf(savedSize) === -1) savedSize = 'medium';
-    applyFontSize(savedSize);
-
-    fontButtons.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        applyFontSize(btn.dataset.size);
-        try { localStorage.setItem(FONT_KEY, btn.dataset.size); } catch (e) { }
-        if (isPaged()) relayout();
-      });
-    });
-
-    /* ---------- Reading mode (vertical / horizontal / slide) ---------- */
+    var chapterId = root.getAttribute('data-chapter-id') || 'unknown';
+    var POS_KEY = 'chapterPos:' + chapterId;
     var mode = 'vertical';
+    var currentIndex = 0;
+    var chromeHidden = false;
+    var lastScrollY = window.scrollY || 0;
+    var restoreDone = false;
 
-    function isPaged() { return mode === 'horizontal' || mode === 'slide'; }
-
-    function pageWidth() { return viewport.clientWidth; }
-
-    function columnGap() {
-      var gap = 40;
+    function lsGet(key, fallback) {
       try {
-        var computed = parseFloat(window.getComputedStyle(content).columnGap);
-        if (!isNaN(computed) && computed > 0) gap = computed;
-      } catch (e) { }
-      return gap;
+        var v = localStorage.getItem(key);
+        return v == null ? fallback : v;
+      } catch (e) {
+        return fallback;
+      }
     }
 
-    function pageStep() { return pageWidth() + columnGap(); }
+    function lsSet(key, value) {
+      try { localStorage.setItem(key, value); } catch (e) { }
+    }
 
-    function maxScrollLeft() { return Math.max(0, viewport.scrollWidth - viewport.clientWidth); }
+    function isDesktop() {
+      return DESKTOP_MQ.matches;
+    }
+
+    function isPaged() {
+      return mode === 'horizontal';
+    }
+
+    function pageWidth() {
+      return viewport.clientWidth;
+    }
+
+    function pageStep() {
+      return pageWidth() + COLUMN_GAP;
+    }
+
+    function maxScrollLeft() {
+      return Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+    }
 
     function layoutColumns() {
-      if (!isPaged()) { content.style.columnWidth = ''; return; }
+      if (!isPaged()) {
+        content.style.columnWidth = '';
+        return;
+      }
       var pw = pageWidth();
       if (pw <= 0) return;
       content.style.columnWidth = pw + 'px';
+      /* Force fragmentation so scrollWidth/pageCount are accurate immediately */
+      void content.offsetHeight;
+      void viewport.offsetWidth;
+      void viewport.scrollWidth;
     }
 
     function pageCount() {
       var step = pageStep();
       if (step <= 0) return 1;
-      return Math.max(1, Math.round((viewport.scrollWidth + columnGap()) / step));
+      return Math.max(1, Math.round((viewport.scrollWidth + COLUMN_GAP) / step));
     }
-
-    var currentIndex = 0;
 
     function pageOffset(index) {
       return Math.min(index * pageStep(), maxScrollLeft());
-    }
-
-    function syncIndexFromScroll() {
-      var step = pageStep();
-      if (step <= 0) return;
-      var total = pageCount();
-      var idx = Math.round(viewport.scrollLeft / step);
-      currentIndex = Math.max(0, Math.min(idx, total - 1));
     }
 
     function updatePaging() {
@@ -1047,448 +1078,328 @@
       if (prevBtn) prevBtn.disabled = currentIndex <= 0;
       if (nextBtn) nextBtn.disabled = currentIndex >= total - 1;
       if (indicator) indicator.textContent = (currentIndex + 1) + ' / ' + total;
-      if (pageSlider) {
-        pageSlider.max = total;
-        pageSlider.value = currentIndex + 1;
+      setProgress(total <= 1 ? 1 : currentIndex / (total - 1));
+      lsSet(POS_KEY, JSON.stringify({ mode: 'horizontal', page: currentIndex }));
+    }
+
+    function setProgress(ratio) {
+      if (!progressBar) return;
+      var pct = Math.max(0, Math.min(1, ratio)) * 100;
+      progressBar.style.width = pct.toFixed(2) + '%';
+    }
+
+    function updateScrollProgress() {
+      if (isPaged()) return;
+      var se = document.scrollingElement || document.documentElement;
+      var scrollTop = window.scrollY || se.scrollTop || 0;
+      var height = (se.scrollHeight - se.clientHeight) || 1;
+      setProgress(scrollTop / height);
+      lsSet(POS_KEY, JSON.stringify({ mode: 'vertical', y: Math.round(scrollTop) }));
+    }
+
+    function setChromeHidden(hidden) {
+      if (isDesktop()) {
+        chromeHidden = false;
+        root.classList.remove('chrome-hidden');
+        return;
+      }
+      chromeHidden = !!hidden;
+      root.classList.toggle('chrome-hidden', chromeHidden);
+    }
+
+    function syncRailsA11y() {
+      var rails = document.querySelectorAll('.reader-rail');
+      for (var i = 0; i < rails.length; i++) {
+        rails[i].setAttribute('aria-hidden', isDesktop() ? 'false' : 'true');
       }
     }
 
-    /* ---------- Clones Synchronization ---------- */
-    function syncOneClone(container) {
-      if (!container) return;
-      container.innerHTML = '';
-      var clone = content.cloneNode(true);
-      clone.removeAttribute('id');
-      var ids = clone.querySelectorAll('[id]');
-      for (var i = 0; i < ids.length; i++) ids[i].removeAttribute('id');
-      clone.className = content.className;
-      clone.style.columnWidth = content.style.columnWidth;
-      container.appendChild(clone);
+    function syncHeaderThemeIcons(theme) {
+      var buttons = [
+        document.getElementById('eyeCareToggle'),
+        document.getElementById('mobileEyeCareToggle')
+      ].filter(Boolean);
+      buttons.forEach(function (button) {
+        var icon = button.querySelector('.eye-care-icon');
+        if (!icon) return;
+        icon.classList.remove('fa-moon', 'fa-sun', 'fa-regular', 'fa-solid');
+        button.classList.remove('text-warning', 'text-secondary');
+        if (theme === 'eye-care') {
+          icon.classList.add('fa-solid', 'fa-sun');
+          button.classList.add('text-warning');
+        } else if (theme === 'dark') {
+          icon.classList.add('fa-solid', 'fa-moon');
+          button.classList.add('text-secondary');
+        } else {
+          icon.classList.add('fa-regular', 'fa-moon');
+        }
+      });
     }
 
-    function syncClones() {
-      syncOneClone(leafFrontScroll);
-      syncOneClone(slideOutScroll);
-      syncOneClone(slideInScroll);
+    function applyFontSize(size) {
+      if (SIZES.indexOf(size) === -1) size = 'medium';
+      SIZES.forEach(function (s) { content.classList.remove('fs-' + s); });
+      content.classList.add('fs-' + size);
+      fontButtons.forEach(function (btn) {
+        btn.classList.toggle('active', btn.dataset.size === size);
+      });
+      lsSet(FONT_KEY, size);
+      if (isPaged()) relayout();
     }
 
-    /* Subtle haptic feedback on supported mobile devices */
-    function triggerHaptic() {
-      try {
-        if (navigator && navigator.vibrate) navigator.vibrate(8);
-      } catch (e) { }
+    function applyWidth(width) {
+      if (WIDTHS.indexOf(width) === -1) width = 'normal';
+      WIDTHS.forEach(function (w) { root.classList.remove('width-' + w); });
+      root.classList.add('width-' + width);
+      widthButtons.forEach(function (btn) {
+        btn.classList.toggle('active', btn.dataset.width === width);
+      });
+      lsSet(WIDTH_KEY, width);
+      if (isPaged()) relayout();
     }
 
-    var flipping = false;
+    function applyTheme(theme) {
+      if (theme !== 'eye-care' && theme !== 'dark') theme = 'bright';
+      var html = document.documentElement;
+      if (theme === 'bright') html.removeAttribute('data-theme');
+      else html.setAttribute('data-theme', theme);
+      lsSet(THEME_KEY, theme);
+      themeButtons.forEach(function (btn) {
+        btn.classList.toggle('active', btn.dataset.themeChoice === theme);
+      });
+      syncHeaderThemeIcons(theme);
+    }
 
-    /* Gentle spring bounce when reaching start or end boundary */
-    function bounceEdge(dir) {
-      if (flipping || !isPaged()) return;
-      flipping = true;
-      triggerHaptic();
+    function openSettings() {
+      if (!settingsPanel || !settingsBackdrop) return;
+      settingsPanel.hidden = false;
+      settingsBackdrop.hidden = false;
+      document.body.classList.add('reader-settings-open');
+      if (settingsBtn) settingsBtn.setAttribute('aria-expanded', 'true');
+      setChromeHidden(false);
+    }
 
-      if (mode === 'horizontal' && pageLeaf) {
-        leafFrontScroll.scrollLeft = pageOffset(currentIndex);
-        pageLeaf.classList.add('is-active');
-        pageLeaf.style.transition = 'transform 200ms ease-out';
-        var angle = dir > 0 ? -12 : 12;
-        pageLeaf.style.transform = 'rotateY(' + angle + 'deg) skewY(' + (dir > 0 ? 0.4 : -0.4) + 'deg)';
-
-        setTimeout(function () {
-          pageLeaf.style.transition = 'transform 240ms cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-          pageLeaf.style.transform = 'rotateY(0deg) skewY(0deg)';
-          setTimeout(function () {
-            pageLeaf.classList.remove('is-active');
-            flipping = false;
-          }, 260);
-        }, 210);
-      } else {
-        stage.style.transition = 'transform 180ms ease-out';
-        stage.style.transform = 'translateX(' + (dir > 0 ? -16 : 16) + 'px)';
-        setTimeout(function () {
-          stage.style.transition = 'transform 220ms cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-          stage.style.transform = 'translateX(0)';
-          setTimeout(function () {
-            stage.style.transform = '';
-            flipping = false;
-          }, 240);
-        }, 190);
-      }
+    function closeSettings() {
+      if (!settingsPanel || !settingsBackdrop) return;
+      settingsPanel.hidden = true;
+      settingsBackdrop.hidden = true;
+      document.body.classList.remove('reader-settings-open');
+      if (settingsBtn) settingsBtn.setAttribute('aria-expanded', 'false');
+      if (isPaged()) relayout();
     }
 
     function goPage(dir) {
-      if (!isPaged() || flipping) return;
+      if (!isPaged()) return;
       var total = pageCount();
-      var target = currentIndex + dir;
-
-      if (target < 0) {
-        bounceEdge(-1);
-        return;
-      }
-      if (target >= total) {
-        bounceEdge(1);
-        return;
-      }
-
-      var offset = pageOffset(target);
-      if (mode === 'slide') slideTo(offset, dir, target);
-      else flipTo(offset, dir, target);
-    }
-
-    /* ---------- Realistic 3D Double-Sided Page Flip ---------- */
-    function flipTo(targetOffset, dir, targetIndex) {
-      flipping = true;
-      triggerHaptic();
-
-      var DURATION = 520;
-      var EASE = 'cubic-bezier(0.25, 1, 0.35, 1)';
-
-      if (!leafFrontScroll.firstElementChild) syncClones();
-
-      if (dir > 0) {
-        /* Next Page:
-           - Front of leaf shows current page column
-           - Underneath viewport jumps to next page
-           - Leaf lifts from right and curls over left spine (-180deg)
-           - Dynamic highlight sweeps across sheet
-           - Under-shadow darkens then fades out
-        */
-        leafFrontScroll.scrollLeft = pageOffset(currentIndex);
-
-        pageLeaf.classList.add('is-active');
-        pageLeaf.style.transition = 'none';
-        pageLeaf.style.transform = 'rotateY(0deg) skewY(0deg)';
-
-        leafCurlHighlight.style.transition = 'none';
-        leafCurlHighlight.style.transform = 'translateX(18%)';
-        leafCurlHighlight.style.opacity = '0';
-
-        leafUnderShadow.style.transition = 'none';
-        leafUnderShadow.style.opacity = '0';
-
-        viewport.scrollLeft = targetOffset;
-
-        void pageLeaf.offsetWidth;
-
-        requestAnimationFrame(function () {
-          pageLeaf.style.transition = 'transform ' + DURATION + 'ms ' + EASE;
-          pageLeaf.style.transform = 'rotateY(-180deg) skewY(0.85deg)';
-
-          leafCurlHighlight.style.transition = 'transform ' + DURATION + 'ms ' + EASE + ', opacity ' + (DURATION * 0.45) + 'ms ease';
-          leafCurlHighlight.style.transform = 'translateX(-38%)';
-          leafCurlHighlight.style.opacity = '0.85';
-
-          leafUnderShadow.style.transition = 'opacity ' + (DURATION * 0.4) + 'ms ease-in';
-          leafUnderShadow.style.opacity = '0.75';
-
-          setTimeout(function () {
-            leafUnderShadow.style.transition = 'opacity ' + (DURATION * 0.5) + 'ms ease-out';
-            leafUnderShadow.style.opacity = '0';
-          }, DURATION * 0.42);
-
-          setTimeout(function () {
-            pageLeaf.classList.remove('is-active');
-            pageLeaf.style.transform = 'rotateY(0deg)';
-            currentIndex = targetIndex;
-            flipping = false;
-            updatePaging();
-          }, DURATION + 20);
-        });
-
-      } else {
-        /* Prev Page:
-           - Front of leaf shows target (previous) page
-           - Leaf starts folded on left (-180deg) showing its back face
-           - Underneath viewport stays on current page
-           - Leaf flips forward to 0deg, covering viewport
-           - Upon completion, viewport updates to target
-        */
-        leafFrontScroll.scrollLeft = targetOffset;
-
-        pageLeaf.classList.add('is-active');
-        pageLeaf.style.transition = 'none';
-        pageLeaf.style.transform = 'rotateY(-180deg) skewY(-0.85deg)';
-
-        leafCurlHighlight.style.transition = 'none';
-        leafCurlHighlight.style.transform = 'translateX(-38%)';
-        leafCurlHighlight.style.opacity = '0.85';
-
-        leafUnderShadow.style.transition = 'none';
-        leafUnderShadow.style.opacity = '0.75';
-
-        void pageLeaf.offsetWidth;
-
-        requestAnimationFrame(function () {
-          pageLeaf.style.transition = 'transform ' + DURATION + 'ms ' + EASE;
-          pageLeaf.style.transform = 'rotateY(0deg) skewY(0deg)';
-
-          leafCurlHighlight.style.transition = 'transform ' + DURATION + 'ms ' + EASE + ', opacity ' + DURATION + 'ms ease';
-          leafCurlHighlight.style.transform = 'translateX(18%)';
-          leafCurlHighlight.style.opacity = '0';
-
-          leafUnderShadow.style.transition = 'opacity ' + DURATION + 'ms ease-out';
-          leafUnderShadow.style.opacity = '0';
-
-          setTimeout(function () {
-            viewport.scrollLeft = targetOffset;
-            pageLeaf.classList.remove('is-active');
-            currentIndex = targetIndex;
-            flipping = false;
-            updatePaging();
-          }, DURATION + 20);
-        });
-      }
-    }
-
-    /* ---------- Smooth Slide (Push) Mode ---------- */
-    function slideTo(targetOffset, dir, targetIndex) {
-      flipping = true;
-      triggerHaptic();
-
-      if (!slideOutScroll.firstElementChild || !slideInScroll.firstElementChild) syncClones();
-
-      slideOutScroll.scrollLeft = pageOffset(currentIndex);
-      slideInScroll.scrollLeft = targetOffset;
-
-      var DURATION = 420;
-      var EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
-
-      slideInSheet.classList.remove('seam-left', 'seam-right');
-      slideInSheet.classList.add(dir > 0 ? 'seam-left' : 'seam-right');
-
-      slideOutSheet.classList.add('is-active');
-      slideInSheet.classList.add('is-active');
-
-      slideOutSheet.style.transition = 'none';
-      slideOutSheet.style.transform = 'translateX(0)';
-
-      slideInSheet.style.transition = 'none';
-      slideInSheet.style.transform = 'translateX(' + (dir > 0 ? '100%' : '-100%') + ')';
-
-      void slideInSheet.offsetWidth;
-
-      requestAnimationFrame(function () {
-        slideOutSheet.style.transition = 'transform ' + DURATION + 'ms ' + EASE + ', opacity ' + DURATION + 'ms ease';
-        slideInSheet.style.transition = 'transform ' + DURATION + 'ms ' + EASE;
-
-        slideOutSheet.style.transform = 'translateX(' + (dir > 0 ? '-26%' : '26%') + ') scale(0.98)';
-        slideOutSheet.style.opacity = '0.7';
-
-        slideInSheet.style.transform = 'translateX(0)';
-
-        setTimeout(function () {
-          viewport.scrollLeft = targetOffset;
-          currentIndex = targetIndex;
-
-          slideOutSheet.classList.remove('is-active');
-          slideInSheet.classList.remove('is-active');
-          slideOutSheet.style.transform = '';
-          slideOutSheet.style.opacity = '';
-          slideInSheet.style.transform = '';
-
-          flipping = false;
-          updatePaging();
-        }, DURATION + 20);
-      });
+      var target = Math.max(0, Math.min(currentIndex + dir, total - 1));
+      if (target === currentIndex) return;
+      currentIndex = target;
+      viewport.scrollLeft = pageOffset(currentIndex);
+      updatePaging();
     }
 
     function relayout() {
-      layoutColumns();
-      syncClones();
-      requestAnimationFrame(function () {
+      if (!isPaged()) {
+        content.style.columnWidth = '';
+        return;
+      }
+      function applyPagedLayout() {
+        if (!isPaged()) return;
         layoutColumns();
-        if (isPaged()) {
-          var total = pageCount();
-          currentIndex = Math.max(0, Math.min(currentIndex, total - 1));
-          viewport.scrollLeft = pageOffset(currentIndex);
-        }
+        var total = pageCount();
+        currentIndex = Math.max(0, Math.min(currentIndex, total - 1));
+        viewport.scrollLeft = pageOffset(currentIndex);
         updatePaging();
+        return total;
+      }
+      layoutColumns();
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          applyPagedLayout();
+          /* Poll until columns fragment for long chapters (avoids stuck 1/1) */
+          var tries = 0;
+          (function poll() {
+            if (!isPaged()) return;
+            var total = applyPagedLayout();
+            tries += 1;
+            if (total <= 1 && (content.textContent || '').length > 400 && tries < 25) {
+              setTimeout(poll, 40);
+            }
+          })();
+        });
       });
-      setTimeout(updatePaging, 80);
     }
 
     function setMode(next, persist) {
-      if (flipping) return;
-
-      mode = (next === 'horizontal' || next === 'slide') ? next : 'vertical';
-      var paged = isPaged();
-      readerCard.classList.toggle('reading-horizontal', paged);
-      styleButtons.forEach(function (btn) {
+      mode = next === 'horizontal' ? 'horizontal' : 'vertical';
+      root.classList.toggle('reading-horizontal', isPaged());
+      if (pageBar) pageBar.hidden = !isPaged();
+      modeButtons.forEach(function (btn) {
         btn.classList.toggle('active', btn.dataset.mode === mode);
       });
 
-      pageLeaf.classList.remove('is-active');
-      slideOutSheet.classList.remove('is-active');
-      slideInSheet.classList.remove('is-active');
-
-      viewport.classList.remove('reader-fade');
-      void viewport.offsetWidth;
-      viewport.classList.add('reader-fade');
-
       currentIndex = 0;
+      content.style.columnWidth = '';
+      viewport.scrollLeft = 0;
 
-      if (paged) {
-        viewport.scrollLeft = 0;
+      if (isPaged()) {
+        window.scrollTo(0, 0);
         relayout();
       } else {
         content.style.columnWidth = '';
-        viewport.scrollLeft = 0;
+        updateScrollProgress();
       }
 
-      if (persist) {
-        try { localStorage.setItem(MODE_KEY, mode); } catch (e) { }
-      }
+      if (persist) lsSet(MODE_KEY, mode);
     }
 
-    styleButtons.forEach(function (btn) {
+    function restorePosition() {
+      if (restoreDone) return;
+      restoreDone = true;
+      var raw = lsGet(POS_KEY, '');
+      if (!raw) return;
+      try {
+        var data = JSON.parse(raw);
+        if (isPaged() && data && data.mode === 'horizontal' && typeof data.page === 'number') {
+          currentIndex = Math.max(0, data.page);
+          layoutColumns();
+          viewport.scrollLeft = pageOffset(currentIndex);
+          updatePaging();
+        } else if (!isPaged() && data && data.mode === 'vertical' && typeof data.y === 'number') {
+          window.scrollTo(0, Math.max(0, data.y));
+          updateScrollProgress();
+        }
+      } catch (e) { }
+    }
+
+    var savedSize = lsGet(FONT_KEY, 'medium');
+    var savedWidth = lsGet(WIDTH_KEY, 'normal');
+    var savedTheme = lsGet(THEME_KEY, 'bright');
+    var savedMode = lsGet(MODE_KEY, 'vertical');
+    if (savedMode === 'slide') savedMode = 'horizontal';
+    if (savedMode !== 'horizontal') savedMode = 'vertical';
+
+    applyFontSize(savedSize);
+    applyWidth(savedWidth);
+    applyTheme(savedTheme);
+    setMode(savedMode, false);
+    setChromeHidden(false);
+    syncRailsA11y();
+
+    requestAnimationFrame(function () {
+      setTimeout(restorePosition, 60);
+    });
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () {
+        if (isPaged()) relayout();
+      }).catch(function () { });
+    }
+
+    fontButtons.forEach(function (btn) {
+      btn.addEventListener('click', function () { applyFontSize(btn.dataset.size); });
+    });
+    modeButtons.forEach(function (btn) {
       btn.addEventListener('click', function () { setMode(btn.dataset.mode, true); });
     });
+    widthButtons.forEach(function (btn) {
+      btn.addEventListener('click', function () { applyWidth(btn.dataset.width); });
+    });
+    themeButtons.forEach(function (btn) {
+      btn.addEventListener('click', function () { applyTheme(btn.dataset.themeChoice); });
+    });
+
+    if (settingsBtn) settingsBtn.addEventListener('click', function () {
+      if (settingsPanel && !settingsPanel.hidden) closeSettings();
+      else openSettings();
+    });
+    if (settingsClose) settingsClose.addEventListener('click', closeSettings);
+    if (settingsBackdrop) settingsBackdrop.addEventListener('click', closeSettings);
 
     if (prevBtn) prevBtn.addEventListener('click', function () { goPage(-1); });
     if (nextBtn) nextBtn.addEventListener('click', function () { goPage(1); });
 
-    /* ---------- Mobile Touch & Swipe Handling ---------- */
-    var touchStartX = 0;
-    var touchStartY = 0;
-    var touchStartTime = 0;
-    var lastTouchTurnTime = 0;
-
-    stage.addEventListener('touchstart', function (e) {
-      if (!isPaged() || flipping) return;
-      var t = e.touches[0];
-      touchStartX = t.clientX;
-      touchStartY = t.clientY;
-      touchStartTime = Date.now();
+    viewport.addEventListener('scroll', function () {
+      if (!isPaged()) return;
+      var step = pageStep();
+      if (step <= 0) return;
+      currentIndex = Math.max(0, Math.min(Math.round(viewport.scrollLeft / step), pageCount() - 1));
+      updatePaging();
     }, { passive: true });
 
-    stage.addEventListener('touchmove', function (e) {
-      if (!isPaged() || flipping) return;
-      var t = e.touches[0];
-      var dx = t.clientX - touchStartX;
-      var dy = t.clientY - touchStartY;
-
-      // Lock vertical scrolling if user is predominantly swiping horizontally
-      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 12) {
-        if (e.cancelable) e.preventDefault();
+    var chromeLockUntil = 0;
+    window.addEventListener('scroll', function () {
+      if (isPaged()) return;
+      var y = window.scrollY || (document.scrollingElement && document.scrollingElement.scrollTop) || 0;
+      if (!isDesktop() && Date.now() > chromeLockUntil && Math.abs(y - lastScrollY) > 8) {
+        if (y > lastScrollY && y > 80) setChromeHidden(true);
+        else setChromeHidden(false);
+        lastScrollY = y;
       }
-    }, { passive: false });
+      updateScrollProgress();
+    }, { passive: true });
 
-    stage.addEventListener('touchend', function (e) {
-      if (!isPaged() || flipping) return;
-      var t = e.changedTouches[0];
-      var dx = t.clientX - touchStartX;
-      var dy = t.clientY - touchStartY;
-      var dt = Date.now() - touchStartTime;
+    content.addEventListener('click', function (e) {
+      if (e.target.closest('a, button')) return;
+      var rect = content.getBoundingClientRect();
+      var x = e.clientX - rect.left;
+      var ratio = rect.width ? (x / rect.width) : 0.5;
 
-      var absDx = Math.abs(dx);
-      var absDy = Math.abs(dy);
-
-      // Check if user selected text
-      if (window.getSelection && window.getSelection().toString().trim().length > 0) return;
-
-      // Horizontal swipe or rapid flick
-      var isSwipe = (absDx > 36 && absDx > absDy * 1.25) || (absDx > 22 && dt < 280 && absDx > absDy);
-
-      if (isSwipe) {
-        lastTouchTurnTime = Date.now();
-        if (dx < 0) goPage(1);
-        else goPage(-1);
+      /* Page mode: tap edges to turn pages — no bottom bar needed */
+      if (isPaged()) {
+        if (ratio <= 0.28) goPage(-1);
+        else if (ratio >= 0.72) goPage(1);
         return;
       }
 
-      // Tap Zone (clean touch with minimal displacement)
-      if (absDx < 12 && absDy < 12 && dt < 360) {
-        var rect = stage.getBoundingClientRect();
-        var tapX = t.clientX - rect.left;
-        var width = rect.width;
-
-        if (tapX < width * 0.28) {
-          lastTouchTurnTime = Date.now();
-          goPage(-1);
-        } else if (tapX > width * 0.72) {
-          lastTouchTurnTime = Date.now();
-          goPage(1);
-        }
+      if (isDesktop()) return;
+      if (ratio > 0.25 && ratio < 0.75) {
+        chromeLockUntil = Date.now() + 400;
+        setChromeHidden(!chromeHidden);
       }
-    }, { passive: true });
-
-    /* Desktop edge tap zones */
-    function handleTapZone(dir, e) {
-      if (!isPaged() || flipping) return;
-      if (Date.now() - lastTouchTurnTime < 450) return; // Prevent mobile double-fire
-      if (window.getSelection && window.getSelection().toString().trim().length > 0) return;
-      goPage(dir);
-    }
-
-    if (tapPrev) tapPrev.addEventListener('click', function (e) { handleTapZone(-1, e); });
-    if (tapNext) tapNext.addEventListener('click', function (e) { handleTapZone(1, e); });
-
-    /* Slider scrubbing */
-    if (pageSlider) {
-      pageSlider.addEventListener('change', function () {
-        if (!isPaged() || flipping) return;
-        var targetIndex = parseInt(this.value, 10) - 1;
-        var total = pageCount();
-        targetIndex = Math.max(0, Math.min(targetIndex, total - 1));
-        if (targetIndex === currentIndex) return;
-        var dir = targetIndex > currentIndex ? 1 : -1;
-        var offset = pageOffset(targetIndex);
-        if (mode === 'slide') slideTo(offset, dir, targetIndex);
-        else flipTo(offset, dir, targetIndex);
-      });
-    }
-
-    /* Fullscreen Mode */
-    if (fullscreenBtn) {
-      fullscreenBtn.addEventListener('click', function () {
-        if (!document.fullscreenElement) {
-          if (readerCard.requestFullscreen) {
-            readerCard.requestFullscreen().catch(function () {});
-          } else if (readerCard.webkitRequestFullscreen) {
-            readerCard.webkitRequestFullscreen();
-          }
-        } else {
-          if (document.exitFullscreen) {
-            document.exitFullscreen().catch(function () {});
-          } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-          }
-        }
-      });
-
-      document.addEventListener('fullscreenchange', function () {
-        var isFs = !!document.fullscreenElement;
-        var icon = fullscreenBtn.querySelector('i');
-        if (icon) icon.className = isFs ? 'bi bi-fullscreen-exit' : 'bi bi-arrows-fullscreen';
-        var label = fullscreenBtn.querySelector('span');
-        if (label) label.textContent = isFs ? 'Exit' : 'Fullscreen';
-        relayout();
-      });
-    }
-
-    /* Keyboard navigation */
-    document.addEventListener('keydown', function (e) {
-      if (!isPaged()) return;
-      if (e.target && e.target.matches && e.target.matches('input, textarea, select')) return;
-      if (e.key === 'ArrowRight' || e.key === 'PageDown') goPage(1);
-      else if (e.key === 'ArrowLeft' || e.key === 'PageUp') goPage(-1);
     });
 
-    /* Debounced resize handler */
+    document.addEventListener('keydown', function (e) {
+      if (e.target && e.target.matches && e.target.matches('input, textarea, select')) return;
+      if (e.key === 'Escape') {
+        closeSettings();
+        return;
+      }
+      if (isPaged()) {
+        if (e.key === 'ArrowRight') goPage(1);
+        else if (e.key === 'ArrowLeft') goPage(-1);
+        return;
+      }
+      if (e.key === 'ArrowRight' && nextChapterLink) {
+        window.location.href = nextChapterLink.href;
+      } else if (e.key === 'ArrowLeft' && prevChapterLink) {
+        window.location.href = prevChapterLink.href;
+      }
+    });
+
     var resizeTimer;
     window.addEventListener('resize', function () {
+      setChromeHidden(false);
+      syncRailsA11y();
       if (!isPaged()) return;
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(function () {
-        relayout();
-      }, 120);
+      resizeTimer = setTimeout(relayout, 150);
     });
 
-    /* Initial mode load */
-    var savedMode = 'vertical';
-    try { savedMode = localStorage.getItem(MODE_KEY) || 'vertical'; } catch (e) { }
-    if (savedMode !== 'horizontal' && savedMode !== 'slide') savedMode = 'vertical';
-    setMode(savedMode, false);
+    if (DESKTOP_MQ.addEventListener) {
+      DESKTOP_MQ.addEventListener('change', function () {
+        setChromeHidden(false);
+        syncRailsA11y();
+        if (isPaged()) relayout();
+      });
+    } else if (DESKTOP_MQ.addListener) {
+      DESKTOP_MQ.addListener(function () {
+        setChromeHidden(false);
+        syncRailsA11y();
+      });
+    }
+
+    updateScrollProgress();
   })();
 </script>
 {% endblock %}
