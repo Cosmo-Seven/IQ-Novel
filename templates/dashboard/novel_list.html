@@ -53,7 +53,7 @@
                     <table class="table">
                         <thead class="thead-light">
                             <tr>
-                                <!-- <th>{% translate 'table_no' request.session.language %}</th> -->
+                                <th>{% translate 'table_no' request.session.language %}</th>
                                 <th>{% translate 'cover_image' request.session.language %}</th>
                                 <th>{% translate 'title' request.session.language %}</th>
                                 <th>{% translate 'author' request.session.language %}</th>
@@ -68,13 +68,13 @@
                         <tbody>
                             {% for novel in novels %}
                             <tr>
-                                <!-- <td>
+                                <td>
                                     {% if request.session.language == 'my' %}
                                     {{ forloop.counter0|add:page_obj.start_index|mm_number }}
                                     {% else %}
                                     {{ forloop.counter0|add:page_obj.start_index }}
                                     {% endif %}
-                                </td> -->
+                                </td>
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <a href="javascript:void(0);" class="avatar avatar-md me-2">
