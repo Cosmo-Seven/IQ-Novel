@@ -21,3 +21,11 @@ dumps/
 backups/
 Profile/
 .cursor
+
+cd /var/www/novel/
+git pull
+source .venv/bin/activate
+python3 manage.py makemigrations
+python3 manage.py migrate
+python3 manage.py collectstatic --noinput
+systemctl restart novel
