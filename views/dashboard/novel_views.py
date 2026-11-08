@@ -605,6 +605,9 @@ def chapter_purchase_export_excel(request):
         date_field="created_at",
     )
 
+    # Admin နှင့် ဆိုင်သော column/remark များကို superuser မှသာ ပြသည်
+    is_superuser = request.user.is_superuser
+
     columns = [
         "No",
         "Novel",
@@ -617,10 +620,11 @@ def chapter_purchase_export_excel(request):
         "Gems",
         "Cost(MMK)",
         "Author(%)",
-        "Admin(%)",
-        "Remarks",
-        "Ordered Date",
     ]
+    if is_superuser:
+        columns.append("Admin(%)")
+    columns += ["Remarks", "Ordered Date"]
+
     rows = []
     cell_fills = []
     for index, purchase in enumerate(purchases, start=1):
@@ -634,28 +638,31 @@ def chapter_purchase_export_excel(request):
         if gem_fill:
             row_fills[9] = gem_fill
 
-        rows.append(
-            [
-                index,
-                purchase.chapter.novel.title,
-                purchase.chapter.chapter_title,
-                (
-                    purchase.chapter.novel.author.display_name
-                    if purchase.chapter.novel.author
-                    else ""
-                ),
-                purchase.user.username,
-                purchase.user.email,
-                str(purchase.user_id),
-                purchase.free_gems_used or "-",
-                purchase.paid_gems_used or "-",
-                purchase.sale_price_mmk,
-                author_percentage,
-                admin_percentage,
-                f"{author_percentage}% for Author and {admin_percentage}% for Admin",
-                purchase.created_at.strftime("%b %d, %Y"),
-            ]
-        )
+        row = [
+            index,
+            purchase.chapter.novel.title,
+            purchase.chapter.chapter_title,
+            (
+                purchase.chapter.novel.author.display_name
+                if purchase.chapter.novel.author
+                else ""
+            ),
+            purchase.user.username,
+            purchase.user.email,
+            str(purchase.user_id),
+            purchase.free_gems_used or "-",
+            purchase.paid_gems_used or "-",
+            purchase.sale_price_mmk,
+            author_percentage,
+        ]
+        if is_superuser:
+            row.append(admin_percentage)
+            row.append(f"{author_percentage}% for Author and {admin_percentage}% for Admin")
+        else:
+            row.append(f"{author_percentage}% for Author")
+        row.append(purchase.created_at.strftime("%b %d, %Y"))
+
+        rows.append(row)
         cell_fills.append(row_fills)
 
     filename = f"chapter_purchases_{datetime.now().strftime('%b-%d-%Y')}.xlsx"

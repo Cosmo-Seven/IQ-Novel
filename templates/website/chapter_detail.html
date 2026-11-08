@@ -4,7 +4,10 @@
 {% block body %}
 {% load humanize %}
 
-<div class="novel-reader" id="novelReader" data-chapter-id="{{ chapter.id }}">
+{# data-prev-title / data-next-title = hover တင်ရင် ပြမယ့် chapter နာမည် #}
+<div class="novel-reader" id="novelReader" data-chapter-id="{{ chapter.id }}"
+  data-prev-title="{% if prev_chapter %}{{ prev_chapter.chapter_title }}{% endif %}"
+  data-next-title="{% if next_chapter %}{{ next_chapter.chapter_title }}{% endif %}">
   <div class="reader-progress" id="readerProgress" aria-hidden="true">
     <div class="reader-progress-bar" id="readerProgressBar"></div>
   </div>
@@ -17,8 +20,7 @@
       </a>
       <div class="reader-top-meta">
         <p class="reader-chapter-title">{{ chapter.chapter_title }}</p>
-        <a href="{% url 'novel_detail' chapter.novel.id %}?tab=chapters" class="reader-novel-link">
-          {{ chapter.novel.title }}</a>
+        <a href="{% url 'novel_detail' chapter.novel.id %}?tab=chapters" class="reader-novel-link">{{ chapter.novel.title }}</a>
       </div>
       <div class="reader-page-chip" id="readerPageBar" hidden>
         <button type="button" class="reader-page-btn reader-page-prev" aria-label="Previous page" title="ရှေ့စာမျက်နှာ">
@@ -37,14 +39,15 @@
 
     <div class="reader-page">
       <main class="reader-surface" id="readerSurface">
-        <header class="reader-masthead">
-          <p class="reader-masthead-kicker">{{ chapter.novel.title }}</p>
-          <h1 class="reader-masthead-title">{{ chapter.chapter_title }}</h1>
-          <p class="reader-masthead-note">ဖတ်ရှုမှု</p>
-        </header>
-
+        {# viewport = စာဖတ်တဲ့ box။ Scroll mode မှာ ဒီ box ထဲကနေ scroll ဖြစ်မယ် #}
         <div class="reader-stage" id="readerStage">
-          <div class="reader-viewport" id="chapterViewport">
+          <div class="reader-viewport" id="chapterViewport" tabindex="-1">
+            <header class="reader-masthead">
+              <p class="reader-masthead-kicker">{{ chapter.novel.title }}</p>
+              <h1 class="reader-masthead-title">{{ chapter.chapter_title }}</h1>
+              <p class="reader-masthead-note">ဖတ်ရှုမှု</p>
+            </header>
+
             <article class="reader-content theme-text-reading" id="chapterContent">
               {{ chapter.content|safe }}
             </article>
@@ -60,17 +63,17 @@
     </div>
   </div>
 
-  {# Desktop gutter chapter controls #}
+  {# Desktop gutter chapter controls. data-chapter-link = reload မလုပ်ဘဲ JS နဲ့ ပြောင်းမယ့် link #}
   <div class="reader-rail reader-rail-left" aria-hidden="true">
     {% if prev_chapter %}
-    {% if prev_chapter.is_free or prev_chapter.id in purchased_chapter_ids %}
-    <a href="{% url 'chapter_detail' prev_chapter.id %}" class="reader-rail-btn" title="Previous chapter"
-      aria-label="Previous chapter" data-reader-rail="prev">
+    {% if prev_chapter.is_free or prev_chapter.id in purchased_chapter_ids or active_reward.reward_type == "free_read" %}
+    <a href="{% url 'chapter_detail' prev_chapter.id %}" class="reader-rail-btn" aria-label="Previous chapter"
+      data-reader-rail="prev" data-chapter-link>
       <i class="bi bi-chevron-left"></i>
     </a>
     {% else %}
     <a href="{% url 'novel_detail' chapter.novel.id %}?tab=chapters" class="reader-rail-btn"
-      title="Purchase previous chapter" aria-label="Purchase previous chapter" data-reader-rail="prev">
+      aria-label="Purchase previous chapter" data-reader-rail="prev">
       <i class="bi bi-chevron-left"></i>
     </a>
     {% endif %}
@@ -81,14 +84,14 @@
 
   <div class="reader-rail reader-rail-right" aria-hidden="true">
     {% if next_chapter %}
-    {% if next_chapter.is_free or next_chapter.id in purchased_chapter_ids %}
-    <a href="{% url 'chapter_detail' next_chapter.id %}" class="reader-rail-btn" title="Next chapter"
-      aria-label="Next chapter" data-reader-rail="next">
+    {% if next_chapter.is_free or next_chapter.id in purchased_chapter_ids or active_reward.reward_type == "free_read" %}
+    <a href="{% url 'chapter_detail' next_chapter.id %}" class="reader-rail-btn" aria-label="Next chapter"
+      data-reader-rail="next" data-chapter-link>
       <i class="bi bi-chevron-right"></i>
     </a>
     {% else %}
     <a href="{% url 'novel_detail' chapter.novel.id %}?tab=chapters" class="reader-rail-btn"
-      title="Purchase next chapter" aria-label="Purchase next chapter" data-reader-rail="next">
+      aria-label="Purchase next chapter" data-reader-rail="next">
       <i class="bi bi-chevron-right"></i>
     </a>
     {% endif %}
@@ -96,6 +99,9 @@
     <span class="reader-rail-btn is-disabled" aria-disabled="true"><i class="bi bi-chevron-right"></i></span>
     {% endif %}
   </div>
+
+  {# hover တင်ရင် ပေါ်မယ့် chapter နာမည် tooltip #}
+  <div class="reader-tip" id="readerTip" role="tooltip" aria-hidden="true"></div>
 
   <div class="reader-settings-backdrop" id="readerSettingsBackdrop" hidden></div>
   <aside class="reader-settings" id="readerSettings" hidden aria-label="Reading settings">
@@ -122,7 +128,7 @@
           <i class="bi bi-arrows-vertical"></i> Scroll
         </button>
         <button type="button" class="reader-seg-btn" data-mode="horizontal">
-          <i class="bi bi-book"></i> Page
+          <i class="bi bi-layout-sidebar-inset-reverse"></i> Slide
         </button>
       </div>
     </div>
@@ -154,6 +160,12 @@
     display: none !important;
   }
 
+  /* page တစ်ခုလုံး scroll မဖြစ်စေ — စာဖတ်တဲ့ box ထဲကပဲ scroll ဖြစ်မယ် */
+  body.is-chapter-reader,
+  html:has(body.is-chapter-reader) {
+    overflow: hidden;
+  }
+
   body.reader-settings-open {
     overflow: hidden;
   }
@@ -169,12 +181,17 @@
     --reader-chrome-h: 3.35rem;
     --reader-stage-bg: #f7f4ef;
     --reader-ink: #3f3a36;
-    min-height: 100vh;
+    box-sizing: border-box;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
     background:
       radial-gradient(1200px 600px at 50% -10%, rgba(88, 24, 37, 0.05), transparent 60%),
       linear-gradient(180deg, var(--reader-stage-bg) 0%, color-mix(in srgb, var(--site-bg, #faf8f5) 88%, #ebe6de) 100%);
     color: var(--main-text, #2a2a2a);
     position: relative;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
   }
 
   [data-theme="dark"] .novel-reader {
@@ -193,6 +210,7 @@
       linear-gradient(180deg, #f3ebd8 0%, #ebe1c8 100%);
   }
 
+  /* ---------- Progress bar ---------- */
   .reader-progress {
     position: fixed;
     top: 0;
@@ -206,9 +224,19 @@
   .reader-progress-bar {
     height: 100%;
     width: 0%;
-    background: var(--brand-maroon, #581825);
-    opacity: 0.9;
-    transition: width 0.12s linear;
+    background: linear-gradient(90deg, var(--brand-maroon, #581825), #b8445a);
+    border-radius: 0 999px 999px 0;
+    opacity: 0.95;
+    transition: width 0.25s cubic-bezier(.22, .8, .26, 1);
+  }
+
+  .novel-reader.is-loading .reader-progress-bar {
+    animation: readerPulse 0.9s ease-in-out infinite;
+  }
+
+  @keyframes readerPulse {
+    0%, 100% { opacity: 0.35; }
+    50% { opacity: 1; }
   }
 
   .reader-shell {
@@ -225,6 +253,7 @@
     display: none;
   }
 
+  /* ---------- Top chrome ---------- */
   .reader-chrome {
     position: fixed;
     z-index: 1050;
@@ -302,7 +331,7 @@
     text-decoration: none;
     flex-shrink: 0;
     cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
   }
 
   .reader-icon-btn:hover {
@@ -310,6 +339,11 @@
     color: var(--brand-maroon, #581825);
   }
 
+  .reader-icon-btn:active {
+    transform: scale(0.92);
+  }
+
+  /* ---------- Bottom chapter nav ---------- */
   .reader-chapter-nav-inner {
     width: 100%;
     max-width: 36rem;
@@ -317,16 +351,39 @@
     justify-content: space-between;
     align-items: center;
     gap: 0.5rem;
+    margin: 0 auto;
   }
 
   .reader-chapter-nav-inner .btn {
     font-size: 0.8rem;
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+  }
+
+  .reader-chapter-nav-inner .btn:active {
+    transform: scale(0.96);
+  }
+
+  .reader-chapter-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1050;
+    display: flex;
+    justify-content: center;
+    margin: 0;
+    padding: 0.55rem var(--reader-pad-x) calc(0.55rem + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid color-mix(in srgb, var(--border-color, #e5e0d8) 80%, transparent);
+    background: color-mix(in srgb, var(--reader-stage-bg, #f7f4ef) 88%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: transform 0.28s ease, opacity 0.28s ease;
   }
 
   .reader-surface {
     max-width: var(--reader-max);
     margin: 0 auto;
-    padding: calc(var(--reader-chrome-h) + 1.1rem) var(--reader-pad-x) calc(5.75rem + env(safe-area-inset-bottom, 0px));
+    padding: 0;
   }
 
   .reader-masthead {
@@ -353,43 +410,72 @@
     color: var(--main-text, #2a2a2a);
   }
 
-  .novel-reader.width-narrow {
-    --reader-max: 34rem;
+  .novel-reader.width-narrow { --reader-max: 34rem; }
+  .novel-reader.width-normal { --reader-max: 40rem; }
+  .novel-reader.width-wide { --reader-max: 48rem; }
+
+  /* ---------- Viewport (စာဖတ်တဲ့ box) ----------
+     ဖုန်း: screen တစ်ခုလုံးကို ယူပြီး ထဲကနေ scroll။ Top/bottom bar အောက်ကို စာဝင်သွားလို့ရတယ်။ */
+  .reader-viewport {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    width: min(100%, calc(var(--reader-max) + 2 * var(--reader-pad-x)));
+    margin: 0 auto;
+    padding:
+      calc(var(--reader-chrome-h) + env(safe-area-inset-top, 0px) + 0.9rem)
+      var(--reader-pad-x)
+      calc(5.25rem + env(safe-area-inset-bottom, 0px));
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--brand-maroon, #581825) 35%, transparent) transparent;
+    outline: none;
   }
 
-  .novel-reader.width-normal {
-    --reader-max: 40rem;
+  .reader-viewport:focus {
+    outline: none;
   }
 
-  .novel-reader.width-wide {
-    --reader-max: 48rem;
+  .reader-viewport::-webkit-scrollbar {
+    width: 6px;
   }
 
+  .reader-viewport::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--brand-maroon, #581825) 35%, transparent);
+    border-radius: 999px;
+  }
+
+  /* ---------- Text ---------- */
   .reader-content {
     max-width: 100%;
     min-width: 0;
+    padding-bottom: 1.25rem;
   }
 
   .theme-text-reading {
     color: var(--reader-ink, #3f3a36) !important;
     font-size: 1.125rem;
-    line-height: 1.95;
+    line-height: 1.9;
     letter-spacing: normal;
     font-weight: 400;
     overflow-wrap: anywhere;
     word-break: break-word;
   }
 
-  .reader-content.fs-small {
-    font-size: 1rem;
-  }
+  .reader-content.fs-small { font-size: 1rem; }
+  .reader-content.fs-medium { font-size: 1.125rem; }
+  .reader-content.fs-large { font-size: 1.35rem; }
 
-  .reader-content.fs-medium {
-    font-size: 1.125rem;
-  }
-
-  .reader-content.fs-large {
-    font-size: 1.35rem;
+  .reader-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
   }
 
   .reader-content p {
@@ -405,43 +491,46 @@
     display: none;
   }
 
-  [data-theme="dark"] .theme-text-reading {
-    color: #c9cdd6 !important;
-  }
+  [data-theme="dark"] .theme-text-reading { color: #c9cdd6 !important; }
+  [data-theme="eye-care"] .theme-text-reading { color: #5a4634 !important; }
 
-  [data-theme="eye-care"] .theme-text-reading {
-    color: #5a4634 !important;
-  }
-
-  .novel-reader:not(.reading-horizontal) .reader-viewport {
-    overflow: visible;
-    height: auto;
-  }
-
+  /* ---------- Slide (page) mode ---------- */
   .novel-reader.reading-horizontal .reader-masthead {
     display: none !important;
   }
 
   .novel-reader.reading-horizontal .reader-viewport {
-    height: calc(100vh - 9.5rem);
-    overflow-x: auto;
-    overflow-y: hidden;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-    position: relative;
+    overflow: hidden;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
   }
 
-  .novel-reader.reading-horizontal .reader-viewport::-webkit-scrollbar {
-    display: none;
+  /* စာမျက်နှာ နှစ်ဖက်စွန်းမှာ အရောင်ဖျော့ဖျော့လေး မှိန်သွားအောင် */
+  .novel-reader.reading-horizontal .reader-viewport::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(90deg, color-mix(in srgb, var(--reader-stage-bg, #f7f4ef) 70%, transparent), transparent 5%),
+      linear-gradient(270deg, color-mix(in srgb, var(--reader-stage-bg, #f7f4ef) 70%, transparent), transparent 5%);
   }
 
   .novel-reader.reading-horizontal .reader-content {
     height: 100%;
     column-fill: auto;
     column-gap: 48px;
+    cursor: pointer;
+    will-change: transform;
+    transition: transform 0.42s cubic-bezier(.22, .8, .26, 1);
   }
 
-  /* Quiet page controls live in the top bar — not over the text */
+  .novel-reader.reading-horizontal .reader-content.no-anim {
+    transition: none;
+  }
+
+  /* ---------- Page chip ---------- */
   .reader-page-chip {
     display: none;
     align-items: center;
@@ -469,11 +558,16 @@
     justify-content: center;
     cursor: pointer;
     font-size: 0.85rem;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
   }
 
   .reader-page-btn:hover:not(:disabled) {
     background: color-mix(in srgb, var(--brand-maroon, #581825) 12%, transparent);
     color: var(--brand-maroon, #581825);
+  }
+
+  .reader-page-btn:active:not(:disabled) {
+    transform: scale(0.88);
   }
 
   .reader-page-btn:disabled {
@@ -482,38 +576,18 @@
   }
 
   .reader-page-indicator {
-    min-width: 3.4rem;
+    min-width: 2.8rem;
     text-align: center;
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     font-weight: 600;
     padding: 0.15rem 0.35rem;
     color: var(--text-muted-dark, #6b6560);
     letter-spacing: 0.02em;
     user-select: none;
+    font-variant-numeric: tabular-nums;
   }
 
-  /* Mobile: fixed bottom chapter nav (single instance) */
-  .reader-chapter-nav {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1050;
-    display: flex;
-    justify-content: center;
-    margin: 0;
-    padding: 0.55rem var(--reader-pad-x) calc(0.55rem + env(safe-area-inset-bottom, 0px));
-    border-top: 1px solid color-mix(in srgb, var(--border-color, #e5e0d8) 80%, transparent);
-    background: color-mix(in srgb, var(--reader-stage-bg, #f7f4ef) 88%, transparent);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    transition: transform 0.28s ease, opacity 0.28s ease;
-  }
-
-  .reader-chapter-nav-inner {
-    margin: 0 auto;
-  }
-
+  /* ---------- Desktop rails ---------- */
   .reader-rail {
     display: none;
   }
@@ -542,16 +616,63 @@
     color: #fff;
   }
 
+  .reader-rail-btn:active {
+    transform: scale(0.94);
+  }
+
   .reader-rail-btn.is-disabled {
     opacity: 0.28;
     pointer-events: none;
   }
 
+  /* ---------- Hover tooltip (chapter နာမည်) ---------- */
+  .reader-tip {
+    position: fixed;
+    left: -999px;
+    top: -999px;
+    z-index: 1300;
+    max-width: 17rem;
+    padding: 0.5rem 0.8rem;
+    border-radius: 0.75rem;
+    background: rgba(28, 22, 20, 0.94);
+    color: #fff;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+
+  .reader-tip.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .reader-tip small {
+    display: block;
+    margin-bottom: 0.1rem;
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.65;
+  }
+
+  .reader-tip span {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* ---------- Settings ---------- */
   .reader-settings-backdrop {
     position: fixed;
     inset: 0;
     z-index: 1190;
     background: rgba(0, 0, 0, 0.35);
+    animation: readerFade 0.2s ease;
   }
 
   .reader-settings {
@@ -567,6 +688,17 @@
     border-radius: 1rem;
     padding: 1rem 1.1rem 1.15rem;
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+    animation: readerPop 0.22s cubic-bezier(.22, .8, .26, 1);
+  }
+
+  @keyframes readerFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes readerPop {
+    from { opacity: 0; transform: translate(-50%, -46%) scale(0.97); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
   }
 
   .reader-settings-head {
@@ -620,63 +752,30 @@
     justify-content: center;
     gap: 0.3rem;
     white-space: nowrap;
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
   }
 
   .reader-seg-btn.active {
     background: var(--brand-maroon, #581825);
     color: #fff;
+    box-shadow: 0 4px 10px color-mix(in srgb, var(--brand-maroon, #581825) 30%, transparent);
   }
 
   /* ---------- Phone ---------- */
   @media (max-width: 991.98px) {
-    .reader-rail {
-      display: none !important;
-    }
-
-    .reader-masthead {
-      display: none !important;
-    }
-
-    .novel-reader {
-      --reader-pad-x: 1rem;
-      --reader-bottom-clearance: calc(6.75rem + env(safe-area-inset-bottom, 0px));
-    }
-
-    .reader-surface {
-      /* Keep last lines clear of the fixed Prev / Chapters / Next bar */
-      padding-bottom: calc(var(--reader-bottom-clearance) + 1.75rem);
-    }
-
-    .reader-content {
-      padding-bottom: 1.25rem;
-    }
-
-    .theme-text-reading {
-      line-height: 1.9;
-    }
-
-    .novel-reader.reading-horizontal .reader-viewport {
-      height: calc(100vh - 8.75rem);
-    }
-
-    .novel-reader.reading-horizontal .reader-surface {
-      padding-bottom: calc(var(--reader-bottom-clearance) + 0.75rem);
-    }
-
-    .reader-page-indicator {
-      min-width: 2.8rem;
-      font-size: 0.68rem;
-    }
+    .reader-rail { display: none !important; }
+    .reader-masthead { display: none !important; }
+    .novel-reader { --reader-pad-x: 1rem; }
   }
 
-  /* ---------- Desktop / wide: book-on-desk composition ---------- */
+  /* ---------- Desktop: စာအုပ်လေးလို card ထဲမှာ ဖတ် ---------- */
   @media (min-width: 992px) {
     .novel-reader {
       --reader-pad-x: 2.5rem;
       --reader-chrome-h: 3.5rem;
       --reader-paper: #fffcf7;
       --reader-desk: #ebe4d8;
-      padding: 1.75rem 0 3.5rem;
+      padding: 0.75rem 0;
       background:
         radial-gradient(900px 420px at 50% 0%, rgba(88, 24, 37, 0.07), transparent 55%),
         linear-gradient(180deg, #e7dfd2 0%, var(--reader-desk) 42%, #e2d8c8 100%);
@@ -698,17 +797,9 @@
         linear-gradient(180deg, #e8dcc0 0%, #dfd0ae 100%);
     }
 
-    .novel-reader.width-narrow {
-      --reader-max: 40rem;
-    }
-
-    .novel-reader.width-normal {
-      --reader-max: 48rem;
-    }
-
-    .novel-reader.width-wide {
-      --reader-max: 56rem;
-    }
+    .novel-reader.width-narrow { --reader-max: 40rem; }
+    .novel-reader.width-normal { --reader-max: 48rem; }
+    .novel-reader.width-wide { --reader-max: 56rem; }
 
     .reader-progress {
       left: 50%;
@@ -733,7 +824,7 @@
       left: auto;
       right: auto;
       width: 100%;
-      margin: 0 auto 1.1rem;
+      margin: 0 auto 0.9rem;
       padding: 0.45rem 0.65rem 0.45rem 0.55rem;
       border: 1px solid color-mix(in srgb, var(--border-color, #e5e0d8) 70%, transparent);
       border-radius: 1rem;
@@ -751,13 +842,8 @@
       pointer-events: auto;
     }
 
-    .reader-top-meta {
-      text-align: left;
-    }
-
-    .reader-chapter-title {
-      display: none;
-    }
+    .reader-top-meta { text-align: left; }
+    .reader-chapter-title { display: none; }
 
     .reader-novel-link {
       font-size: 0.84rem;
@@ -784,7 +870,25 @@
 
     .reader-surface {
       max-width: none;
-      padding: 2.75rem clamp(2rem, 4vw, 3.25rem) 3rem;
+      padding: 2rem clamp(2rem, 4vw, 3.25rem) 1.25rem;
+    }
+
+    /* card ထဲက box — အမြင့်ကို screen နဲ့ကိုက်အောင် သတ်မှတ်၊ ကျော်တဲ့စာက ဒီထဲကနေ scroll */
+    .reader-viewport {
+      position: relative;
+      inset: auto;
+      z-index: auto;
+      width: auto;
+      margin: 0;
+      padding: 0 0.85rem 0 0;
+      height: calc(100vh - 15rem);
+      height: calc(100dvh - 15rem);
+      min-height: 18rem;
+    }
+
+    .novel-reader.reading-horizontal .reader-viewport {
+      padding: 0;
+      border-radius: 0.5rem;
     }
 
     .reader-masthead {
@@ -822,27 +926,15 @@
       letter-spacing: 0.04em;
     }
 
-    .novel-reader.reading-horizontal .reader-masthead {
-      display: none !important;
-    }
-
+    /* max-width မထားတော့ဘူး — "ကျယ်" ကို နှိပ်ရင် တကယ်ကျယ်မယ်၊ slide ထဲ နောက်စာမျက်နှာ ထိုးမပေါ်တော့ဘူး */
     .theme-text-reading {
       font-size: 1.2rem;
       line-height: 1.92;
-      max-width: 38em;
     }
 
-    .reader-content.fs-small {
-      font-size: 1.05rem;
-    }
-
-    .reader-content.fs-medium {
-      font-size: 1.2rem;
-    }
-
-    .reader-content.fs-large {
-      font-size: 1.42rem;
-    }
+    .reader-content.fs-small { font-size: 1.05rem; }
+    .reader-content.fs-medium { font-size: 1.2rem; }
+    .reader-content.fs-large { font-size: 1.42rem; }
 
     .reader-content p {
       margin-bottom: 1.25em;
@@ -851,8 +943,8 @@
     .reader-chapter-nav {
       position: static;
       display: block;
-      margin-top: 3rem;
-      padding: 1.35rem 0 0;
+      margin-top: 0.6rem;
+      padding: 0.9rem 0 0;
       border-top: 1px solid color-mix(in srgb, var(--border-color, #e5e0d8) 75%, transparent);
       background: transparent;
       backdrop-filter: none;
@@ -867,7 +959,7 @@
 
     .reader-chapter-nav-inner .btn {
       font-size: 0.86rem;
-      padding: 0.55rem 1.15rem;
+      padding: 0.5rem 1.15rem;
       border-radius: 0.7rem;
     }
 
@@ -882,34 +974,12 @@
       gap: 0.45rem;
     }
 
-    .reader-rail::after {
-      font-size: 0.68rem;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--text-muted-dark, #6b6560);
-      opacity: 0;
-      transition: opacity 0.2s ease;
-    }
-
-    .reader-rail:hover::after {
-      opacity: 0.9;
-    }
-
     .reader-rail-left {
       left: max(1.5rem, calc(50% - (var(--reader-max) / 2) - 6.25rem));
     }
 
-    .reader-rail-left::after {
-      content: "Prev";
-    }
-
     .reader-rail-right {
       right: max(1.5rem, calc(50% - (var(--reader-max) / 2) - 6.25rem));
-    }
-
-    .reader-rail-right::after {
-      content: "Next";
     }
 
     .reader-rail-btn {
@@ -918,11 +988,6 @@
       background: var(--reader-paper, #fffcf7);
       border-radius: 1rem;
       box-shadow: 0 10px 28px rgba(40, 24, 16, 0.08);
-    }
-
-    .novel-reader.reading-horizontal .reader-viewport {
-      height: calc(100vh - 10rem);
-      border-radius: 0.5rem;
     }
 
     .reader-settings {
@@ -938,6 +1003,12 @@
       box-shadow: 0 22px 50px rgba(0, 0, 0, 0.16);
       padding: 1.15rem 1.2rem 1.3rem;
       overflow-y: auto;
+      animation: readerSlideIn 0.24s cubic-bezier(.22, .8, .26, 1);
+    }
+
+    @keyframes readerSlideIn {
+      from { opacity: 0; transform: translateX(14px); }
+      to { opacity: 1; transform: translateX(0); }
     }
 
     .reader-settings-backdrop {
@@ -947,13 +1018,11 @@
 
   @media (min-width: 1400px) {
     .novel-reader {
-      padding-top: 2.25rem;
-      padding-bottom: 4rem;
+      padding-top: 1rem;
+      padding-bottom: 1rem;
     }
 
-    .novel-reader.width-wide {
-      --reader-max: 64rem;
-    }
+    .novel-reader.width-wide { --reader-max: 64rem; }
 
     .reader-shell {
       width: min(100% - 6rem, calc(var(--reader-max) + 6rem));
@@ -972,6 +1041,14 @@
       padding-right: 3.5rem;
     }
   }
+
+  /* animation လျှော့ထားတဲ့ device တွေအတွက် */
+  @media (prefers-reduced-motion: reduce) {
+    .novel-reader * {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+  }
 </style>
 
 <script>
@@ -983,7 +1060,9 @@
     var SIZES = ['small', 'medium', 'large'];
     var WIDTHS = ['narrow', 'normal', 'wide'];
     var COLUMN_GAP = 48;
+    var SWIPE_MIN = 50; // လက်ဆွဲရမယ့် အနည်းဆုံး px
     var DESKTOP_MQ = window.matchMedia('(min-width: 992px)');
+    var CAN_HOVER = window.matchMedia('(hover: hover)').matches;
 
     var root = document.getElementById('novelReader');
     var viewport = document.getElementById('chapterViewport');
@@ -997,23 +1076,30 @@
     var settingsPanel = document.getElementById('readerSettings');
     var settingsBackdrop = document.getElementById('readerSettingsBackdrop');
     var settingsClose = document.getElementById('readerSettingsClose');
+    var tip = document.getElementById('readerTip');
     var fontButtons = document.querySelectorAll('[data-size]');
     var modeButtons = document.querySelectorAll('[data-mode]');
     var themeButtons = document.querySelectorAll('[data-theme-choice]');
     var widthButtons = document.querySelectorAll('[data-width]');
-    var prevChapterLink = document.querySelector('.reader-nav-prev[href]');
-    var nextChapterLink = document.querySelector('.reader-nav-next[href]');
 
     if (!root || !viewport || !content) return;
 
     var chapterId = root.getAttribute('data-chapter-id') || 'unknown';
-    var POS_KEY = 'chapterPos:' + chapterId;
     var mode = 'vertical';
     var currentIndex = 0;
     var chromeHidden = false;
-    var lastScrollY = window.scrollY || 0;
+    var lastScrollY = 0;
     var restoreDone = false;
+    var navigating = false;   // chapter ပြောင်းနေဆဲလား
+    var goLastPage = false;   // prev chapter ကို ရောက်ရင် နောက်ဆုံးစာမျက်နှာက စမယ်
+    var justDragged = false;  // ဆွဲပြီးတာနဲ့ click မဖြစ်စေဖို့
+    var chromeLockUntil = 0;
 
+    function posKey() {
+      return 'chapterPos:' + chapterId;
+    }
+
+    /* ---------------- helpers ---------------- */
     function lsGet(key, fallback) {
       try {
         var v = localStorage.getItem(key);
@@ -1027,26 +1113,19 @@
       try { localStorage.setItem(key, value); } catch (e) { }
     }
 
-    function isDesktop() {
-      return DESKTOP_MQ.matches;
+    function isDesktop() { return DESKTOP_MQ.matches; }
+    function isPaged() { return mode === 'horizontal'; }
+
+    // စာမျက်နှာတစ်ခုရဲ့ အကျယ် = စာ (article) ရဲ့ တကယ့်အကျယ်
+    // (အရင်က viewport အကျယ်ကို သုံးလို့ စာက ပိုကျဉ်းနေရင် နောက်စာမျက်နှာ ထိုးပေါ်နေတာ)
+    function pageWidth() { return content.clientWidth; }
+    function pageStep() { return pageWidth() + COLUMN_GAP; }
+
+    function focusReader() {
+      try { viewport.focus({ preventScroll: true }); } catch (e) { }
     }
 
-    function isPaged() {
-      return mode === 'horizontal';
-    }
-
-    function pageWidth() {
-      return viewport.clientWidth;
-    }
-
-    function pageStep() {
-      return pageWidth() + COLUMN_GAP;
-    }
-
-    function maxScrollLeft() {
-      return Math.max(0, viewport.scrollWidth - viewport.clientWidth);
-    }
-
+    /* ---------------- Slide paging ---------------- */
     function layoutColumns() {
       if (!isPaged()) {
         content.style.columnWidth = '';
@@ -1055,46 +1134,109 @@
       var pw = pageWidth();
       if (pw <= 0) return;
       content.style.columnWidth = pw + 'px';
-      /* Force fragmentation so scrollWidth/pageCount are accurate immediately */
-      void content.offsetHeight;
-      void viewport.offsetWidth;
-      void viewport.scrollWidth;
+      void content.offsetHeight; // layout ကို အတင်းတွက်ခိုင်း
     }
 
     function pageCount() {
       var step = pageStep();
       if (step <= 0) return 1;
-      return Math.max(1, Math.round((viewport.scrollWidth + COLUMN_GAP) / step));
+      return Math.max(1, Math.round((content.scrollWidth + COLUMN_GAP) / step));
     }
 
-    function pageOffset(index) {
-      return Math.min(index * pageStep(), maxScrollLeft());
+    // စာမျက်နှာကို slide လုပ်ပြီး ပြမယ်
+    function applyOffset(animate) {
+      if (!animate) content.classList.add('no-anim');
+      content.style.transform = 'translate3d(' + (-currentIndex * pageStep()) + 'px,0,0)';
+      if (!animate) {
+        void content.offsetWidth;
+        content.classList.remove('no-anim');
+      }
     }
 
     function updatePaging() {
       if (!isPaged()) return;
       var total = pageCount();
       currentIndex = Math.max(0, Math.min(currentIndex, total - 1));
-      if (prevBtn) prevBtn.disabled = currentIndex <= 0;
-      if (nextBtn) nextBtn.disabled = currentIndex >= total - 1;
       if (indicator) indicator.textContent = (currentIndex + 1) + ' / ' + total;
+      if (prevBtn) prevBtn.disabled = currentIndex <= 0 && !getNavLink('prev');
+      if (nextBtn) nextBtn.disabled = currentIndex >= total - 1 && !getNavLink('next');
       setProgress(total <= 1 ? 1 : currentIndex / (total - 1));
-      lsSet(POS_KEY, JSON.stringify({ mode: 'horizontal', page: currentIndex }));
+      lsSet(posKey(), JSON.stringify({ mode: 'horizontal', page: currentIndex }));
     }
 
+    function goPage(dir) {
+      if (!isPaged() || navigating) return;
+      var total = pageCount();
+      var target = currentIndex + dir;
+
+      // စာမျက်နှာ အဆုံးရောက်ရင် chapter ပြောင်း
+      if (target >= total) {
+        var n = getNavLink('next');
+        if (n) loadChapter(n.href, 'next', true);
+        else applyOffset(true);
+        return;
+      }
+      if (target < 0) {
+        var p = getNavLink('prev');
+        if (p) loadChapter(p.href, 'prev', true);
+        else applyOffset(true);
+        return;
+      }
+      currentIndex = target;
+      applyOffset(true);
+      updatePaging();
+    }
+
+    function relayout() {
+      if (!isPaged()) {
+        content.style.columnWidth = '';
+        content.style.transform = '';
+        return;
+      }
+      function applyPagedLayout() {
+        if (!isPaged()) return 1;
+        layoutColumns();
+        var total = pageCount();
+        if (goLastPage) currentIndex = total - 1;
+        currentIndex = Math.max(0, Math.min(currentIndex, total - 1));
+        applyOffset(false);
+        updatePaging();
+        return total;
+      }
+      layoutColumns();
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          applyPagedLayout();
+          // စာရှည်ရင် column တွေ ခွဲပြီးမှ ရတာမို့ ခဏစောင့်ပြီး ပြန်စစ်
+          var tries = 0;
+          (function poll() {
+            if (!isPaged()) return;
+            var total = applyPagedLayout();
+            tries += 1;
+            if (total <= 1 && (content.textContent || '').length > 400 && tries < 25) {
+              setTimeout(poll, 40);
+            } else {
+              goLastPage = false;
+            }
+          })();
+        });
+      });
+    }
+
+    /* ---------------- Progress / chrome ---------------- */
     function setProgress(ratio) {
       if (!progressBar) return;
       var pct = Math.max(0, Math.min(1, ratio)) * 100;
       progressBar.style.width = pct.toFixed(2) + '%';
     }
 
+    // Scroll mode: viewport (box) ထဲက scroll ကို တိုင်း
     function updateScrollProgress() {
       if (isPaged()) return;
-      var se = document.scrollingElement || document.documentElement;
-      var scrollTop = window.scrollY || se.scrollTop || 0;
-      var height = (se.scrollHeight - se.clientHeight) || 1;
+      var scrollTop = viewport.scrollTop || 0;
+      var height = (viewport.scrollHeight - viewport.clientHeight) || 1;
       setProgress(scrollTop / height);
-      lsSet(POS_KEY, JSON.stringify({ mode: 'vertical', y: Math.round(scrollTop) }));
+      lsSet(posKey(), JSON.stringify({ mode: 'vertical', y: Math.round(scrollTop) }));
     }
 
     function setChromeHidden(hidden) {
@@ -1136,6 +1278,7 @@
       });
     }
 
+    /* ---------------- Settings ---------------- */
     function applyFontSize(size) {
       if (SIZES.indexOf(size) === -1) size = 'medium';
       SIZES.forEach(function (s) { content.classList.remove('fs-' + s); });
@@ -1186,48 +1329,7 @@
       document.body.classList.remove('reader-settings-open');
       if (settingsBtn) settingsBtn.setAttribute('aria-expanded', 'false');
       if (isPaged()) relayout();
-    }
-
-    function goPage(dir) {
-      if (!isPaged()) return;
-      var total = pageCount();
-      var target = Math.max(0, Math.min(currentIndex + dir, total - 1));
-      if (target === currentIndex) return;
-      currentIndex = target;
-      viewport.scrollLeft = pageOffset(currentIndex);
-      updatePaging();
-    }
-
-    function relayout() {
-      if (!isPaged()) {
-        content.style.columnWidth = '';
-        return;
-      }
-      function applyPagedLayout() {
-        if (!isPaged()) return;
-        layoutColumns();
-        var total = pageCount();
-        currentIndex = Math.max(0, Math.min(currentIndex, total - 1));
-        viewport.scrollLeft = pageOffset(currentIndex);
-        updatePaging();
-        return total;
-      }
-      layoutColumns();
-      requestAnimationFrame(function () {
-        requestAnimationFrame(function () {
-          applyPagedLayout();
-          /* Poll until columns fragment for long chapters (avoids stuck 1/1) */
-          var tries = 0;
-          (function poll() {
-            if (!isPaged()) return;
-            var total = applyPagedLayout();
-            tries += 1;
-            if (total <= 1 && (content.textContent || '').length > 400 && tries < 25) {
-              setTimeout(poll, 40);
-            }
-          })();
-        });
-      });
+      focusReader();
     }
 
     function setMode(next, persist) {
@@ -1240,13 +1342,13 @@
 
       currentIndex = 0;
       content.style.columnWidth = '';
-      viewport.scrollLeft = 0;
+      content.style.transform = '';
+      viewport.scrollTop = 0;
+      lastScrollY = 0;
 
       if (isPaged()) {
-        window.scrollTo(0, 0);
         relayout();
       } else {
-        content.style.columnWidth = '';
         updateScrollProgress();
       }
 
@@ -1256,22 +1358,217 @@
     function restorePosition() {
       if (restoreDone) return;
       restoreDone = true;
-      var raw = lsGet(POS_KEY, '');
+      var raw = lsGet(posKey(), '');
       if (!raw) return;
       try {
         var data = JSON.parse(raw);
         if (isPaged() && data && data.mode === 'horizontal' && typeof data.page === 'number') {
           currentIndex = Math.max(0, data.page);
           layoutColumns();
-          viewport.scrollLeft = pageOffset(currentIndex);
+          applyOffset(false);
           updatePaging();
         } else if (!isPaged() && data && data.mode === 'vertical' && typeof data.y === 'number') {
-          window.scrollTo(0, Math.max(0, data.y));
+          viewport.scrollTop = Math.max(0, data.y);
+          lastScrollY = viewport.scrollTop;
           updateScrollProgress();
         }
       } catch (e) { }
     }
 
+    /* =====================================================
+       Hover tooltip — prev/next chapter နာမည်ပြ
+       ===================================================== */
+    var TIP_SELECTOR = 'a.reader-nav-prev, a.reader-nav-next, a.reader-rail-btn[data-reader-rail]';
+
+    function linkDir(el) {
+      var rail = el.getAttribute('data-reader-rail');
+      if (rail) return rail;
+      if (el.classList.contains('reader-nav-prev')) return 'prev';
+      if (el.classList.contains('reader-nav-next')) return 'next';
+      return '';
+    }
+
+    function showTip(el) {
+      if (!CAN_HOVER || !tip) return;
+      var dir = linkDir(el);
+      if (!dir) return;
+      var title = root.getAttribute('data-' + dir + '-title');
+      if (!title) return;
+
+      tip.innerHTML = '<small></small><span></span>';
+      tip.firstChild.textContent = dir === 'prev' ? 'ရှေ့အခန်း' : 'နောက်အခန်း';
+      tip.lastChild.textContent = title;
+      tip.classList.add('show');
+
+      var r = el.getBoundingClientRect();
+      var tw = tip.offsetWidth;
+      var th = tip.offsetHeight;
+      var left, top;
+
+      if (el.getAttribute('data-reader-rail')) {
+        // desktop ဘေးက ခလုတ် — prev ဆိုရင် ညာဘက်၊ next ဆိုရင် ဘယ်ဘက်မှာ ပြ
+        top = r.top + r.height / 2 - th / 2;
+        left = dir === 'prev' ? r.right + 12 : r.left - 12 - tw;
+      } else {
+        // အောက်က nav ခလုတ် — အပေါ်မှာ ပြ
+        top = r.top - th - 10;
+        left = r.left + r.width / 2 - tw / 2;
+        if (top < 8) top = r.bottom + 10;
+      }
+      left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+      top = Math.max(8, Math.min(top, window.innerHeight - th - 8));
+      tip.style.left = left + 'px';
+      tip.style.top = top + 'px';
+    }
+
+    function hideTip() {
+      if (tip) tip.classList.remove('show');
+    }
+
+    document.addEventListener('mouseover', function (e) {
+      var el = e.target.closest(TIP_SELECTOR);
+      if (el && root.contains(el)) showTip(el);
+    });
+
+    document.addEventListener('mouseout', function (e) {
+      var el = e.target.closest(TIP_SELECTOR);
+      if (!el) return;
+      if (e.relatedTarget && el.contains(e.relatedTarget)) return;
+      hideTip();
+    });
+
+    /* =====================================================
+       Chapter ကို reload မလုပ်ဘဲ ပြောင်းတဲ့ အပိုင်း (DOM swap)
+       ===================================================== */
+
+    // prev / next link ကို အခုလက်ရှိ DOM ထဲကနေ ပြန်ရှာ (chapter ပြောင်းတိုင်း ပြောင်းနေလို့)
+    function getNavLink(dir) {
+      return document.querySelector('.reader-nav-' + dir + '[href]') ||
+        document.querySelector('a[data-chapter-link][data-reader-rail="' + dir + '"]');
+    }
+
+    function playAnim(el, frames, options) {
+      if (!el.animate) return { finished: Promise.resolve(), cancel: function () { } };
+      return el.animate(frames, options);
+    }
+
+    function copyHtml(selector, fromRoot) {
+      var a = root.querySelector(selector);
+      var b = fromRoot.querySelector(selector);
+      if (a && b) a.innerHTML = b.innerHTML;
+    }
+
+    function applyChapter(nextRoot, doc, dir) {
+      chapterId = nextRoot.getAttribute('data-chapter-id') || chapterId;
+      root.setAttribute('data-chapter-id', chapterId);
+      root.setAttribute('data-prev-title', nextRoot.getAttribute('data-prev-title') || '');
+      root.setAttribute('data-next-title', nextRoot.getAttribute('data-next-title') || '');
+
+      copyHtml('.reader-chapter-title', nextRoot);
+      copyHtml('.reader-masthead', nextRoot);
+      copyHtml('#chapterContent', nextRoot);
+      copyHtml('.reader-chapter-nav-inner', nextRoot);
+      copyHtml('.reader-rail-left', nextRoot);
+      copyHtml('.reader-rail-right', nextRoot);
+
+      var novelLinkA = root.querySelector('.reader-novel-link');
+      var novelLinkB = nextRoot.querySelector('.reader-novel-link');
+      if (novelLinkA && novelLinkB) {
+        novelLinkA.textContent = novelLinkB.textContent.trim();
+        novelLinkA.setAttribute('href', novelLinkB.getAttribute('href'));
+      }
+      var backA = root.querySelector('.reader-top > a.reader-icon-btn');
+      var backB = nextRoot.querySelector('.reader-top > a.reader-icon-btn');
+      if (backA && backB) backA.setAttribute('href', backB.getAttribute('href'));
+
+      if (doc.title) document.title = doc.title.trim();
+
+      // position အသစ်ကနေ ပြန်စ
+      restoreDone = true;
+      currentIndex = 0;
+      goLastPage = dir === 'prev';
+      setChromeHidden(false);
+      viewport.scrollTop = 0;
+      lastScrollY = 0;
+
+      if (isPaged()) {
+        content.style.transform = '';
+        relayout();
+      } else {
+        updateScrollProgress();
+      }
+      focusReader();
+    }
+
+    function loadChapter(url, dir, push) {
+      if (navigating) return;
+      navigating = true;
+      root.classList.add('is-loading');
+      closeSettings();
+      hideTip();
+
+      var shift = dir === 'prev' ? 28 : -28;
+      var target = new URL(url, window.location.href).href;
+
+      // ၁) လက်ရှိ စာကို ဘေးကို slide ထွက်ခိုင်းရင်း
+      var leave = playAnim(viewport, [
+        { opacity: 1, transform: 'translateX(0)' },
+        { opacity: 0, transform: 'translateX(' + shift + 'px)' }
+      ], { duration: 170, easing: 'ease-in', fill: 'forwards' });
+      var leaveDone = leave.finished ? leave.finished.catch(function () { }) : Promise.resolve();
+
+      // ၂) နောက်ကွယ်မှာ chapter အသစ်ကို ယူ
+      var request = fetch(target, {
+        credentials: 'same-origin',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      }).then(function (res) {
+        // မဝယ်ရသေးလို့ တခြား page ကို redirect လုပ်ရင် ပုံမှန်အတိုင်း သွားခိုင်း
+        if (!res.ok || (res.redirected && res.url !== target)) throw new Error('redirect');
+        return res.text();
+      });
+
+      // ၃) နှစ်ခုလုံးပြီးမှ swap လုပ်ပြီး slide ဝင်ခိုင်း
+      Promise.all([request, leaveDone]).then(function (results) {
+        var doc = new DOMParser().parseFromString(results[0], 'text/html');
+        var nextRoot = doc.getElementById('novelReader');
+        if (!nextRoot) throw new Error('not a reader page');
+
+        applyChapter(nextRoot, doc, dir);
+        if (push) history.pushState({ reader: true }, '', target);
+
+        leave.cancel();
+        playAnim(viewport, [
+          { opacity: 0, transform: 'translateX(' + (-shift) + 'px)' },
+          { opacity: 1, transform: 'translateX(0)' }
+        ], { duration: 280, easing: 'cubic-bezier(.22,.8,.26,1)' });
+      }).catch(function () {
+        // ဘာမှားမှား အရင်လို ပုံမှန် page load နဲ့ သွား
+        window.location.href = target;
+      }).then(function () {
+        navigating = false;
+        root.classList.remove('is-loading');
+      });
+    }
+
+    // chapter link တွေကို click ဖမ်း (DOM ပြောင်းလည်း အလုပ်လုပ်အောင် document မှာ delegate)
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0) return;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var link = e.target.closest('a.reader-nav-prev[href], a.reader-nav-next[href], a[data-chapter-link][href]');
+      if (!link || !root.contains(link)) return;
+
+      var isPrev = link.classList.contains('reader-nav-prev') || link.getAttribute('data-reader-rail') === 'prev';
+      e.preventDefault();
+      loadChapter(link.href, isPrev ? 'prev' : 'next', true);
+    });
+
+    // browser back / forward
+    history.replaceState({ reader: true }, '', window.location.href);
+    window.addEventListener('popstate', function () {
+      loadChapter(window.location.href, 'next', false);
+    });
+
+    /* ---------------- Init ---------------- */
     var savedSize = lsGet(FONT_KEY, 'medium');
     var savedWidth = lsGet(WIDTH_KEY, 'normal');
     var savedTheme = lsGet(THEME_KEY, 'bright');
@@ -1285,6 +1582,7 @@
     setMode(savedMode, false);
     setChromeHidden(false);
     syncRailsA11y();
+    focusReader(); // ↑ ↓ / PageUp / PageDown / Space နဲ့ box ထဲကို scroll လို့ရအောင်
 
     requestAnimationFrame(function () {
       setTimeout(restorePosition, 60);
@@ -1296,6 +1594,7 @@
       }).catch(function () { });
     }
 
+    /* ---------------- Events ---------------- */
     fontButtons.forEach(function (btn) {
       btn.addEventListener('click', function () { applyFontSize(btn.dataset.size); });
     });
@@ -1319,36 +1618,67 @@
     if (prevBtn) prevBtn.addEventListener('click', function () { goPage(-1); });
     if (nextBtn) nextBtn.addEventListener('click', function () { goPage(1); });
 
-    viewport.addEventListener('scroll', function () {
-      if (!isPaged()) return;
-      var step = pageStep();
-      if (step <= 0) return;
-      currentIndex = Math.max(0, Math.min(Math.round(viewport.scrollLeft / step), pageCount() - 1));
-      updatePaging();
+    /* ---- Swipe (slide mode) : လက်ကို လိုက်ပြီး စာမျက်နှာ ရွှေ့ ---- */
+    var touchX = 0, touchY = 0, touchDX = 0, touching = false, dragging = false;
+
+    viewport.addEventListener('touchstart', function (e) {
+      if (!isPaged() || navigating || e.touches.length !== 1) return;
+      touching = true;
+      dragging = false;
+      touchDX = 0;
+      touchX = e.touches[0].clientX;
+      touchY = e.touches[0].clientY;
     }, { passive: true });
 
-    var chromeLockUntil = 0;
-    window.addEventListener('scroll', function () {
-      if (isPaged()) return;
-      var y = window.scrollY || (document.scrollingElement && document.scrollingElement.scrollTop) || 0;
-      if (!isDesktop() && Date.now() > chromeLockUntil && Math.abs(y - lastScrollY) > 8) {
-        if (y > lastScrollY && y > 80) setChromeHidden(true);
-        else setChromeHidden(false);
-        lastScrollY = y;
+    viewport.addEventListener('touchmove', function (e) {
+      if (!touching || !isPaged()) return;
+      var dx = e.touches[0].clientX - touchX;
+      var dy = e.touches[0].clientY - touchY;
+      if (!dragging) {
+        if (Math.abs(dx) < 8 || Math.abs(dx) < Math.abs(dy)) return;
+        dragging = true;
+        content.classList.add('no-anim');
       }
-      updateScrollProgress();
+      // အစ/အဆုံးမှာ ခုခံသလို ခံစားရအောင် နှေးစေ
+      var total = pageCount();
+      var atEdge = (currentIndex === 0 && dx > 0) || (currentIndex >= total - 1 && dx < 0);
+      touchDX = atEdge ? dx * 0.35 : dx;
+      content.style.transform = 'translate3d(' + (-currentIndex * pageStep() + touchDX) + 'px,0,0)';
     }, { passive: true });
 
+    function endTouch() {
+      if (!touching) return;
+      touching = false;
+      if (!dragging) return;
+      dragging = false;
+      content.classList.remove('no-anim');
+      justDragged = true;
+      setTimeout(function () { justDragged = false; }, 60);
+
+      if (touchDX <= -SWIPE_MIN) goPage(1);
+      else if (touchDX >= SWIPE_MIN) goPage(-1);
+      else applyOffset(true);
+      touchDX = 0;
+    }
+    viewport.addEventListener('touchend', endTouch);
+    viewport.addEventListener('touchcancel', endTouch);
+
+    /* ---- Tap ---- */
     content.addEventListener('click', function (e) {
+      if (justDragged) return;
       if (e.target.closest('a, button')) return;
-      var rect = content.getBoundingClientRect();
+      var rect = viewport.getBoundingClientRect();
       var x = e.clientX - rect.left;
       var ratio = rect.width ? (x / rect.width) : 0.5;
 
-      /* Page mode: tap edges to turn pages — no bottom bar needed */
+      // Slide mode: ဘယ်/ညာ ဖက်စွန်းကို နှိပ်ရင် စာမျက်နှာလှန်
       if (isPaged()) {
         if (ratio <= 0.28) goPage(-1);
         else if (ratio >= 0.72) goPage(1);
+        else if (!isDesktop()) {
+          chromeLockUntil = Date.now() + 400;
+          setChromeHidden(!chromeHidden);
+        }
         return;
       }
 
@@ -1359,6 +1689,19 @@
       }
     });
 
+    /* ---- Scroll (viewport box ထဲက scroll) ---- */
+    viewport.addEventListener('scroll', function () {
+      if (isPaged()) return;
+      var y = viewport.scrollTop || 0;
+      if (!isDesktop() && Date.now() > chromeLockUntil && Math.abs(y - lastScrollY) > 8) {
+        if (y > lastScrollY && y > 80) setChromeHidden(true);
+        else setChromeHidden(false);
+        lastScrollY = y;
+      }
+      updateScrollProgress();
+    }, { passive: true });
+
+    /* ---- Keyboard ---- */
     document.addEventListener('keydown', function (e) {
       if (e.target && e.target.matches && e.target.matches('input, textarea, select')) return;
       if (e.key === 'Escape') {
@@ -1370,17 +1713,18 @@
         else if (e.key === 'ArrowLeft') goPage(-1);
         return;
       }
-      if (e.key === 'ArrowRight' && nextChapterLink) {
-        window.location.href = nextChapterLink.href;
-      } else if (e.key === 'ArrowLeft' && prevChapterLink) {
-        window.location.href = prevChapterLink.href;
-      }
+      var n = getNavLink('next');
+      var p = getNavLink('prev');
+      if (e.key === 'ArrowRight' && n) loadChapter(n.href, 'next', true);
+      else if (e.key === 'ArrowLeft' && p) loadChapter(p.href, 'prev', true);
     });
 
+    /* ---- Resize ---- */
     var resizeTimer;
     window.addEventListener('resize', function () {
       setChromeHidden(false);
       syncRailsA11y();
+      hideTip();
       if (!isPaged()) return;
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(relayout, 150);

@@ -102,10 +102,15 @@ def reward_update(request, pk):
     if request.method == "POST":
         start_date = request.POST.get("start_date")
         end_date = request.POST.get("end_date")
-        amount = request.POST.get("amount")
         user_ids = [u for u in request.POST.getlist("users") if u and u != "all"]
         reward_type = request.POST.get("reward_type", "gem_gift")
 
+        # date validation အရင်
+        if not all([start_date, end_date]):
+            messages.error(request, "Start date and end date are required")
+            return redirect("reward_update", pk)
+
+        # amount က reward_type ပေါ် မူတည် (gem_gift မှသာ amount လို)
         if reward_type == "gem_gift":
             try:
                 amount = int(request.POST.get("amount") or 0)
@@ -116,20 +121,7 @@ def reward_update(request, pk):
                 messages.error(request, "Invalid amount")
                 return redirect("reward_update", pk)
         else:
-            amount = 0
-
-        if not all([start_date, end_date, amount]):
-            messages.error(request, "All fields are required")
-            return redirect("reward_update", pk)
-
-        try:
-            amount = int(amount)
-            if amount <= 0:
-                messages.error(request, "Amount must be greater than 0")
-                return redirect("reward_update", pk)
-        except ValueError:
-            messages.error(request, "Invalid amount")
-            return redirect("reward_update", pk)
+            amount = 0  # free_read / discount_read မှာ amount မလို
 
         reward.start_date = start_date
         reward.end_date = end_date

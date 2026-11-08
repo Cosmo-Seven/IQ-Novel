@@ -786,6 +786,10 @@ def chapter_detail(request, id):
             request.user.chapter_purchases.values_list("chapter_id", flat=True)
         )
 
+    active_reward = get_active_chapter_reward(
+        request.user if request.user.is_authenticated else None
+    )
+
     return render(
         request,
         "website/chapter_detail.html",
@@ -794,6 +798,7 @@ def chapter_detail(request, id):
             "prev_chapter": prev_chapter,
             "next_chapter": next_chapter,
             "purchased_chapter_ids": purchased_chapter_ids,
+            "active_reward": active_reward,
         },
     )
 

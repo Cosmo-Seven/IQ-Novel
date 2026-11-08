@@ -39,6 +39,7 @@
                         <thead>
                             <tr>
                                 <th>{% translate 'user' request.session.language %}</th>
+                                <th>{% translate 'reward_type' request.session.language %}</th>
                                 <th>{% translate 'start_date' request.session.language %}</th>
                                 <th>{% translate 'end_date' request.session.language %}</th>
                                 <th>{% translate 'amount' request.session.language %}</th>
@@ -73,6 +74,7 @@
                                     {% endif %}
                                     {% endwith %}
                                 </td>
+                                <td>{{ reward.reward_type }}</td>
                                 <td>{{ reward.start_date|date:"Y-m-d" }}</td>
                                 <td>{{ reward.end_date|date:"Y-m-d" }}</td>
                                 <td><span class="text-primary">{{reward.amount}} Coupons</span></td>
