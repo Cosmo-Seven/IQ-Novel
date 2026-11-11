@@ -98,39 +98,67 @@ HOME_NOVEL_LIMIT = 10
 def index(request):
     sliders = SliderModel.objects.filter(status=True).order_by("-created_at")
 
-    public_novels = public_novels_qs()
-
-    novels = public_novels.order_by("-created_at")[:HOME_NOVEL_LIMIT]
-
-    completed_novels = (
-        public_novels.filter(is_completed=True)
-        .order_by("-created_at")[:HOME_NOVEL_LIMIT]
+    free_chapters = ChapterModel.objects.filter(
+        novel_id=OuterRef("pk"),
+        is_deleted=False,
+        is_active=True,
+        approval_status=ChapterModel.ApprovalStatus.APPROVED,
+        is_free=True,
     )
-
-    translation_novels = (
-        public_novels.filter(novel_type="translate")
-        .order_by("-created_at")[:HOME_NOVEL_LIMIT]
-    )
-
-    fanfic_novels = (
-        public_novels.filter(novel_type="fanfic")
-        .order_by("-created_at")[:HOME_NOVEL_LIMIT]
-    )
-
-    popular_novels = public_novels.order_by("-views")[:HOME_NOVEL_LIMIT]
-
-    # Approved ဖြစ်ပြီး free ဖြစ်တဲ့ chapter ပါတဲ့ novel
-    # filter တစ်ခုတည်းထဲမှာ ပေါင်းရေးမှ chapter တစ်ခုတည်းကို စစ်မှာဖြစ်တယ်
-    free_novels = (
-        public_novels.filter(
-            chapters__is_deleted=False,
-            chapters__is_active=True,
-            chapters__approval_status=ChapterModel.ApprovalStatus.APPROVED,
-            chapters__is_free=True,
+    public_novels = list(
+        public_novels_qs()
+        .annotate(has_free_chapter=Exists(free_chapters))
+        .only(
+            "id",
+            "title",
+            "cover_image",
+            "is_completed",
+            "views",
+            "created_at",
+            "novel_type",
+            "author_id",
+            "author__name",
+            "author__user__username",
         )
-        .distinct()
         .order_by("-created_at")
-    )[:HOME_NOVEL_LIMIT]
+    )
+
+    newest_novels = sorted(
+        public_novels, key=lambda novel: novel.created_at, reverse=True
+    )
+    used_novel_ids = set()
+
+    def take_unique_novels(candidates):
+        selected = []
+        for novel in candidates:
+            if novel.pk in used_novel_ids:
+                continue
+            used_novel_ids.add(novel.pk)
+            selected.append(novel)
+            if len(selected) == HOME_NOVEL_LIMIT:
+                break
+        return selected
+
+    popular_novels = take_unique_novels(
+        sorted(
+            public_novels,
+            key=lambda novel: (novel.views, novel.created_at),
+            reverse=True,
+        )
+    )
+    novels = take_unique_novels(newest_novels)
+    translation_novels = take_unique_novels(
+        novel for novel in newest_novels if novel.novel_type == "translate"
+    )
+    fanfic_novels = take_unique_novels(
+        novel for novel in newest_novels if novel.novel_type == "fanfic"
+    )
+    completed_novels = take_unique_novels(
+        novel for novel in newest_novels if novel.is_completed
+    )
+    free_novels = take_unique_novels(
+        novel for novel in newest_novels if novel.has_free_chapter
+    )
 
     genres = GenreModel.objects.all()
 
