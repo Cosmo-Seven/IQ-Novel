@@ -178,18 +178,14 @@ CKEDITOR_CONFIGS = {
         'toolbar': 'Basic',
         'height': 300,
         'toolbar_Basic': [
-            ['Bold', 'Italic', 'Underline', 'Strike', 'FontSize'],
-            ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'], # ဒီကောင်တွေ အလုပ်လုပ်ဖို့က justify plugin လိုပါတယ်
+            ['Bold', 'Italic', 'Underline', 'Strike'],
             ['NumberedList', 'BulletedList'],
             ['Link', 'Unlink'],
             ['RemoveFormat']
             
         ],
         "format_tags": "p;h1;h2;h3;h4;h5;h6;pre",
-        'fontSize_defaultLabel': '16px',
-        'fontSize_sizes': '12/12px;14/14px;16/16px;18/18px;20/20px;24/24px;28/28px;32/32px',
         'removePlugins': 'elementspath,resize',
-        'extraPlugins': 'justify,font',
         'allowedContent': True,
         'extraAllowedContent': 'p;span;ul;li;ol;a;strong;em;u;s;div{text-align};*[align]',
         'basicEntities': False,

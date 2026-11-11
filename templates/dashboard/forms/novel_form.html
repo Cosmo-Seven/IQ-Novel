@@ -1426,40 +1426,24 @@
      SCRIPTS & INTERACTIONS
      ========================================================================= -->
 
-<script src="https://cdn.ckeditor.com/4.21.0/full/ckeditor.js"></script>
+<script src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
 
         // 1. CKEditor Initialization
         if (window.CKEDITOR) {
-            CKEDITOR.plugins.addExternal('justify', 'https://cdnjs.cloudflare.com/ajax/libs/ckeditor4/4.21.0/plugins/justify/', 'plugin.js');
-
             const ckeditorConfig = {
                 height: 280,
                 toolbar: [
                     ['Bold', 'Italic', 'Underline', 'Strike'],
-                    ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
                     ['NumberedList', 'BulletedList'],
                     ['Link', 'Unlink'],
                     ['RemoveFormat']
                 ],
-                extraPlugins: 'justify',
                 removePlugins: 'elementspath,resize',
                 allowedContent: true
             };
-            const chapterCkeditorConfig = {
-                ...ckeditorConfig,
-                toolbar: [
-                    ['Bold', 'Italic', 'Underline', 'Strike', 'FontSize'],
-                    ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
-                    ['NumberedList', 'BulletedList'],
-                    ['Link', 'Unlink'],
-                    ['RemoveFormat']
-                ],
-                extraPlugins: 'justify,font',
-                fontSize_defaultLabel: '16px',
-                fontSize_sizes: '12/12px;14/14px;16/16px;18/18px;20/20px;24/24px;28/28px;32/32px'
-            };
+            const chapterCkeditorConfig = { ...ckeditorConfig };
 
             const summaryCkeditorConfig = {
                 ...chapterCkeditorConfig,

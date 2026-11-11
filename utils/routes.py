@@ -1,9 +1,12 @@
 from django.urls import reverse_lazy
+from django.utils.functional import SimpleLazyObject
 from core.models import GemOrderModel
 
 
 def routes(request):
-    pending_gem_order_count = GemOrderModel.objects.filter(status=GemOrderModel.STATUS_PENDING).count()
+    pending_gem_order_count = SimpleLazyObject(
+        lambda: GemOrderModel.objects.filter(status=GemOrderModel.STATUS_PENDING).count()
+    )
 
     return {
         # ======================================== Auth ========================================

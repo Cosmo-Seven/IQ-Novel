@@ -13,7 +13,7 @@
       <div class="col-12 col-sm-5 col-md-3">
         <div class="novel-detail-img-wrapper shadow-sm">
           <img
-            src="{% if novel.cover_image %}{{ novel.cover_image.url }}{% else %}https://html.vecurosoft.com/ebukz/demo/assets/img/product/product-img-4-1.jpg{% endif %}"
+            src="{% if novel.cover_image %}{{ novel.cover_image.url }}{% else %}{% static 'dashboard/images/no-image.png' %}{% endif %}"
             alt="{{ novel.title }}" class="novel-detail-cover" loading="lazy">
         </div>
       </div>
@@ -446,7 +446,7 @@
         <div class="card novel-card position-relative h-100 border-0 shadow-sm overflow-hidden theme-card">
           <a href="{% url 'novel_detail' related.id %}" class="novel-img-wrapper">
             <img class="card-img-top novel-cover"
-              src="{% if related.cover_image %}{{ related.cover_image.url }}{% else %}https://html.vecurosoft.com/ebukz/demo/assets/img/product/product-img-4-1.jpg{% endif %}"
+              src="{% if related.cover_image %}{{ related.cover_image.url }}{% else %}{% static 'dashboard/images/no-image.png' %}{% endif %}"
               loading="lazy" />
           </a>
           {% if related.is_completed %}

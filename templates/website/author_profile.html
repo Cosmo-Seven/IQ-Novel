@@ -60,7 +60,7 @@
         <div class="list-group list-group-flush">
           {% for novel in novels %}
           <a href="{% url 'novel_detail' novel.id %}" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3 border-0 border-bottom">
-            <img src="{% if novel.cover_image %}{{ novel.cover_image.url }}{% else %}https://html.vecurosoft.com/ebukz/demo/assets/img/product/product-img-4-1.jpg{% endif %}"
+            <img             src="{% if novel.cover_image %}{{ novel.cover_image.url }}{% else %}{% static 'dashboard/images/no-image.png' %}{% endif %}"
               alt="{{ novel.title }}" class="rounded" style="width: 48px; height: 64px; object-fit: cover;">
             <div>
               <div class="fw-semibold text-dark">{{ novel.title }}</div>
