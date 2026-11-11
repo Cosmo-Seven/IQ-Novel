@@ -3,13 +3,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from decorators.login_decorator import login_required
 from constants.message import UPDATE, DELETE
 
+from django.db.models import Count, Sum
 from core.models import (
     SiteModel,
     UserModel,
     NovelModel,
     ChapterPurchaseModel,
     AuthorModel,
-    GemOrderModel,
 )
 from django.contrib.auth.hashers import check_password
 from decorators.role_decorator import role_permission_required
@@ -22,15 +22,17 @@ def _author_for_user(user):
 # ========================
 @login_required("dashboard_login")
 def dashboard(request):
-    is_superuser = request.user.is_superuser
-    author = None if is_superuser else _author_for_user(request.user)
+    is_admin = request.user.is_staff or request.user.is_superuser
+    author = None if is_admin else _author_for_user(request.user)
 
-    if is_superuser:
+    purchases = ChapterPurchaseModel.objects.filter(
+        is_deleted=False,
+        chapter__is_deleted=False,
+        chapter__novel__is_deleted=False,
+    )
+
+    if is_admin:
         user_count = UserModel.objects.filter(is_deleted=False).count()
-        gem_purchase = GemOrderModel.objects.filter(is_deleted=False).count()
-        chapter_purchase = ChapterPurchaseModel.objects.filter(
-            is_deleted=False
-        ).count()
         author_count = AuthorModel.objects.filter(is_deleted=False).count()
         novel_count = NovelModel.objects.filter(is_deleted=False).count()
     else:
@@ -38,27 +40,34 @@ def dashboard(request):
             novel_count = NovelModel.objects.filter(
                 is_deleted=False, author=author
             ).count()
-            purchases = ChapterPurchaseModel.objects.filter(
-                is_deleted=False, chapter__novel__author=author
-            )
-            chapter_purchase = purchases.count()
-            buyer_ids = purchases.values_list("user_id", flat=True).distinct()
-            user_count = buyer_ids.count()
-            gem_purchase = GemOrderModel.objects.filter(
-                is_deleted=False, user_id__in=buyer_ids
-            ).count()
+            purchases = purchases.filter(chapter__novel__author=author)
         else:
-            user_count = gem_purchase = chapter_purchase = novel_count = 0
+            novel_count = 0
+            purchases = purchases.none()
         author_count = None
+
+    purchase_totals = purchases.aggregate(
+        chapter_purchase=Count("pk"),
+        buyer_count=Count("user_id", distinct=True),
+        gem_sales=Sum("paid_gems_used"),
+        coupon_sales=Sum("free_gems_used"),
+        sales_amount_mmk=Sum("sale_price_mmk"),
+        author_share_mmk=Sum("author_share_mmk"),
+    )
 
     return render(
         request,
         "dashboard/index.html",
         {
-            "is_superuser": is_superuser,
-            "user_count": user_count,
-            "gem_purchase": gem_purchase,
-            "chapter_purchase": chapter_purchase,
+            "is_admin": is_admin,
+            "user_count": (
+                user_count if is_admin else purchase_totals["buyer_count"]
+            ),
+            "chapter_purchase": purchase_totals["chapter_purchase"],
+            "gem_sales": purchase_totals["gem_sales"] or 0,
+            "coupon_sales": purchase_totals["coupon_sales"] or 0,
+            "sales_amount_mmk": purchase_totals["sales_amount_mmk"] or 0,
+            "author_share_mmk": purchase_totals["author_share_mmk"] or 0,
             "author_count": author_count,
             "novel_count": novel_count,
         },
