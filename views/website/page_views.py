@@ -61,7 +61,7 @@ def public_novels_qs():
 
     return (
         NovelModel.objects
-        .select_related("author")
+        .select_related("author", "author__user")
         .filter(is_deleted=False)
         .filter(
             Exists(public_chapters) | ~Exists(existing_chapters)

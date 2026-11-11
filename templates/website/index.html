@@ -17,7 +17,8 @@
                     <!-- <div class="swiper-slide" style="height: 420px;"> -->
                     <div class="swiper-slide">
                         <img src="{{ slider.image.url }}" alt="Slider Banner"
-                            class="w-100 h-100 img-fluid object-fit-cover" loading="lazy">
+                            class="w-100 h-100 img-fluid object-fit-cover"
+                            {% if forloop.first %}loading="eager" fetchpriority="high"{% else %}loading="lazy"{% endif %}>
                     </div>
                     {% endfor %}
                 </div>
