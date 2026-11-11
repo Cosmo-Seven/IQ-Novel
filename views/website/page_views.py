@@ -790,6 +790,10 @@ def chapter_detail(request, id):
         request.user if request.user.is_authenticated else None
     )
 
+    # prev/next ကို ဖတ်ခွင့်ရှိမရှိ template မှာ tag တိုတိုနဲ့ စစ်နိုင်အောင် ဒီမှာ တွက်ထားပေး
+    can_read_prev = bool(prev_chapter and chapter_has_access(request.user, prev_chapter))
+    can_read_next = bool(next_chapter and chapter_has_access(request.user, next_chapter))
+
     return render(
         request,
         "website/chapter_detail.html",
@@ -799,6 +803,8 @@ def chapter_detail(request, id):
             "next_chapter": next_chapter,
             "purchased_chapter_ids": purchased_chapter_ids,
             "active_reward": active_reward,
+            "can_read_prev": can_read_prev,
+            "can_read_next": can_read_next,
         },
     )
 

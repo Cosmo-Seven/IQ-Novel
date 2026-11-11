@@ -20,7 +20,9 @@
       </a>
       <div class="reader-top-meta">
         <p class="reader-chapter-title">{{ chapter.chapter_title }}</p>
-        <a href="{% url 'novel_detail' chapter.novel.id %}?tab=chapters" class="reader-novel-link">{{ chapter.novel.title }}</a>
+        <a href="{% url 'novel_detail' chapter.novel.id %}?tab=chapters" class="reader-novel-link">
+          {{ chapter.novel.title }}
+        </a>
       </div>
       <div class="reader-page-chip" id="readerPageBar" hidden>
         <button type="button" class="reader-page-btn reader-page-prev" aria-label="Previous page" title="ရှေ့စာမျက်နှာ">
@@ -66,7 +68,7 @@
   {# Desktop gutter chapter controls. data-chapter-link = reload မလုပ်ဘဲ JS နဲ့ ပြောင်းမယ့် link #}
   <div class="reader-rail reader-rail-left" aria-hidden="true">
     {% if prev_chapter %}
-    {% if prev_chapter.is_free or prev_chapter.id in purchased_chapter_ids or active_reward.reward_type == "free_read" %}
+    {% if can_read_prev %}
     <a href="{% url 'chapter_detail' prev_chapter.id %}" class="reader-rail-btn" aria-label="Previous chapter"
       data-reader-rail="prev" data-chapter-link>
       <i class="bi bi-chevron-left"></i>
@@ -84,7 +86,7 @@
 
   <div class="reader-rail reader-rail-right" aria-hidden="true">
     {% if next_chapter %}
-    {% if next_chapter.is_free or next_chapter.id in purchased_chapter_ids or active_reward.reward_type == "free_read" %}
+    {% if can_read_next %}
     <a href="{% url 'chapter_detail' next_chapter.id %}" class="reader-rail-btn" aria-label="Next chapter"
       data-reader-rail="next" data-chapter-link>
       <i class="bi bi-chevron-right"></i>
@@ -235,8 +237,15 @@
   }
 
   @keyframes readerPulse {
-    0%, 100% { opacity: 0.35; }
-    50% { opacity: 1; }
+
+    0%,
+    100% {
+      opacity: 0.35;
+    }
+
+    50% {
+      opacity: 1;
+    }
   }
 
   .reader-shell {
@@ -363,6 +372,23 @@
     transform: scale(0.96);
   }
 
+  /* "Chapters" ခလုတ်က .btn-light ဖြစ်ပြီး ဒီ theme ရဲ့ Bootstrap မှာ မသတ်မှတ်ထားလို့
+     dark mode မှာ စာသားက မည်း (#212529) ဖြစ်နေပြီး hover တင်မှသာ အလင်း ဖြစ်နေတာ —
+     အမြဲ theme ink အရောင် ဖြစ်နေစေ */
+  .reader-chapter-nav-inner .reader-nav-list {
+    color: var(--main-text, #2a2a2a);
+    border-color: color-mix(in srgb, var(--border-color, #e5e0d8) 85%, transparent);
+    background: transparent;
+  }
+
+  .reader-chapter-nav-inner .reader-nav-list:hover,
+  .reader-chapter-nav-inner .reader-nav-list:focus,
+  .reader-chapter-nav-inner .reader-nav-list:active {
+    color: var(--main-text, #2a2a2a);
+    background: color-mix(in srgb, var(--brand-maroon, #581825) 10%, transparent);
+    border-color: color-mix(in srgb, var(--border-color, #e5e0d8) 85%, transparent);
+  }
+
   .reader-chapter-nav {
     position: fixed;
     left: 0;
@@ -410,9 +436,17 @@
     color: var(--main-text, #2a2a2a);
   }
 
-  .novel-reader.width-narrow { --reader-max: 34rem; }
-  .novel-reader.width-normal { --reader-max: 40rem; }
-  .novel-reader.width-wide { --reader-max: 48rem; }
+  .novel-reader.width-narrow {
+    --reader-max: 34rem;
+  }
+
+  .novel-reader.width-normal {
+    --reader-max: 40rem;
+  }
+
+  .novel-reader.width-wide {
+    --reader-max: 48rem;
+  }
 
   /* ---------- Viewport (စာဖတ်တဲ့ box) ----------
      ဖုန်း: screen တစ်ခုလုံးကို ယူပြီး ထဲကနေ scroll။ Top/bottom bar အောက်ကို စာဝင်သွားလို့ရတယ်။ */
@@ -426,9 +460,7 @@
     width: min(100%, calc(var(--reader-max) + 2 * var(--reader-pad-x)));
     margin: 0 auto;
     padding:
-      calc(var(--reader-chrome-h) + env(safe-area-inset-top, 0px) + 0.9rem)
-      var(--reader-pad-x)
-      calc(5.25rem + env(safe-area-inset-bottom, 0px));
+      calc(var(--reader-chrome-h) + env(safe-area-inset-top, 0px) + 0.9rem) var(--reader-pad-x) calc(5.25rem + env(safe-area-inset-bottom, 0px));
     overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -468,9 +500,17 @@
     word-break: break-word;
   }
 
-  .reader-content.fs-small { font-size: 1rem; }
-  .reader-content.fs-medium { font-size: 1.125rem; }
-  .reader-content.fs-large { font-size: 1.35rem; }
+  .reader-content.fs-small {
+    font-size: 1rem;
+  }
+
+  .reader-content.fs-medium {
+    font-size: 1.125rem;
+  }
+
+  .reader-content.fs-large {
+    font-size: 1.35rem;
+  }
 
   .reader-content img {
     max-width: 100%;
@@ -491,8 +531,23 @@
     display: none;
   }
 
-  [data-theme="dark"] .theme-text-reading { color: #c9cdd6 !important; }
-  [data-theme="eye-care"] .theme-text-reading { color: #5a4634 !important; }
+  [data-theme="dark"] .theme-text-reading {
+    color: #c9cdd6 !important;
+  }
+
+  [data-theme="eye-care"] .theme-text-reading {
+    color: #5a4634 !important;
+  }
+
+  /* CKEditor က ကူးထည့်လာတဲ့ inline အရောင်တွေကြောင့် dark / sepia theme တွေမှာ
+     စာတွေ မည်းပြီး မဖတ်ရတာ ဖြစ်တာကို ပြင် — စာကိုယ်အားလုံးကို theme ink အရောင် အတင်းသုံး */
+  [data-theme="dark"] .theme-text-reading *:not(a) {
+    color: #c9cdd6 !important;
+  }
+
+  [data-theme="eye-care"] .theme-text-reading *:not(a) {
+    color: #5a4634 !important;
+  }
 
   /* ---------- Slide (page) mode ---------- */
   .novel-reader.reading-horizontal .reader-masthead {
@@ -692,13 +747,25 @@
   }
 
   @keyframes readerFade {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
   }
 
   @keyframes readerPop {
-    from { opacity: 0; transform: translate(-50%, -46%) scale(0.97); }
-    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    from {
+      opacity: 0;
+      transform: translate(-50%, -46%) scale(0.97);
+    }
+
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
   }
 
   .reader-settings-head {
@@ -763,9 +830,17 @@
 
   /* ---------- Phone ---------- */
   @media (max-width: 991.98px) {
-    .reader-rail { display: none !important; }
-    .reader-masthead { display: none !important; }
-    .novel-reader { --reader-pad-x: 1rem; }
+    .reader-rail {
+      display: none !important;
+    }
+
+    .reader-masthead {
+      display: none !important;
+    }
+
+    .novel-reader {
+      --reader-pad-x: 1rem;
+    }
   }
 
   /* ---------- Desktop: စာအုပ်လေးလို card ထဲမှာ ဖတ် ---------- */
@@ -797,9 +872,17 @@
         linear-gradient(180deg, #e8dcc0 0%, #dfd0ae 100%);
     }
 
-    .novel-reader.width-narrow { --reader-max: 40rem; }
-    .novel-reader.width-normal { --reader-max: 48rem; }
-    .novel-reader.width-wide { --reader-max: 56rem; }
+    .novel-reader.width-narrow {
+      --reader-max: 40rem;
+    }
+
+    .novel-reader.width-normal {
+      --reader-max: 48rem;
+    }
+
+    .novel-reader.width-wide {
+      --reader-max: 56rem;
+    }
 
     .reader-progress {
       left: 50%;
@@ -842,8 +925,13 @@
       pointer-events: auto;
     }
 
-    .reader-top-meta { text-align: left; }
-    .reader-chapter-title { display: none; }
+    .reader-top-meta {
+      text-align: left;
+    }
+
+    .reader-chapter-title {
+      display: none;
+    }
 
     .reader-novel-link {
       font-size: 0.84rem;
@@ -932,9 +1020,17 @@
       line-height: 1.92;
     }
 
-    .reader-content.fs-small { font-size: 1.05rem; }
-    .reader-content.fs-medium { font-size: 1.2rem; }
-    .reader-content.fs-large { font-size: 1.42rem; }
+    .reader-content.fs-small {
+      font-size: 1.05rem;
+    }
+
+    .reader-content.fs-medium {
+      font-size: 1.2rem;
+    }
+
+    .reader-content.fs-large {
+      font-size: 1.42rem;
+    }
 
     .reader-content p {
       margin-bottom: 1.25em;
@@ -1007,8 +1103,15 @@
     }
 
     @keyframes readerSlideIn {
-      from { opacity: 0; transform: translateX(14px); }
-      to { opacity: 1; transform: translateX(0); }
+      from {
+        opacity: 0;
+        transform: translateX(14px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
     }
 
     .reader-settings-backdrop {
@@ -1022,7 +1125,9 @@
       padding-bottom: 1rem;
     }
 
-    .novel-reader.width-wide { --reader-max: 64rem; }
+    .novel-reader.width-wide {
+      --reader-max: 64rem;
+    }
 
     .reader-shell {
       width: min(100% - 6rem, calc(var(--reader-max) + 6rem));

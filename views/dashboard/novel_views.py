@@ -619,15 +619,22 @@ def chapter_purchase_export_excel(request):
         "Coupon",
         "Gems",
         "Cost(MMK)",
+        "Author(MMK)",
         "Author(%)",
     ]
     if is_superuser:
+        columns.append("Admin(MMK)")
         columns.append("Admin(%)")
     columns += ["Remarks", "Ordered Date"]
 
     rows = []
     cell_fills = []
     for index, purchase in enumerate(purchases, start=1):
+        # amount (MMK) နှင့် percent နှစ်မျိုးလုံး ပြမယ်
+        author_amount = purchase.author_share_mmk or 0
+        if not author_amount and purchase.revenue_share_percent and purchase.sale_price_mmk:
+            author_amount = int(purchase.sale_price_mmk * purchase.revenue_share_percent / 100)
+        admin_amount = (purchase.sale_price_mmk or 0) - author_amount
         author_percentage = purchase.revenue_share_percent
         admin_percentage = 100 - author_percentage
         coupon_fill = "FFFFFF00" if purchase.free_gems_used > 0 else None
@@ -653,13 +660,15 @@ def chapter_purchase_export_excel(request):
             purchase.free_gems_used or "-",
             purchase.paid_gems_used or "-",
             purchase.sale_price_mmk,
+            author_amount,
             author_percentage,
         ]
         if is_superuser:
+            row.append(admin_amount)
             row.append(admin_percentage)
-            row.append(f"{author_percentage}% for Author and {admin_percentage}% for Admin")
+            row.append(f"{author_amount:,} MMK for Author and {admin_amount:,} MMK for Admin")
         else:
-            row.append(f"{author_percentage}% for Author")
+            row.append(f"{author_amount:,} MMK for Author")
         row.append(purchase.created_at.strftime("%b %d, %Y"))
 
         rows.append(row)
