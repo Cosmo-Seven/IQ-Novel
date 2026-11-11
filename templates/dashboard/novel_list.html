@@ -56,10 +56,11 @@
                                 <th>{% translate 'table_no' request.session.language %}</th>
                                 <th>{% translate 'cover_image' request.session.language %}</th>
                                 <th>{% translate 'title' request.session.language %}</th>
+                                <th class="text-center">{% translate 'status' request.session.language %}</th>
                                 <th>{% translate 'author' request.session.language %}</th>
                                 <th>{% translate 'genre' request.session.language %}</th>
                                 <th>{% translate 'summary' request.session.language %}</th>
-                                <th class="text-center">{% translate 'status' request.session.language %}</th>
+                                
                                 <th class="text-center">{% translate 'chapter' request.session.language %}</th>
                                 <th>{% translate 'created_date' request.session.language %}</th>
                                 <th class="text-center">{% translate 'action' request.session.language %}</th>
@@ -89,6 +90,13 @@
                                     <span class="badge bg-warning text-dark ms-2">Pending approval</span>
                                     {% endif %}
                                 </td>
+                                 <td class="text-center">
+                                    {% if novel.is_completed %}
+                                    <span class="badge bg-success">Complete</span>
+                                    {% else %}
+                                    <span class="badge bg-warning text-dark">Ongoing</span>
+                                    {% endif %}
+                                </td>
                                 <td>{{ novel.author }}</td>
                                 <td>
                                     {% for genre in novel.genres.all %}
@@ -96,13 +104,7 @@
                                     {% endfor %}
                                 </td>
                                 <td>{{ novel.summary|striptags|truncatechars:"20" }}</td>
-                                <td class="text-center">
-                                    {% if novel.is_completed %}
-                                    <span class="badge bg-success">Complete</span>
-                                    {% else %}
-                                    <span class="badge bg-warning text-dark">Ongoing</span>
-                                    {% endif %}
-                                </td>
+                               
                                 <td class="text-center">{{ novel.chapter_count }}</td>
                                 <td>{{ novel.created_at|date:'d M Y' }}</td>
                                 <td class="action-table-data">
