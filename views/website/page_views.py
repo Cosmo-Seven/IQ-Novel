@@ -19,7 +19,7 @@ from django.core.paginator import Paginator
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
-from helpers.gem_pricing import gem_unit_price_mmk, gems_to_mmk
+from helpers.gem_pricing import gem_unit_price_mmk
 from models.account_deletion_models import AccountDeletionRequestModel
 from helpers.mail import send_verification_email, send_reset_email
 from core.models import (
@@ -684,7 +684,7 @@ def buy_chapter(request, id):
         author = chapter.novel.author
         revenue_share_percent = author.revenue_share_percent if author else 0
         unit_price = gem_unit_price_mmk()
-        sale_price_mmk = gems_to_mmk(effective_price)
+        sale_price_mmk = effective_price * unit_price
         author_share_mmk = author.calculate_share(sale_price_mmk) if author else 0
 
         with transaction.atomic():
@@ -776,7 +776,7 @@ def buy_ten_chapters(request, id):
                     ch_free = 0
                     ch_paid = effective_price
 
-                sale_price_mmk = gems_to_mmk(effective_price)
+                sale_price_mmk = effective_price * unit_price
                 author_share_mmk = author.calculate_share(sale_price_mmk) if author else 0
 
                 ChapterPurchaseModel.objects.create(

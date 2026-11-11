@@ -9,7 +9,7 @@
             <div class="add-item d-flex">
                 <div class="page-title">
                     <h4 class="fw-bold">Author Salary Report</h4>
-                    <h6>{{ month_name }} {{ year }} — chapter sale price (MMK) from author share</h6>
+                    <h6>{{ month_name }} {{ year }} — coupon and gem purchases are valued equally</h6>
                 </div>
             </div>
             <div class="page-btn d-flex gap-2">
@@ -44,6 +44,7 @@
                                 <th>Author</th>
                                 <th>Revenue %</th>
                                 <th>Gems sold</th>
+                                <th>Coupons used</th>
                                 <th>Sale value (MMK)</th>
                                 <th>Purchases</th>
                                 <th>Author share (MMK)</th>
@@ -57,6 +58,7 @@
                                 <td>{{ row.author.display_name }}</td>
                                 <td>{{ row.author.revenue_share_percent }}%</td>
                                 <td>{{ row.sales_gems|intcomma }}</td>
+                                <td>{{ row.sales_coupons|intcomma }}</td>
                                 <td>{{ row.sales_amount_mmk|intcomma }} MMK</td>
                                 <td>{{ row.purchase_count }}</td>
                                 <td class="fw-bold text-primary">{{ row.salary.total_amount_mmk|intcomma }} MMK</td>
@@ -81,7 +83,7 @@
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="8" class="text-center text-muted py-4">No authors configured.</td>
+                                <td colspan="9" class="text-center text-muted py-4">No authors configured.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -90,7 +92,7 @@
             </div>
         </div>
         <p class="text-muted small mt-2">
-            Author share = (sale price (MMK) × author revenue %)
+            Sale value includes coupon and gem purchases at the same MMK-per-unit rate. Author share = sale value × author revenue %.
         </p>
     </div>
     {% include 'dashboard/components/footer.html' %}

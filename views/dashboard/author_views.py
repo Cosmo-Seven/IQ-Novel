@@ -2,7 +2,7 @@ import calendar
 from datetime import date
 
 from django.contrib import messages
-from django.db.models import Sum
+from django.db.models import Count, Sum
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -181,15 +181,20 @@ def author_salary_list(request):
         sync_author_salary(author, year, month)
         salary = AuthorSalaryModel.objects.get(author=author, year=year, month=month)
         purchases = _purchases_for_author_month(author, year, month)
-        sales_gems = purchases.aggregate(total=Sum("gems_paid"))["total"] or 0
-        sales_amount_mmk = purchases.aggregate(total=Sum("sale_price_mmk"))["total"] or 0
+        purchase_totals = purchases.aggregate(
+            sales_gems=Sum("gems_paid"),
+            sales_coupons=Sum("free_gems_used"),
+            sales_amount_mmk=Sum("sale_price_mmk"),
+            purchase_count=Count("pk"),
+        )
         rows.append(
             {
                 "author": author,
                 "salary": salary,
-                "sales_gems": sales_gems,
-                "sales_amount_mmk": sales_amount_mmk,
-                "purchase_count": purchases.count(),
+                "sales_gems": purchase_totals["sales_gems"] or 0,
+                "sales_coupons": purchase_totals["sales_coupons"] or 0,
+                "sales_amount_mmk": purchase_totals["sales_amount_mmk"] or 0,
+                "purchase_count": purchase_totals["purchase_count"],
             }
         )
 
