@@ -136,6 +136,30 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 MEDIA_URL = "media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
+# Bunny.net (keep BUNNY_STORAGE_ENABLED=False for local media/)
+BUNNY_STORAGE_ENABLED = env.bool("BUNNY_STORAGE_ENABLED", default=False)
+BUNNY_STORAGE_ZONE = env("BUNNY_STORAGE_ZONE", default="")
+BUNNY_STORAGE_API_KEY = env("BUNNY_STORAGE_API_KEY", default="")
+BUNNY_STORAGE_HOSTNAME = env("BUNNY_STORAGE_HOSTNAME", default="storage.bunnycdn.com")
+BUNNY_CDN_URL = env("BUNNY_CDN_URL", default="").rstrip("/")
+BUNNY_STORAGE_TIMEOUT = env.int("BUNNY_STORAGE_TIMEOUT", default=60)
+
+if BUNNY_STORAGE_ENABLED:
+    if not BUNNY_STORAGE_ZONE or not BUNNY_STORAGE_API_KEY or not BUNNY_CDN_URL:
+        raise ValueError(
+            "BUNNY_STORAGE_ENABLED=True requires BUNNY_STORAGE_ZONE, "
+            "BUNNY_STORAGE_API_KEY, and BUNNY_CDN_URL."
+        )
+    MEDIA_URL = f"{BUNNY_CDN_URL}/"
+    STORAGES = {
+        "default": {
+            "BACKEND": "utils.storage.BunnyStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
+
 EMAIL_BACKEND = env("EMAIL_BACKEND")
 EMAIL_HOST = env("EMAIL_HOST")
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
