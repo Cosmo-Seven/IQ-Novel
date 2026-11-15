@@ -58,10 +58,14 @@
                                 <th>{% translate 'title' request.session.language %}</th>
                                 <th class="text-center">{% translate 'status' request.session.language %}</th>
                                 <th>{% translate 'author' request.session.language %}</th>
+                                
                                 <th>{% translate 'genre' request.session.language %}</th>
                                 <th>{% translate 'summary' request.session.language %}</th>
                                 
                                 <th class="text-center">{% translate 'chapter' request.session.language %}</th>
+                                {% if request.user.is_superuser%}
+                                <th>{% translate 'updated_at' request.session.language %}</th>
+                                {% endif %}
                                 <th>{% translate 'created_date' request.session.language %}</th>
                                 <th class="text-center">{% translate 'action' request.session.language %}</th>
                             </tr>
@@ -98,6 +102,7 @@
                                     {% endif %}
                                 </td>
                                 <td>{{ novel.author }}</td>
+                                
                                 <td>
                                     {% for genre in novel.genres.all %}
                                     {{genre.name}}
@@ -106,6 +111,9 @@
                                 <td>{{ novel.summary|striptags|truncatechars:"20" }}</td>
                                
                                 <td class="text-center">{{ novel.chapter_count }}</td>
+                                {% if request.user.is_superuser%}
+                                <td>{{ novel.updated_at|date:'d M Y'  }}</td>
+                                {% endif %}
                                 <td>{{ novel.created_at|date:'d M Y' }}</td>
                                 <td class="action-table-data">
                                     <div class="edit-delete-action">

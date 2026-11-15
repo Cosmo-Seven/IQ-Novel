@@ -22,8 +22,12 @@ def _author_for_user(user):
 # ========================
 @login_required("dashboard_login")
 def dashboard(request):
-    is_admin = request.user.is_staff or request.user.is_superuser
-    author = None if is_admin else _author_for_user(request.user)
+    # superuser သည် AuthorModel ရှိရှိမရှိရှိ platform totals အားလုံးကို အမြဲမြင်ရမည်
+    author = _author_for_user(request.user)
+    is_admin = request.user.is_superuser
+
+    if is_admin:
+        author = None
 
     purchases = ChapterPurchaseModel.objects.filter(
         is_deleted=False,
