@@ -44,6 +44,8 @@
                                 <th>User / Email</th>
                                 <th>Revenue %</th>
                                 <th>Novels</th>
+                                <th>Join Date</th>
+                                <th>Last Active</th>
                                 <th class="text-center">{% translate 'action' request.session.language %}</th>
                             </tr>
                         </thead>
@@ -55,6 +57,13 @@
                                 <td>{{ author.user.username }}<br><small class="text-muted">{{ author.user.email }}</small></td>
                                 <td><span class="badge bg-primary-transparent text-primary">{{ author.revenue_share_percent }}%</span></td>
                                 <td>{{ author.novels.count }}</td>
+                                <td>{{ author.created_at|date:'d M Y' }}</td>
+                                <td>
+                                    {{ author.user.last_active|naturaltime }}
+                                    {% if author.user.is_online %}
+                                    <span class="badge bg-success-transparent text-success ms-1">Online</span>
+                                    {% endif %}
+                                </td>
                                 <td class="action-table-data">
                                     <div class="edit-delete-action">
                                         <a class="p-2 mb-0 me-2" data-bs-toggle="modal"
@@ -70,7 +79,7 @@
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="6" class="text-center text-muted py-4">No authors yet.</td>
+                                <td colspan="8" class="text-center text-muted py-4">No authors yet.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
