@@ -37,7 +37,7 @@
             <span class="theme-text-muted small"><i class="bi bi-person me-1"></i>{% translate 'author' request.session.language %}:</span>
             {% if novel.author %}
             <a href="{% url 'author_profile' novel.author.id %}"
-              class="fw-semibold small theme-text-main text-decoration-none hover-maroon">
+              class="fw-semibold fs-5 theme-text-main text-decoration-none hover-maroon">
               {{ novel.author.display_name }}
             </a>
             {% if user.is_authenticated and can_follow_author %}

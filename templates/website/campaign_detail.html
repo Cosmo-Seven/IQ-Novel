@@ -11,17 +11,50 @@
         overflow: hidden;
         background: #fff;
         height: 100%;
+        display: flex;
+        align-items: stretch;
     }
 
+    /* ပုံနဲ့ စာကို ဘေးတိုက် (d-flex) ပြ၊ ပုံကို ဖြတ်မနေဘဲ အပြည့်မြင်ရအောင် contain */
     .campaign-entry-img {
-        width: 100%;
-        height: 220px;
-        object-fit: cover;
+        width: 38%;
+        max-width: 150px;
+        min-width: 110px;
+        height: auto;
+        object-fit: contain;
+        object-position: center;
         background: #f8f9fa;
+        padding: 8px;
+        box-sizing: border-box;
     }
 
     .campaign-entry-body {
         padding: 1rem 1.25rem;
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    /* ရွေးလိုက်တဲ့ novel ရဲ့ cover ကို auto ပြမယ့် preview (user upload ပိတ်) */
+    .campaign-cover-preview {
+        width: 100%;
+        max-width: 170px;
+        min-height: 90px;
+        border: 1px dashed #d9dee5;
+        border-radius: 12px;
+        padding: 8px;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .campaign-cover-preview img {
+        width: 100%;
+        max-height: 230px;
+        object-fit: contain;
+        border-radius: 8px;
+        display: block;
     }
 
     .like-btn {
@@ -89,20 +122,23 @@
     <div class="theme-card p-3 p-md-4 rounded-3 shadow-sm border mb-4">
         <h5 class="fw-bold mb-3">Submit Your Review</h5>
         {% if request.user.is_authenticated %}
-        <form action="{% url 'campaign_detail' campaign.id %}" method="POST" enctype="multipart/form-data">
+        <form action="{% url 'campaign_detail' campaign.id %}" method="POST">
             {% csrf_token %}
             <div class="mb-3">
                 <label class="form-label">Novel</label>
-                <select name="novel_id" class="form-select" required>
+                <select name="novel_id" id="campaignNovelSelect" class="form-select" required>
                     <option value="" disabled selected>Choose the novel you're reviewing</option>
                     {% for novel in novels %}
-                    <option value="{{ novel.id }}">{{ novel.title }}</option>
+                    <option value="{{ novel.id }}"
+                        data-cover="{% if novel.cover_image %}{{ novel.cover_image.url }}{% endif %}">{{ novel.title }}</option>
                     {% endfor %}
                 </select>
             </div>
             <div class="mb-3">
                 <label class="form-label">Photo</label>
-                <input type="file" name="image" accept="image/*" class="form-control" required>
+                <div class="campaign-cover-preview" id="campaignCoverPreview">
+                    <span class="text-muted small">Choose a novel — its cover will appear here.</span>
+                </div>
             </div>
             <div class="mb-3">
                 <label class="form-label">Your Review</label>
@@ -122,7 +158,9 @@
         {% for review in reviews %}
         <div class="col">
             <div class="card campaign-entry-card {% if review.is_winner %}border-warning{% endif %}">
-                <img src="{{ review.image.url }}" class="campaign-entry-img" alt="Review image" loading="lazy">
+                {% if review.novel.cover_image %}
+                <img src="{{ review.novel.cover_image.url }}" class="campaign-entry-img" alt="{{ review.novel.title }} cover" loading="lazy">
+                {% endif %}
                 <div class="campaign-entry-body">
                     {% if review.is_winner %}
                     <span class="badge bg-warning text-dark mb-2"><i class="bi bi-trophy-fill me-1"></i>Winner</span>
@@ -154,4 +192,22 @@
     </div>
 
 </div>
+
+<script>
+    (function () {
+        var select = document.getElementById('campaignNovelSelect');
+        var preview = document.getElementById('campaignCoverPreview');
+        if (!select || !preview) return;
+
+        select.addEventListener('change', function () {
+            var opt = select.options[select.selectedIndex];
+            var cover = opt ? opt.getAttribute('data-cover') : '';
+            if (cover) {
+                preview.innerHTML = '<img src="' + cover + '" alt="Novel cover">';
+            } else {
+                preview.innerHTML = '<span class="text-muted small">Choose a novel — its cover will appear here.</span>';
+            }
+        });
+    })();
+</script>
 {% endblock %}

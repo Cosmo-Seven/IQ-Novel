@@ -25,7 +25,8 @@
             <div class="mb-3">
                 <label class="form-label">Revenue share (%) <span class="text-danger">*</span></label>
                 <input type="number" name="revenue_share_percent" min="0" max="100" required class="form-control"
-                    value="{% if author %}{{ author.revenue_share_percent }}{% else %}0{% endif %}">
+                    placeholder="0 - 100"
+                    value="{% if author %}{{ author.revenue_share_percent }}{% endif %}">
                 <!--<small class="text-muted">Chapter ရောင်းရငွေ (MMK) မှ author ကိုပေးမည့် ရာခိုင်နှုန်း — gem အရေအတွက်မဟုတ်ပါ</small> -->
             </div>
         </div>

@@ -90,8 +90,13 @@ def author_create(request):
     website = request.POST.get("website") or None
     profile = request.FILES.get("profile")
 
+    raw_percent = (request.POST.get("revenue_share_percent") or "").strip()
+    if raw_percent == "":
+        messages.error(request, "Revenue share percent is required.")
+        return redirect("author_list")
+
     try:
-        percent = int(request.POST.get("revenue_share_percent") or 0)
+        percent = int(raw_percent)
     except ValueError:
         messages.error(request, "Invalid revenue share percent.")
         return redirect("author_list")

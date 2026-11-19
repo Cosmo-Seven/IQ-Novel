@@ -63,7 +63,14 @@
             <img             src="{% if novel.cover_image %}{{ novel.cover_image.url }}{% else %}{% static 'dashboard/images/no-image.png' %}{% endif %}"
               alt="{{ novel.title }}" class="rounded" style="width: 48px; height: 64px; object-fit: cover;">
             <div>
-              <div class="fw-semibold text-dark">{{ novel.title }}</div>
+              <div class="fw-semibold text-dark d-flex align-items-center gap-2">
+                {{ novel.title }}
+              {% if novel.is_completed %}
+              <span class="novel-status-badge text-light p-1 border rounded" style="background-color: rgb(234, 139, 187);">completed</span>
+              {% else %}
+              <span class="novel-status-badge p-1  bg-warning text-dark border rounded">Ongoing</span>
+              {% endif %}
+              </div>
               <small class="text-muted">{{ novel.chapters.count }} chapters</small>
             </div>
           </a>

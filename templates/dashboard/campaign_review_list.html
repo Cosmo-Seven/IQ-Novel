@@ -27,7 +27,9 @@
             {% for review in reviews %}
             <div class="col-md-6 col-lg-4">
                 <div class="card h-100 {% if review.is_winner %}border-warning{% endif %}">
-                    <img src="{{ review.image.url }}" class="card-img-top" style="height:220px;object-fit:cover;" alt="Review image">
+                    {% if review.novel.cover_image %}
+                    <img src="{{ review.novel.cover_image.url }}" class="card-img-top" style="height:220px;object-fit:contain;background:#f8f9fa;" alt="{{ review.novel.title }} cover">
+                    {% endif %}
                     <div class="card-body">
                         {% if review.is_winner %}
                         <span class="badge bg-warning text-dark mb-2"><i class="ti ti-trophy me-1"></i>Winner</span>

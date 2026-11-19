@@ -224,6 +224,7 @@
                 </a>
             </li>
             <!-- Notifications -->
+             {% if request.user.is_superuser %}
             <li class="nav-item dropdown nav-item-box">
                 <a href="{{ gem_order_list_url }}" class="nav-link">
                     <i class="ti ti-bell"></i>
@@ -300,6 +301,7 @@
                     </div>
                 </div> -->
             </li>
+            {% endif %}
             <!-- /Notifications -->
 
             <li class="nav-item nav-item-box">

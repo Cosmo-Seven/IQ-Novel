@@ -144,7 +144,7 @@
       </div>
     </div>
 
-    <div class="reader-settings-group">
+    <div class="reader-settings-group reader-width-group">
       <span class="reader-settings-label">စာကျယ်</span>
       <div class="reader-seg" role="group" aria-label="Column width">
         <button type="button" class="reader-seg-btn" data-width="narrow">ကျဉ်း</button>
@@ -505,11 +505,11 @@
   }
 
   .reader-content.fs-medium {
-    font-size: 1.125rem;
+    font-size: 2rem;
   }
 
   .reader-content.fs-large {
-    font-size: 1.35rem;
+    font-size: 3rem;
   }
 
   .reader-content img {
@@ -841,6 +841,11 @@
     .novel-reader {
       --reader-pad-x: 1rem;
     }
+
+    /* Mobile: စာကျယ် (ကျဉ်း/ပုံမှန်/ကျယ်) ဆက်တင်ကို ဖျောက် */
+    .reader-width-group {
+      display: none !important;
+    }
   }
 
   /* ---------- Desktop: စာအုပ်လေးလို card ထဲမှာ ဖတ် ---------- */
@@ -1162,6 +1167,8 @@
     var MODE_KEY = 'chapterReadingMode';
     var WIDTH_KEY = 'chapterReadingWidth';
     var THEME_KEY = 'siteTheme';
+    var POS_TTL = 24 * 60 * 60 * 1000; // ဖတ်ထားတဲ့နေရာ သက်တမ်း — ၁ ရက်
+    var USER_SCOPE = '{% if user.is_authenticated %}u{{ user.id }}{% else %}guest{% endif %}';
     var SIZES = ['small', 'medium', 'large'];
     var WIDTHS = ['narrow', 'normal', 'wide'];
     var COLUMN_GAP = 48;
@@ -1199,9 +1206,10 @@
     var goLastPage = false;   // prev chapter ကို ရောက်ရင် နောက်ဆုံးစာမျက်နှာက စမယ်
     var justDragged = false;  // ဆွဲပြီးတာနဲ့ click မဖြစ်စေဖို့
     var chromeLockUntil = 0;
+    var positionReady = false; // restore မပြီးခင် ဖတ်နေရာ မသိမ်းရ (အရင်တန်ဖိုး မဖျက်မိစေဖို့)
 
     function posKey() {
-      return 'chapterPos:' + chapterId;
+      return 'chapterPos:' + USER_SCOPE + ':' + chapterId;
     }
 
     /* ---------------- helpers ---------------- */
@@ -1216,6 +1224,19 @@
 
     function lsSet(key, value) {
       try { localStorage.setItem(key, value); } catch (e) { }
+    }
+
+    // ဒီ chapter ရဲ့ ဖတ်ထားတဲ့နေရာ — ၁ ရက် ကျော်သွားရင် သက်တမ်းကုန်
+    function readSavedPos() {
+      var raw = lsGet(posKey(), '');
+      if (!raw) return null;
+      var data = null;
+      try { data = JSON.parse(raw); } catch (e) { return null; }
+      if (!data || typeof data.t !== 'number' || (Date.now() - data.t) > POS_TTL) {
+        try { localStorage.removeItem(posKey()); } catch (e) { }
+        return null;
+      }
+      return data;
     }
 
     function isDesktop() { return DESKTOP_MQ.matches; }
@@ -1266,7 +1287,7 @@
       if (prevBtn) prevBtn.disabled = currentIndex <= 0 && !getNavLink('prev');
       if (nextBtn) nextBtn.disabled = currentIndex >= total - 1 && !getNavLink('next');
       setProgress(total <= 1 ? 1 : currentIndex / (total - 1));
-      lsSet(posKey(), JSON.stringify({ mode: 'horizontal', page: currentIndex }));
+      if (positionReady) lsSet(posKey(), JSON.stringify({ mode: 'horizontal', page: currentIndex, t: Date.now() }));
     }
 
     function goPage(dir) {
@@ -1341,7 +1362,7 @@
       var scrollTop = viewport.scrollTop || 0;
       var height = (viewport.scrollHeight - viewport.clientHeight) || 1;
       setProgress(scrollTop / height);
-      lsSet(posKey(), JSON.stringify({ mode: 'vertical', y: Math.round(scrollTop) }));
+      if (positionReady) lsSet(posKey(), JSON.stringify({ mode: 'vertical', y: Math.round(scrollTop), t: Date.now() }));
     }
 
     function setChromeHidden(hidden) {
@@ -1460,24 +1481,37 @@
       if (persist) lsSet(MODE_KEY, mode);
     }
 
+    // ဖတ်ထားတဲ့နေရာ ရှိရင် အဲနေရာက ပြန်စ။ မရှိရင် defaultToLast / ထိပ်ကစ
+    function restoreSaved(defaultToLast) {
+      var data = readSavedPos();
+
+      if (isPaged()) {
+        if (data && data.mode === 'horizontal' && typeof data.page === 'number') {
+          currentIndex = Math.max(0, data.page);
+          goLastPage = false;
+          relayout();
+          return true;
+        }
+        goLastPage = !!defaultToLast;
+        relayout();
+        return false;
+      }
+
+      if (data && data.mode === 'vertical' && typeof data.y === 'number') {
+        viewport.scrollTop = Math.max(0, data.y);
+        lastScrollY = viewport.scrollTop;
+        updateScrollProgress();
+        return true;
+      }
+      updateScrollProgress();
+      return false;
+    }
+
     function restorePosition() {
       if (restoreDone) return;
       restoreDone = true;
-      var raw = lsGet(posKey(), '');
-      if (!raw) return;
-      try {
-        var data = JSON.parse(raw);
-        if (isPaged() && data && data.mode === 'horizontal' && typeof data.page === 'number') {
-          currentIndex = Math.max(0, data.page);
-          layoutColumns();
-          applyOffset(false);
-          updatePaging();
-        } else if (!isPaged() && data && data.mode === 'vertical' && typeof data.y === 'number') {
-          viewport.scrollTop = Math.max(0, data.y);
-          lastScrollY = viewport.scrollTop;
-          updateScrollProgress();
-        }
-      } catch (e) { }
+      positionReady = true;
+      restoreSaved(false);
     }
 
     /* =====================================================
@@ -1588,21 +1622,24 @@
 
       if (doc.title) document.title = doc.title.trim();
 
-      // position အသစ်ကနေ ပြန်စ
+      // position အသစ်ကနေ ပြန်စ — ဖတ်ထားတဲ့နေရာ ရှိရင် အဲနေရာက
       restoreDone = true;
       currentIndex = 0;
-      goLastPage = dir === 'prev';
+      goLastPage = false;
       setChromeHidden(false);
+      content.style.columnWidth = '';
+      content.style.transform = '';
       viewport.scrollTop = 0;
       lastScrollY = 0;
+      positionReady = false; // restore မပြီးခင် မသိမ်းရ
 
-      if (isPaged()) {
-        content.style.transform = '';
-        relayout();
-      } else {
-        updateScrollProgress();
-      }
-      focusReader();
+      requestAnimationFrame(function () {
+        setTimeout(function () {
+          restoreSaved(dir === 'prev');
+          positionReady = true;
+          focusReader();
+        }, 0);
+      });
     }
 
     function loadChapter(url, dir, push) {

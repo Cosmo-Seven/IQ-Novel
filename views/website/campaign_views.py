@@ -44,10 +44,9 @@ def campaign_detail(request, id):
 
         novel_id = request.POST.get("novel_id")
         content = request.POST.get("content", "").strip()
-        image = request.FILES.get("image")
 
-        if not novel_id or not content or not image:
-            messages.error(request, "Please choose a novel, write your review, and attach an image.")
+        if not novel_id or not content:
+            messages.error(request, "Please choose a novel and write your review.")
             return redirect("campaign_detail", id=campaign.id)
 
         novel = get_object_or_404(NovelModel, id=novel_id)
@@ -56,7 +55,6 @@ def campaign_detail(request, id):
             campaign=campaign,
             novel=novel,
             user=request.user,
-            image=image,
             content=content,
             created_by=request.user,
             updated_by=request.user,

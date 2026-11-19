@@ -166,6 +166,44 @@
         object-fit: cover;
     }
 
+    /* Reading list: internal vertical scroll when many novels
+       (height ကို JS က novel တစ်ခုစာ သတ်မှတ်ပေးမယ်၊ JS မရှိရင် 65vh fallback) */
+    .library-scroll {
+        max-height: 65vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .library-scroll::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .library-scroll::-webkit-scrollbar-thumb {
+        background: var(--border-color, #e2e8f0);
+        border-radius: 999px;
+    }
+
+    /* Grid ကို negative margin မသုံးတဲ့ CSS grid နဲ့ လုပ်ထားလို့ ဘေးတိုက် scrollbar မဖြစ် */
+    .library-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+    }
+
+    @media (min-width: 576px) {
+        .library-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    @media (min-width: 768px) {
+        .library-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    }
+
     /* Tables UI updates */
     .table-custom th {
         background-color: var(--border-color, #f8fafc) !important;
@@ -538,19 +576,21 @@
                         <div class="tab-pane fade" id="sub-reading-list" role="tabpanel">
                             {% if reading_list %}
                             <p class="text-muted small mb-3">You've started reading {{ reading_list|length }} novel{{ reading_list|length|pluralize }}.</p>
-                            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3">
-                                {% for novel in reading_list %}
-                                <div class="col">
-                                    <div class="card novel-mini-card h-100 position-relative border-0">
-                                        <img src="{% if novel.cover_image %}{{ novel.cover_image.url }}{% else %}{% static 'dashboard/images/no-image.png' %}{% endif %}"
-                                            class="novel-mini-img" alt="{{ novel.title }}">
-                                        <div class="p-2 text-center">
-                                            <p class="small fw-bold m-0 text-dark text-truncate">{{ novel.title }}</p>
+                            <div class="library-scroll">
+                                <div class="library-grid">
+                                    {% for novel in reading_list %}
+                                    <div class="library-grid-item">
+                                        <div class="card novel-mini-card h-100 position-relative border-0">
+                                            <img src="{% if novel.cover_image %}{{ novel.cover_image.url }}{% else %}{% static 'dashboard/images/no-image.png' %}{% endif %}"
+                                                class="novel-mini-img" alt="{{ novel.title }}">
+                                            <div class="p-2 text-center">
+                                                <p class="small fw-bold m-0 text-dark text-truncate">{{ novel.title }}</p>
+                                            </div>
+                                            <a href="{% url 'novel_detail' novel.id %}" class="stretched-link"></a>
                                         </div>
-                                        <a href="{% url 'novel_detail' novel.id %}" class="stretched-link"></a>
                                     </div>
+                                    {% endfor %}
                                 </div>
-                                {% endfor %}
                             </div>
                             {% else %}
                             <div class="text-center py-5 text-muted">
@@ -641,10 +681,23 @@
                                                 class="text-muted font-monospace small">({{ purchase.chapter.chapter_title }})</span>
                                         </a>
                                     </td>
-                                    <td class="fw-medium text-amber-700"><i
-                                            class="bi bi-gem-fill text-warning me-1"></i>{{ purchase.chapter.gem_price|intcomma }} Gems</td>
-                                    <td><span
-                                            class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1">purchase</span>
+                                    <td class="fw-medium text-amber-700">
+                                        {% if purchase.free_gems_used %}
+                                        <i class="bi bi-ticket-perforated-fill text-warning me-1"></i>{{ purchase.free_gems_used|intcomma }} Coupons
+                                        {% else %}
+                                        <i class="bi bi-gem-fill text-warning me-1"></i>{{ purchase.chapter.gem_price|intcomma }} Gems
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if purchase.free_gems_used %}
+                                        <span
+                                            class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2 py-1"><i
+                                                class="bi bi-ticket-perforated-fill me-1"></i>Coupons</span>
+                                        {% else %}
+                                        <span
+                                            class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1"><i
+                                                class="bi bi-gem-fill me-1"></i>Gems</span>
+                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -1050,4 +1103,27 @@
         </div>
     </div>
 </div>
+
+<script>
+    (function () {
+        // Reading list ကို novel တစ်ခုစာ height ပဲထားပြီး ကျန်တာကို box အတွင်းမှာ အပေါ်အောက် scroll လုပ်မယ်
+        function fitReadingList() {
+            var box = document.querySelector('.library-scroll');
+            if (!box) return;
+            var firstCol = box.querySelector('.library-grid-item');
+            if (!firstCol || !firstCol.offsetHeight) return; // hidden ဖြစ်နေရင် ကျော်
+            box.style.maxHeight = firstCol.offsetHeight + 'px';
+        }
+
+        document.addEventListener('DOMContentLoaded', fitReadingList);
+        window.addEventListener('load', fitReadingList);
+        window.addEventListener('resize', fitReadingList);
+
+        document.addEventListener('shown.bs.tab', function (e) {
+            if (e.target && e.target.getAttribute('data-bs-target') === '#sub-reading-list') {
+                fitReadingList();
+            }
+        });
+    })();
+</script>
 {% endblock %}
