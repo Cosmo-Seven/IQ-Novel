@@ -62,6 +62,11 @@ def gem_move(request, pk, direction):
 @role_permission_required("view_gemordermodel")
 def gem_order_list(request):
     orders = GemOrderModel.objects.select_related("user", "gem").order_by("-created_at")
+
+    selected_status = request.GET.get("status", "")
+    if selected_status in dict(GemOrderModel.STATUS_CHOICES):
+        orders = orders.filter(status=selected_status)
+
     filters = filter_querysets(
         request,
         orders,
@@ -69,7 +74,11 @@ def gem_order_list(request):
         date_field="created_at",
         order="-created_at",
     )
-    context = {"orders": filters["page_obj"], **filters}
+    context = {
+        "orders": filters["page_obj"],
+        "selected_status": selected_status,
+        **filters,
+    }
     return render(request, "dashboard/gem_order_list.html", context)
 
 

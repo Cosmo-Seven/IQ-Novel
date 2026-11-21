@@ -19,7 +19,26 @@
         <div class="card">
             <div class="card-header">
                 <div class="row">
+                    {% include 'dashboard/components/search.html' %}
+                    {% include 'dashboard/components/date_filter.html' %}
                     {% include 'dashboard/components/entries.html' %}
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <form method="GET" class="gap-2 d-flex align-items-end mb-3">
+                            <input type="hidden" name="search" value="{{ search }}">
+                            <input type="hidden" name="entries" value="{{ entries }}">
+                            <input type="hidden" name="date" value="{{ date }}">
+                            <input type="hidden" name="date_range" value="{{ date_range }}">
+                            <div>
+                                <label class="form-label">{% translate 'status' request.session.language %}</label>
+                                <select name="status" onchange="this.form.submit()" class="select">
+                                    <option value="">All Status</option>
+                                    <option value="pending" {% if selected_status == 'pending' %}selected{% endif %}>Pending</option>
+                                    <option value="approved" {% if selected_status == 'approved' %}selected{% endif %}>Approved</option>
+                                    <option value="rejected" {% if selected_status == 'rejected' %}selected{% endif %}>Rejected</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
             <div class="p-0 card-body">
@@ -42,7 +61,10 @@
                             <tr>
                                 <td>{{ forloop.counter0|add:page_obj.start_index }}</td>
                                 <td>{{ order.created_at|date:'d M Y H:i' }}</td>
-                                <td>{{ order.user.email }}</td>
+                                <td>
+                                    <div class="fw-semibold text-dark">{{ order.user.username }}</div>
+                                    <small class="text-muted">{{ order.user.email }}</small>
+                                </td>
                                 <td>{{ order.transaction_id }}</td>
                                 <td><i class="bi bi-gem-fill text-danger me-1"></i>{{ order.gem_amount|intcomma }} Gems
                                 </td>

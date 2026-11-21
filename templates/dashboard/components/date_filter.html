@@ -4,6 +4,7 @@
         <input type="hidden" name="search" value="{{search}}">
         <input type="hidden" name="page" value="{{page}}">
         <input type="hidden" name="entries" value="{{entries}}">
+        <input type="hidden" name="status" value="{{selected_status}}">
         <div>
             <label for="flatpickr-date" class="form-label">{% translate 'date_picker' request.session.language %}</label>
             <input type="text" name="date" value="{{ date }}" class="form-control flatpickr-input"
@@ -21,6 +22,7 @@
         <input type="hidden" name="page" value="{{page}}">
         <input type="hidden" name="entries" value="{{entries}}">
         <input type="hidden" name="date" value="{{date}}">
+        <input type="hidden" name="status" value="{{selected_status}}">
         <div>
             <label for="flatpickr-range" class="form-label">{% translate 'range_picker' request.session.language %}</label>
             <input type="text" name="date_range" value="{{ date_range }}"

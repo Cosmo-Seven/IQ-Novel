@@ -12,6 +12,7 @@ from core.models import AuthorModel, AuthorSalaryModel, ChapterPurchaseModel, Us
 from decorators.login_decorator import login_required
 from decorators.role_decorator import role_permission_required
 from helpers.filters import filter_querysets
+from helpers.gem_pricing import sale_value_mmk
 
 
 def _month_bounds(year, month):
@@ -31,12 +32,16 @@ def _purchases_for_author_month(author, year, month):
 
 
 def calculate_monthly_amount_mmk(author, year, month):
-    return (
-        _purchases_for_author_month(author, year, month).aggregate(
-            total=Sum("author_share_mmk")
-        )["total"]
-        or 0
+    """Author payout = sale value x author revenue %.
+
+    Sale value = gems sold x 10 MMK + coupons used x 10 MMK.
+    """
+    totals = _purchases_for_author_month(author, year, month).aggregate(
+        gems=Sum("paid_gems_used"),
+        coupons=Sum("free_gems_used"),
     )
+    sale_value = sale_value_mmk(totals["gems"], totals["coupons"])
+    return author.calculate_share(sale_value)
 
 
 def sync_author_salary(author, year, month):
@@ -187,18 +192,19 @@ def author_salary_list(request):
         salary = AuthorSalaryModel.objects.get(author=author, year=year, month=month)
         purchases = _purchases_for_author_month(author, year, month)
         purchase_totals = purchases.aggregate(
-            sales_gems=Sum("gems_paid"),
+            sales_gems=Sum("paid_gems_used"),
             sales_coupons=Sum("free_gems_used"),
-            sales_amount_mmk=Sum("sale_price_mmk"),
             purchase_count=Count("pk"),
         )
+        sales_gems = purchase_totals["sales_gems"] or 0
+        sales_coupons = purchase_totals["sales_coupons"] or 0
         rows.append(
             {
                 "author": author,
                 "salary": salary,
-                "sales_gems": purchase_totals["sales_gems"] or 0,
-                "sales_coupons": purchase_totals["sales_coupons"] or 0,
-                "sales_amount_mmk": purchase_totals["sales_amount_mmk"] or 0,
+                "sales_gems": sales_gems,
+                "sales_coupons": sales_coupons,
+                "sales_amount_mmk": sale_value_mmk(sales_gems, sales_coupons),
                 "purchase_count": purchase_totals["purchase_count"],
             }
         )

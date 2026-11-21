@@ -122,6 +122,72 @@
         </style>
 
         <div class="row g-3">
+
+             <div class="col-xl-3 col-md-6">
+                <div class="card stat-card">
+                    <div class="card-body">
+                        <div class="stat-icon stat-icon-chapters"><i class="ti ti-cash"></i></div>
+                        <div>
+                            <p class="stat-label">Chapter Sales (MMK)</p>
+                            <h4 class="stat-value">{{ sales_amount_mmk|intcomma }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if is_admin %}
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card">
+                    <div class="card-body">
+                        <div class="stat-icon stat-icon-authors"><i class="ti ti-pencil"></i></div>
+                        <div>
+                            <p class="stat-label">Authors</p>
+                            <h4 class="stat-value">{{ author_count|intcomma }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if has_author and not is_admin %}
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card">
+                    <div class="card-body">
+                        <div class="stat-icon stat-icon-authors"><i class="ti ti-report-money"></i></div>
+                        <div>
+                            <p class="stat-label">My Author Share (MMK)</p>
+                            <h4 class="stat-value">{{ my_author_share_mmk|intcomma }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card">
+                    <div class="card-body">
+                        <div class="stat-icon stat-icon-gems"><i class="ti ti-diamond"></i></div>
+                        <div>
+                            <p class="stat-label">Gems Used for Chapter Sales</p>
+                            <h4 class="stat-value">{{ gem_sales|intcomma }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+             <div class="col-xl-3 col-md-6">
+                <div class="card stat-card">
+                    <div class="card-body">
+                        <div class="stat-icon stat-icon-coupons"><i class="ti ti-ticket"></i></div>
+                        <div>
+                            <p class="stat-label">Coupons Used for Chapter Sales</p>
+                            <h4 class="stat-value">{{ coupon_sales|intcomma }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
             <div class="col-xl-3 col-md-6">
                 <div class="card stat-card">
                     <div class="card-body">
@@ -146,29 +212,9 @@
                 </div>
             </div>
 
-            <div class="col-xl-3 col-md-6">
-                <div class="card stat-card">
-                    <div class="card-body">
-                        <div class="stat-icon stat-icon-gems"><i class="ti ti-diamond"></i></div>
-                        <div>
-                            <p class="stat-label">Gems Used for Chapter Sales</p>
-                            <h4 class="stat-value">{{ gem_sales|intcomma }}</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
 
-            <div class="col-xl-3 col-md-6">
-                <div class="card stat-card">
-                    <div class="card-body">
-                        <div class="stat-icon stat-icon-coupons"><i class="ti ti-ticket"></i></div>
-                        <div>
-                            <p class="stat-label">Coupons Used for Chapter Sales</p>
-                            <h4 class="stat-value">{{ coupon_sales|intcomma }}</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
+           
 
             <div class="col-xl-3 col-md-6">
                 <div class="card stat-card">
@@ -182,43 +228,8 @@
                 </div>
             </div>
 
-            {% if is_admin %}
-            <div class="col-xl-3 col-md-6">
-                <div class="card stat-card">
-                    <div class="card-body">
-                        <div class="stat-icon stat-icon-authors"><i class="ti ti-pencil"></i></div>
-                        <div>
-                            <p class="stat-label">Authors</p>
-                            <h4 class="stat-value">{{ author_count|intcomma }}</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% else %}
-            <div class="col-xl-3 col-md-6">
-                <div class="card stat-card">
-                    <div class="card-body">
-                        <div class="stat-icon stat-icon-authors"><i class="ti ti-report-money"></i></div>
-                        <div>
-                            <p class="stat-label">My Author Share (MMK)</p>
-                            <h4 class="stat-value">{{ author_share_mmk|intcomma }}</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-
-            <div class="col-xl-3 col-md-6">
-                <div class="card stat-card">
-                    <div class="card-body">
-                        <div class="stat-icon stat-icon-chapters"><i class="ti ti-cash"></i></div>
-                        <div>
-                            <p class="stat-label">Chapter Sales (MMK)</p>
-                            <h4 class="stat-value">{{ sales_amount_mmk|intcomma }}</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
+           
+           
         </div>
     </div>
     {% include 'dashboard/components/footer.html' %}

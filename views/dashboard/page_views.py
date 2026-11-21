@@ -13,6 +13,7 @@ from core.models import (
 )
 from django.contrib.auth.hashers import check_password
 from decorators.role_decorator import role_permission_required
+from helpers.gem_pricing import sale_value_mmk
 
 def _author_for_user(user):
     return AuthorModel.objects.filter(user=user).first()
@@ -24,10 +25,8 @@ def _author_for_user(user):
 def dashboard(request):
     # superuser သည် AuthorModel ရှိရှိမရှိရှိ platform totals အားလုံးကို အမြဲမြင်ရမည်
     author = _author_for_user(request.user)
+    has_author = author is not None
     is_admin = request.user.is_superuser
-
-    if is_admin:
-        author = None
 
     purchases = ChapterPurchaseModel.objects.filter(
         is_deleted=False,
@@ -35,7 +34,20 @@ def dashboard(request):
         chapter__novel__is_deleted=False,
     )
 
+    # Logged-in user ရဲ့ ကိုယ်ပိုင် author share (author profile ရှိရင်)
+    # sale value = gems sold x 10 + coupons used x 10, author share = sale value x author %
+    my_author_share_mmk = 0
+    if author:
+        my_totals = purchases.filter(chapter__novel__author=author).aggregate(
+            gems=Sum("paid_gems_used"),
+            coupons=Sum("free_gems_used"),
+        )
+        my_author_share_mmk = author.calculate_share(
+            sale_value_mmk(my_totals["gems"], my_totals["coupons"])
+        )
+
     if is_admin:
+        author = None
         user_count = UserModel.objects.filter(is_deleted=False).count()
         author_count = AuthorModel.objects.filter(is_deleted=False).count()
         novel_count = NovelModel.objects.filter(is_deleted=False).count()
@@ -64,6 +76,7 @@ def dashboard(request):
         "dashboard/index.html",
         {
             "is_admin": is_admin,
+            "has_author": has_author,
             "user_count": (
                 user_count if is_admin else purchase_totals["buyer_count"]
             ),
@@ -72,6 +85,7 @@ def dashboard(request):
             "coupon_sales": purchase_totals["coupon_sales"] or 0,
             "sales_amount_mmk": purchase_totals["sales_amount_mmk"] or 0,
             "author_share_mmk": purchase_totals["author_share_mmk"] or 0,
+            "my_author_share_mmk": my_author_share_mmk,
             "author_count": author_count,
             "novel_count": novel_count,
         },
